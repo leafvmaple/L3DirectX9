@@ -15,8 +15,8 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 
 	WindowParam.x = 100;
 	WindowParam.y = 100;
-	WindowParam.Width = 300;
-	WindowParam.Height = 300;
+	WindowParam.Width = 800;
+	WindowParam.Height = 600;
 	WindowParam.bWindow = TRUE;
 	WindowParam.lpszClassName = TEXT("LDirectX");
 	WindowParam.lpszWindowName = TEXT("L3D DirectX9 Engine");

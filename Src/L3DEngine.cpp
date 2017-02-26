@@ -4,7 +4,7 @@
 #include "LAssert.h"
 #include "L3DEngine.h"
 
-#pragma comment(lib, "d3d9.lib") //引入依赖库  
+#pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
 
@@ -63,13 +63,13 @@ HRESULT L3DEngine::Setup()
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	Vertex* Vertices = NULL;
+	Vertex* pVertices = NULL;
+	WORD* pwIndices = NULL;
 	D3DXVECTOR3 vPosition(0.0f, 0.0f, -5.0f);
 	D3DXVECTOR3 vTarget(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 vUp(0.0f, 1.0f, 0.0f);
 	D3DXMATRIX matCamera;
 	D3DXMATRIX matProj;
-	WORD* pwIndices = 0;
 
 	do 
 	{
@@ -83,17 +83,16 @@ HRESULT L3DEngine::Setup()
 			D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, 0);
 		HRESULT_ERROR_BREAK(hr);
 
-		// vertices of a unit cube
-		m_pVertexBuffer->Lock(0, 0, (void**)&Vertices, 0);
+		m_pVertexBuffer->Lock(0, 0, (void**)&pVertices, 0);
 
-		Vertices[0] = Vertex(-1.0f, -1.0f, -1.0f);
-		Vertices[1] = Vertex(-1.0f, 1.0f, -1.0f);
-		Vertices[2] = Vertex( 1.0f, 1.0f, -1.0f);
-		Vertices[3] = Vertex( 1.0f, -1.0f, -1.0f);
-		Vertices[4] = Vertex(-1.0f, -1.0f, 1.0f);
-		Vertices[5] = Vertex(-1.0f, 1.0f, 1.0f);
-		Vertices[6] = Vertex( 1.0f, 1.0f, 1.0f);
-		Vertices[7] = Vertex( 1.0f, -1.0f, 1.0f);
+		pVertices[0] = Vertex(-1.0f, -1.0f, -1.0f);
+		pVertices[1] = Vertex(-1.0f,  1.0f, -1.0f);
+		pVertices[2] = Vertex( 1.0f,  1.0f, -1.0f);
+		pVertices[3] = Vertex( 1.0f, -1.0f, -1.0f);
+		pVertices[4] = Vertex(-1.0f, -1.0f,  1.0f);
+		pVertices[5] = Vertex(-1.0f,  1.0f,  1.0f);
+		pVertices[6] = Vertex( 1.0f,  1.0f,  1.0f);
+		pVertices[7] = Vertex( 1.0f, -1.0f,  1.0f);
 
 		m_pVertexBuffer->Unlock();
 
@@ -120,10 +119,11 @@ HRESULT L3DEngine::Setup()
 
 		m_pIndexBuffer->Unlock();
 
-		// 照相机位置（视图矩阵）
+		// 视图矩阵
 		D3DXMatrixLookAtLH(&matCamera, &vPosition, &vTarget, &vUp);
 		m_p3DDevice->SetTransform(D3DTS_VIEW, &matCamera);
 
+		// 投影矩阵
 		D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
 		m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 
@@ -353,7 +353,7 @@ HRESULT L3DEngine::Display(float fDeltaTime)
 		// 旋转立方体
 			
 		//x轴旋转45弧度
-		D3DXMatrixRotationX(&Rx, 3.14f / 4.0f);
+		D3DXMatrixRotationX(&Rx, D3DX_PI / 4.0f);
 		// 每一帧中增加y轴的弧度
 		
 		D3DXMatrixRotationY(&Ry, y);
@@ -365,7 +365,7 @@ HRESULT L3DEngine::Display(float fDeltaTime)
 		D3DXMATRIX p = Rx * Ry;
 		m_p3DDevice->SetTransform(D3DTS_WORLD, &p);
 
-		hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00000000, 1.0f, 0);
+		hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
 		HRESULT_ERROR_BREAK(hr);
 
 		m_p3DDevice->BeginScene();// 开始绘制场景
