@@ -1,12 +1,14 @@
 #include <Windows.h>
 #include <strsafe.h>
-#include <d3dx9.h>
 #include "LAssert.h"
 #include "L3DEngine.h"
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
+
+DWORD Vertex::VERTEX_FVF = D3DFVF_XYZ;
+DWORD ColorVertex::COLOR_VERTEX_FVF = Vertex::VERTEX_FVF | D3DFVF_DIFFUSE;
 
 L3DEngine::L3DEngine()
 : m_p3D9(NULL)
@@ -17,6 +19,9 @@ L3DEngine::L3DEngine()
 {
 	memset(&m_WindowParam, 0, sizeof(m_WindowParam));
 	m_AdapterModes.clear();
+
+	m_fAngleX = D3DX_PI / 4.0f;
+	m_fAngleY = 0;
 }
 
 
@@ -63,7 +68,7 @@ HRESULT L3DEngine::Setup()
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	Vertex* pVertices = NULL;
+	ColorVertex* pVertices = NULL;
 	WORD* pwIndices = NULL;
 	D3DXVECTOR3 vPosition(0.0f, 0.0f, -5.0f);
 	D3DXVECTOR3 vTarget(0.0f, 0.0f, 0.0f);
@@ -74,8 +79,8 @@ HRESULT L3DEngine::Setup()
 	do 
 	{
 		hr = m_p3DDevice->CreateVertexBuffer(
-			8 * sizeof(Vertex), D3DUSAGE_WRITEONLY,
-			D3DFVF_XYZ , D3DPOOL_MANAGED, &m_pVertexBuffer, 0);
+			8 * sizeof(ColorVertex), D3DUSAGE_WRITEONLY,
+			ColorVertex::COLOR_VERTEX_FVF , D3DPOOL_MANAGED, &m_pVertexBuffer, 0);
 		HRESULT_ERROR_BREAK(hr);
 
 		m_p3DDevice->CreateIndexBuffer(
@@ -85,14 +90,14 @@ HRESULT L3DEngine::Setup()
 
 		m_pVertexBuffer->Lock(0, 0, (void**)&pVertices, 0);
 
-		pVertices[0] = Vertex(-1.0f, -1.0f, -1.0f);
-		pVertices[1] = Vertex(-1.0f,  1.0f, -1.0f);
-		pVertices[2] = Vertex( 1.0f,  1.0f, -1.0f);
-		pVertices[3] = Vertex( 1.0f, -1.0f, -1.0f);
-		pVertices[4] = Vertex(-1.0f, -1.0f,  1.0f);
-		pVertices[5] = Vertex(-1.0f,  1.0f,  1.0f);
-		pVertices[6] = Vertex( 1.0f,  1.0f,  1.0f);
-		pVertices[7] = Vertex( 1.0f, -1.0f,  1.0f);
+		pVertices[0] = ColorVertex(-1.0f, -1.0f, -1.0f, D3DCOLOR_XRGB(255, 0, 0));
+		pVertices[1] = ColorVertex(-1.0f,  1.0f, -1.0f, D3DCOLOR_XRGB(0, 255, 0));
+		pVertices[2] = ColorVertex( 1.0f,  1.0f, -1.0f, D3DCOLOR_XRGB(0, 0, 255));
+		pVertices[3] = ColorVertex( 1.0f, -1.0f, -1.0f, D3DCOLOR_XRGB(255, 0, 0));
+		pVertices[4] = ColorVertex(-1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB(0, 255, 0));
+		pVertices[5] = ColorVertex(-1.0f,  1.0f,  1.0f, D3DCOLOR_XRGB(0, 0, 255));
+		pVertices[6] = ColorVertex( 1.0f,  1.0f,  1.0f, D3DCOLOR_XRGB(255, 0, 0));
+		pVertices[7] = ColorVertex( 1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB(0, 255, 0));
 
 		m_pVertexBuffer->Unlock();
 
@@ -127,8 +132,9 @@ HRESULT L3DEngine::Setup()
 		D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
 		m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 
-		// 渲染状态（填充模式：框架填充）
-		m_p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		// 渲染状态
+		//m_p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		m_p3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 		hResult = S_OK;
 	} while (0);
@@ -342,39 +348,36 @@ HRESULT L3DEngine::Display(float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	D3DXMATRIX Rx;
-	D3DXMATRIX Ry;
-	static float y = 0.0f;
+	D3DXMATRIX matX;
+	D3DXMATRIX matY;
+	D3DXMATRIX matTransform;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(m_p3DDevice);
 
-		// 旋转立方体
-			
-		//x轴旋转45弧度
-		D3DXMatrixRotationX(&Rx, D3DX_PI / 4.0f);
-		// 每一帧中增加y轴的弧度
-		
-		D3DXMatrixRotationY(&Ry, y);
-		y += fDeltaTime;
-		//当y轴旋转2周时，重新回到0弧度
-		if(y >= 6.28f)
-			y = 0.0f;
-		// 结合x轴与y轴的旋转矩阵
-		D3DXMATRIX p = Rx * Ry;
-		m_p3DDevice->SetTransform(D3DTS_WORLD, &p);
+		D3DXMatrixRotationX(&matX, m_fAngleX);
+		D3DXMatrixRotationY(&matY, m_fAngleY);
+
+		m_fAngleY += fDeltaTime;
+		if(m_fAngleY >= 6.28f)
+			m_fAngleY = 0.0f;
+
+		matTransform = matX * matY;
+		m_p3DDevice->SetTransform(D3DTS_WORLD, &matTransform);
 
 		hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
 		HRESULT_ERROR_BREAK(hr);
 
-		m_p3DDevice->BeginScene();// 开始绘制场景
-		m_p3DDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(Vertex));// 设置资源流
-		m_p3DDevice->SetIndices(m_pIndexBuffer); // 设置索引缓存
-		m_p3DDevice->SetFVF(D3DFVF_XYZ); // 设置顶点格式
-		// 利用索引缓存绘制
-		m_p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,0,8,0,12);
-		m_p3DDevice->EndScene();// 结束绘制场景
+		m_p3DDevice->BeginScene();
+		m_p3DDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(ColorVertex));
+		m_p3DDevice->SetIndices(m_pIndexBuffer);
+		m_p3DDevice->SetFVF(ColorVertex::COLOR_VERTEX_FVF);
+		//m_p3DDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
+
+		// 绘制存在连续内存中的12个顶点
+		m_p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
+		m_p3DDevice->EndScene();
 
 		hr = m_p3DDevice->Present(0, 0, 0, 0);
 		HRESULT_ERROR_BREAK(hr);
