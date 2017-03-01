@@ -19,8 +19,8 @@ struct Vertex
 
 struct LightVertex : Vertex
 {
-	LightVertex(){}
-	LightVertex(float x, float y, float z) : Vertex(x, y, z){}
+	LightVertex() {}
+	LightVertex(float x, float y, float z) : Vertex(x, y, z) {}
 	void SetNormal(D3DXVECTOR3 vNormal)
 	{
 		_nx = vNormal.x;
@@ -43,7 +43,11 @@ struct ColorVertex : LightVertex
 	static DWORD COLOR_VERTEX_FVF;
 };
 
-
+struct TexVertex : ColorVertex
+{
+	float _u, _v;
+	static DWORD TEX_VERTEX_FVF;
+};
 
 namespace L3D
 {
@@ -97,6 +101,18 @@ private:
 		UINT uRefreshRates[32];
 	};
 
+	struct SampFilter
+	{
+		DWORD dwMinAnisotropy;
+		DWORD dwMaxAnisotropy;
+		int nMinMipFilter;
+		int nMinMinFilter;
+		int nMinMagFilter;
+		int nMaxMipFilter;
+		int nMaxMinFilter;
+		int nMaxMagFilter;
+	};
+
 	IDirect3D9* m_p3D9;
 	IDirect3DDevice9* m_p3DDevice;
 	IDirect3DVertexBuffer9* m_pVertexBuffer;
@@ -105,13 +121,21 @@ private:
 	float m_fLastTime;
 	float m_fAngleX;
 	float m_fAngleY;
+
 	L3DWINDOWPARAM m_WindowParam;
+	SampFilter m_SampFilter;
+
+	D3DCAPS9 m_Caps9;
+	D3DPRESENT_PARAMETERS m_PresentParam;
 	std::vector<ADAPTERMODE> m_AdapterModes;
 
 private:
 	static LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
+	HRESULT InitPresentParam(HWND hWnd);
+	HRESULT InitTextureSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType);
+
 	HRESULT GetL3DAdapter(PUINT puAdapter, D3DDEVTYPE* pDeviceType);
 	HRESULT GetL3DAdapterMode(UINT uAdapter);
 	HRESULT CreateL3DWindow(HWND* pWnd, HINSTANCE hInstance);

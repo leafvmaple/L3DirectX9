@@ -43,6 +43,12 @@
 		break;                    \
 	}
 
+#define HRESULT_SUCCESS_BREAK(hr) \
+	if (SUCCEEDED(hr)) {          \
+		hResult = S_OK;           \
+		break;                    \
+	}
+
 #define SAFE_FREE(p)    \
 	if ((p)) {          \
 		free((p));      \

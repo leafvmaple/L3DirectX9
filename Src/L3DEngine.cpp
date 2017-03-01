@@ -10,6 +10,7 @@
 DWORD Vertex::VERTEX_FVF = D3DFVF_XYZ;
 DWORD LightVertex::LIGHT_VERTEX_FVF = Vertex::VERTEX_FVF | D3DFVF_NORMAL;
 DWORD ColorVertex::COLOR_VERTEX_FVF = LightVertex::LIGHT_VERTEX_FVF | D3DFVF_DIFFUSE;
+DWORD TexVertex::TEX_VERTEX_FVF = ColorVertex::COLOR_VERTEX_FVF | D3DFVF_TEX1;
 
 void L3D::InitVertexNormal(LightVertex* pVertexs)
 {
@@ -42,7 +43,11 @@ L3DEngine::L3DEngine()
 , m_pIndexBuffer(NULL)
 , m_fLastTime(0.f)
 {
+	memset(&m_Caps9, 0, sizeof(m_Caps9));
+	memset(&m_SampFilter, 0, sizeof(m_SampFilter));
 	memset(&m_WindowParam, 0, sizeof(m_WindowParam));
+	memset(&m_PresentParam, 0, sizeof(m_PresentParam));
+
 	m_AdapterModes.clear();
 
 	m_fAngleX = D3DX_PI / 4.0f;
@@ -80,6 +85,12 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = CreateL3DWindow(&hWnd, hInstance);
 		HRESULT_ERROR_BREAK(hr);
 
+		hr = InitPresentParam(hWnd);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = InitTextureSamplerFilter(uAdapter, eDeviceType);
+		HRESULT_ERROR_BREAK(hr);
+
 		hr = CreateL3DDevice(uAdapter, eDeviceType, hWnd);
 		HRESULT_ERROR_BREAK(hr);
 
@@ -95,6 +106,7 @@ HRESULT L3DEngine::Setup()
 	HRESULT hResult = E_FAIL;
 	ColorVertex* pVertices = NULL;
 	WORD* pwIndices = NULL;
+	IDirect3DTexture9* pTexture = NULL;
 	D3DMATERIAL9 Material = {L3D::WHITE, L3D::WHITE, L3D::WHITE, L3D::BLACK, 5.f};
 	D3DLIGHT9 DirectionalLight;
 	D3DXVECTOR3 vPosition(0.0f, 0.0f, -5.0f);
@@ -159,6 +171,12 @@ HRESULT L3DEngine::Setup()
 		pwIndices[33] = 4; pwIndices[34] = 3; pwIndices[35] = 7;
 
 		m_pIndexBuffer->Unlock();
+
+		D3DXCreateTextureFromFile(m_p3DDevice, TEXT("res/metal_max.png"), &pTexture);
+		BOOL_ERROR_BREAK(pTexture);
+
+		//hr = m_p3DDevice->SetTexture(0, pTexture);
+		//HRESULT_ERROR_BREAK(hr);
 
 		// 视图矩阵
 		D3DXMatrixLookAtLH(&matCamera, &vPosition, &vTarget, &vUp);
@@ -225,6 +243,26 @@ LRESULT WINAPI L3DEngine::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
+
+HRESULT L3DEngine::InitPresentParam(HWND hWnd)
+{
+	m_PresentParam.BackBufferWidth            = 800;
+	m_PresentParam.BackBufferHeight           = 600;
+	m_PresentParam.BackBufferFormat           = D3DFMT_A8R8G8B8; //像素格式
+	m_PresentParam.BackBufferCount            = 1;
+	m_PresentParam.MultiSampleType            = D3DMULTISAMPLE_NONE;
+	m_PresentParam.MultiSampleQuality         = 0;
+	m_PresentParam.SwapEffect                 = D3DSWAPEFFECT_DISCARD;
+	m_PresentParam.hDeviceWindow              = hWnd;
+	m_PresentParam.Windowed                   = m_WindowParam.bWindow;
+	m_PresentParam.EnableAutoDepthStencil     = TRUE;
+	m_PresentParam.AutoDepthStencilFormat     = D3DFMT_D24S8;
+	m_PresentParam.Flags                      = 0;
+	m_PresentParam.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
+	m_PresentParam.PresentationInterval       = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+	return S_OK;
+}
 
 HRESULT L3DEngine::GetL3DAdapter(PUINT puAdapter, D3DDEVTYPE* pDeviceType)
 {
@@ -303,6 +341,50 @@ HRESULT L3DEngine::GetL3DAdapterMode(UINT uAdapter)
 	return hResult;
 }
 
+HRESULT L3DEngine::InitTextureSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType)
+{
+	m_p3D9->GetDeviceCaps(uAdapter, eDeviceType, &m_Caps9);
+
+	m_SampFilter.dwMinAnisotropy = 1;
+	m_SampFilter.dwMaxAnisotropy = m_Caps9.MaxAnisotropy;
+
+	m_SampFilter.nMinMipFilter = D3DTEXF_POINT;
+	m_SampFilter.nMinMinFilter = D3DTEXF_POINT;
+	m_SampFilter.nMinMagFilter = D3DTEXF_POINT;
+
+	m_SampFilter.nMaxMipFilter = D3DTEXF_POINT;
+	m_SampFilter.nMaxMinFilter = D3DTEXF_POINT;
+	m_SampFilter.nMaxMagFilter = D3DTEXF_POINT;
+
+	if (m_SampFilter.dwMaxAnisotropy <= 1)
+	{
+		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR)
+			m_SampFilter.nMaxMipFilter = D3DTEXF_LINEAR;
+
+		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR)
+			m_SampFilter.nMaxMinFilter = D3DTEXF_LINEAR;
+
+		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR)
+			m_SampFilter.nMaxMagFilter = D3DTEXF_LINEAR;
+	}
+	else
+	{
+		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR)
+			m_SampFilter.nMaxMipFilter = D3DTEXF_LINEAR;
+
+		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC)
+			m_SampFilter.nMaxMinFilter = D3DTEXF_ANISOTROPIC;
+		else if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR)
+			m_SampFilter.nMaxMinFilter = D3DTEXF_LINEAR;
+
+		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC)
+			m_SampFilter.nMaxMagFilter = D3DTEXF_ANISOTROPIC;
+		else if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR)
+			m_SampFilter.nMaxMagFilter = D3DTEXF_LINEAR;
+	}
+	return S_OK;
+}
+
 HRESULT L3DEngine::CreateL3DWindow(HWND* pWnd, HINSTANCE hInstance)
 {
 	BOOL bRetCode = FALSE;
@@ -348,32 +430,20 @@ HRESULT L3DEngine::CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND h
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	D3DCAPS9 Caps9;
-	D3DPRESENT_PARAMETERS PresentParam;
-	int nVertexProcessing = 0;
+	//int nVertexProcessing = 0;
 
 	do
 	{
-		m_p3D9->GetDeviceCaps(uAdapter, eDeviceType, &Caps9);
-		nVertexProcessing = (Caps9.DevCaps && D3DDEVCAPS_HWTRANSFORMANDLIGHT) ? D3DCREATE_HARDWARE_VERTEXPROCESSING : D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		//nVertexProcessing = (m_Caps9.DevCaps && D3DDEVCAPS_HWTRANSFORMANDLIGHT) ? D3DCREATE_HARDWARE_VERTEXPROCESSING : D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
-		PresentParam.BackBufferWidth = 800;
-		PresentParam.BackBufferHeight = 600;
-		PresentParam.BackBufferFormat = D3DFMT_A8R8G8B8; //像素格式
-		PresentParam.BackBufferCount = 1;
-		PresentParam.MultiSampleType= D3DMULTISAMPLE_NONE;
-		PresentParam.MultiSampleQuality = 0;
-		PresentParam.SwapEffect = D3DSWAPEFFECT_DISCARD;
-		PresentParam.hDeviceWindow = hWnd;
-		PresentParam.Windowed = m_WindowParam.bWindow;
-		PresentParam.EnableAutoDepthStencil = TRUE;
-		PresentParam.AutoDepthStencilFormat = D3DFMT_D24S8; // depth format
-		PresentParam.Flags = 0;
-		PresentParam.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
-		PresentParam.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, D3DCREATE_MIXED_VERTEXPROCESSING, &m_PresentParam, &m_p3DDevice);
+		HRESULT_SUCCESS_BREAK(hr);
 
-		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, nVertexProcessing, &PresentParam, &m_p3DDevice);
-		HRESULT_ERROR_BREAK(hr);
+		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &m_PresentParam, &m_p3DDevice);
+		HRESULT_SUCCESS_BREAK(hr);
+
+		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_PresentParam, &m_p3DDevice);
+		HRESULT_SUCCESS_BREAK(hr);
 
 		hResult = S_OK;
 	}
