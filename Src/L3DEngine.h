@@ -4,6 +4,47 @@
 #include <d3dx9.h>
 #include <vector>
 
+struct Vertex
+{
+	Vertex(){}
+	Vertex(float x, float y, float z)
+	{
+		_x = x;
+		_y = y;
+		_z = z;
+	}
+	float _x, _y, _z;
+	static DWORD VERTEX_FVF;
+};
+
+struct LightVertex : Vertex
+{
+	LightVertex(){}
+	LightVertex(float x, float y, float z) : Vertex(x, y, z){}
+	void SetNormal(D3DXVECTOR3 vNormal)
+	{
+		_nx = vNormal.x;
+		_ny = vNormal.y;
+		_nz = vNormal.z;
+	}
+	float _nx, _ny, _nz;
+	static DWORD LIGHT_VERTEX_FVF;
+	D3DXVECTOR3 operator - (CONST LightVertex& v) const {return D3DXVECTOR3(_nx - v._nx, _nx - v._nx, _nz - v._nz);}
+};
+
+struct ColorVertex : LightVertex
+{
+	ColorVertex(){}
+	ColorVertex(float x, float y, float z, D3DCOLOR color) : LightVertex(x, y, z)
+	{
+		_color = color;
+	}
+	D3DCOLOR _color;
+	static DWORD COLOR_VERTEX_FVF;
+};
+
+
+
 namespace L3D
 {
 	const D3DXCOLOR WHITE  (D3DCOLOR_XRGB(255, 255, 255));
@@ -20,31 +61,10 @@ namespace L3D
 	const D3DMATERIAL9 GREEN_MTL  = {GREEN,  GREEN,  GREEN,  BLACK, 8.0f};
 	const D3DMATERIAL9 BLUE_MTL   = {BLUE,   BLUE,   BLUE,   BLACK, 8.0f};
 	const D3DMATERIAL9 YELLOW_MTL = {YELLOW, YELLOW, YELLOW, BLACK, 8.0f};
+
+	void InitVertexNormal(LightVertex* pVertexs);
+	D3DLIGHT9 InitDirectionalLight(const D3DXVECTOR3& vDirection, const D3DXCOLOR& color);
 }
-
-struct Vertex
-{
-	Vertex(){}
-	Vertex(float x, float y, float z)
-	{
-		_x = x;
-		_y = y;
-		_z = z;
-	}
-	float _x, _y, _z;
-	static DWORD VERTEX_FVF;
-};
-
-struct ColorVertex : Vertex
-{
-	ColorVertex(){}
-	ColorVertex(float x, float y, float z, D3DCOLOR color) : Vertex(x, y, z)
-	{
-		_color = color;
-	}
-	D3DCOLOR _color;
-	static DWORD COLOR_VERTEX_FVF;
-};
 
 class L3DEngine
 {

@@ -8,7 +8,32 @@
 #pragma comment(lib, "winmm.lib")
 
 DWORD Vertex::VERTEX_FVF = D3DFVF_XYZ;
-DWORD ColorVertex::COLOR_VERTEX_FVF = Vertex::VERTEX_FVF | D3DFVF_DIFFUSE;
+DWORD LightVertex::LIGHT_VERTEX_FVF = Vertex::VERTEX_FVF | D3DFVF_NORMAL;
+DWORD ColorVertex::COLOR_VERTEX_FVF = LightVertex::LIGHT_VERTEX_FVF | D3DFVF_DIFFUSE;
+
+void L3D::InitVertexNormal(LightVertex* pVertexs)
+{
+	D3DXVECTOR3 vNormal;
+	D3DXVECTOR3 u = pVertexs[0] - pVertexs[1];
+	D3DXVECTOR3 v = pVertexs[1] - pVertexs[2];
+	D3DXVec3Cross(&vNormal, &u, &v);
+	D3DXVec3Normalize(&vNormal, &vNormal);
+	pVertexs[0].SetNormal(vNormal);
+	pVertexs[1].SetNormal(vNormal);
+	pVertexs[2].SetNormal(vNormal);
+}
+
+D3DLIGHT9 L3D::InitDirectionalLight(const D3DXVECTOR3& vDirection, const D3DXCOLOR& color)
+{
+	D3DLIGHT9 Light;
+	::ZeroMemory(&Light, sizeof(Light));
+	Light.Type = D3DLIGHT_DIRECTIONAL;
+	Light.Ambient = color * 0.4f;
+	Light.Diffuse = color;
+	Light.Specular = color * 0.6f;
+	Light.Direction = vDirection;
+	return Light;
+}
 
 L3DEngine::L3DEngine()
 : m_p3D9(NULL)
@@ -70,6 +95,8 @@ HRESULT L3DEngine::Setup()
 	HRESULT hResult = E_FAIL;
 	ColorVertex* pVertices = NULL;
 	WORD* pwIndices = NULL;
+	D3DMATERIAL9 Material = {L3D::WHITE, L3D::WHITE, L3D::WHITE, L3D::BLACK, 5.f};
+	D3DLIGHT9 DirectionalLight;
 	D3DXVECTOR3 vPosition(0.0f, 0.0f, -5.0f);
 	D3DXVECTOR3 vTarget(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 vUp(0.0f, 1.0f, 0.0f);
@@ -100,6 +127,15 @@ HRESULT L3DEngine::Setup()
 		pVertices[7] = ColorVertex( 1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB(0, 255, 0));
 
 		m_pVertexBuffer->Unlock();
+
+		//L3D::InitVertexNormal(&pVertices[0]);
+		//L3D::InitVertexNormal(&pVertices[3]);
+
+		m_p3DDevice->SetMaterial(&Material);
+
+		DirectionalLight = L3D::InitDirectionalLight(D3DXVECTOR3(1.f, 0.f, 0.f), L3D::WHITE);
+		m_p3DDevice->SetLight(0, &DirectionalLight);
+		m_p3DDevice->LightEnable(0, TRUE);
 
 		// 定义立方体的三角形
 		m_pIndexBuffer->Lock(0, 0, (void**)&pwIndices, 0);
@@ -134,7 +170,9 @@ HRESULT L3DEngine::Setup()
 
 		// 渲染状态
 		//m_p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		m_p3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+		m_p3DDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+		m_p3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+		m_p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 
 		hResult = S_OK;
 	} while (0);
