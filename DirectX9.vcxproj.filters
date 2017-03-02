@@ -56,5 +56,8 @@
     <ClCompile Include="Src\Teapot.cpp">
       <Filter>Source Files\Action</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Engine\IAction.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

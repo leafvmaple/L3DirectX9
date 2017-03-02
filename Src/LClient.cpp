@@ -11,7 +11,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 {
 	HRESULT hr = E_FAIL;
 	L3DEngine::L3DWINDOWPARAM WindowParam;
-	//Cube* pTexture = NULL;
+	Cube* pCube = NULL;
 	Teapot* pTeapot = NULL;
 
 	g_pL3DEngine = new L3DEngine;
@@ -28,13 +28,18 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	hr = g_pL3DEngine->Init(hInstance, WindowParam);
 	HRESULT_ERROR_RETURN(hr);
 
-	//pTexture = new Cube;
-	//BOOL_ERROR_RETURN(pTexture);
+	pCube = new Cube;
+	BOOL_ERROR_RETURN(pCube);
 
 	pTeapot = new Teapot;
 	BOOL_ERROR_RETURN(pTeapot);
 
-	//hr = g_pL3DEngine->AddAction(pTexture);
+	hr = pTeapot->SetTranslation(D3DXVECTOR3(-1, -1, -1));
+	HRESULT_ERROR_RETURN(hr);
+
+	hr = g_pL3DEngine->AddAction(pCube);
+	HRESULT_ERROR_RETURN(hr);
+
 	hr = g_pL3DEngine->AddAction(pTeapot);
 	HRESULT_ERROR_RETURN(hr);
 

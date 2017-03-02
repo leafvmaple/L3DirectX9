@@ -108,39 +108,26 @@ HRESULT Cube::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	D3DXMATRIX matX;
-	D3DXMATRIX matY;
-	D3DXMATRIX matTransform;
+	D3DXQUATERNION qRotation;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(p3DDevice);
 
-		D3DXMatrixRotationX(&matX, m_fAngleX);
-		D3DXMatrixRotationY(&matY, m_fAngleY);
+		D3DXQuaternionRotationYawPitchRoll(&qRotation, m_fAngleY, m_fAngleX, 0);
+		SetRotation(qRotation);
 
-		m_fAngleY += fDeltaTime;
-		if(m_fAngleY >= L3DX_2PI)
-			m_fAngleY = 0.0f;
-
-		matTransform = matX * matY;
-		p3DDevice->SetTransform(D3DTS_WORLD, &matTransform);
-
-		hr = p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
+		hr = UpdateTransform(p3DDevice);
 		HRESULT_ERROR_BREAK(hr);
 
-		p3DDevice->BeginScene();
+		m_fAngleY += fDeltaTime;
+
 		p3DDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(TexVertex));
 		p3DDevice->SetIndices(m_pIndexBuffer);
 		p3DDevice->SetFVF(TexVertex::TEX_VERTEX_FVF);
 		//m_p3DDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 
-		// 绘制存在连续内存中的12个顶点
 		p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
-		p3DDevice->EndScene();
-
-		hr = p3DDevice->Present(0, 0, 0, 0);
-		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
 

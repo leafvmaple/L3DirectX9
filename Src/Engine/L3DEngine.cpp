@@ -415,6 +415,7 @@ HRESULT L3DEngine::CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND h
 
 HRESULT L3DEngine::EnterMsgLoop()
 {
+	HRESULT hr = E_FAIL;
 	float fCurTime = 0;
 	float fDeltaTime = 0;
 	IAction* pAction = NULL;
@@ -434,12 +435,23 @@ HRESULT L3DEngine::EnterMsgLoop()
 		{
 			fCurTime = (float)timeGetTime();
 			fDeltaTime = (fCurTime - m_fLastTime) * 0.001f;
+
+			hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
+			HRESULT_ERROR_BREAK(hr);
+
+			m_p3DDevice->BeginScene();
+
 			for (it = m_ActionList.begin(); it != m_ActionList.end(); it++)
 			{
 				pAction = *it;
 				BOOL_ERROR_CONTINUE(pAction);
 				pAction->Display(m_p3DDevice, fDeltaTime);
 			}
+
+			m_p3DDevice->EndScene();
+
+			hr = m_p3DDevice->Present(0, 0, 0, 0);
+			HRESULT_ERROR_BREAK(hr);
 		}
 		m_fLastTime = fCurTime;
 	}

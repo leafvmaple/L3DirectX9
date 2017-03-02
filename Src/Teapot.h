@@ -14,6 +14,7 @@ public:
 
 private:
 	ID3DXMesh* m_pMeshTeapot;
+	IDirect3DVertexBuffer9* m_pVertexBuffer;
 
 	float m_fAngleY;
 };

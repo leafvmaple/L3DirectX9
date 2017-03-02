@@ -4,6 +4,7 @@
 Teapot::Teapot()
 {
 	m_pMeshTeapot = NULL;
+	m_pVertexBuffer = NULL;
 	m_fAngleY = 0;
 }
 
@@ -16,15 +17,27 @@ HRESULT Teapot::Setup(IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	IDirect3DTexture9* pTexture = NULL;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(p3DDevice);
 
 		hr = D3DXCreateTeapot(p3DDevice, &m_pMeshTeapot, 0);
-		HRESULT_ERROR_BREAK(hr)
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = m_pMeshTeapot->GetVertexBuffer(&m_pVertexBuffer);
+		HRESULT_ERROR_BREAK(hr);
+
+		D3DXCreateTextureFromFile(p3DDevice, TEXT("res/texture.png"), &pTexture);
+		BOOL_ERROR_BREAK(pTexture);
+
+		hr = p3DDevice->SetTexture(0, pTexture);
+		HRESULT_ERROR_BREAK(hr);
 
 		p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		p3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+		p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 
 		hResult = S_OK;
 	} while (0);
@@ -34,24 +47,27 @@ HRESULT Teapot::Setup(IDirect3DDevice9* p3DDevice)
 
 HRESULT Teapot::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
 {
-	D3DXMATRIX matY;
-	D3DXMatrixRotationY(&matY, m_fAngleY);
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+	D3DXQUATERNION qRotation;
 
-	m_fAngleY += fDeltaTime;
-	if(m_fAngleY >= L3DX_2PI)
-		m_fAngleY = 0.0f;
+	do 
+	{
+		D3DXQuaternionRotationYawPitchRoll(&qRotation, m_fAngleY, 0, 0);
+		SetRotation(qRotation);
 
-	p3DDevice->SetTransform(D3DTS_WORLD, &matY);
+		hr = UpdateTransform(p3DDevice);
+		HRESULT_ERROR_BREAK(hr);
 
-	p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
-	p3DDevice->BeginScene();
+		m_fAngleY += fDeltaTime;
 
-	m_pMeshTeapot->DrawSubset(0);
+		hr = m_pMeshTeapot->DrawSubset(0);
+		HRESULT_ERROR_BREAK(hr);
 
-	p3DDevice->EndScene();
-	p3DDevice->Present(0, 0, 0, 0);
+		hResult = S_OK;
+	} while (0);
 
-	return S_OK;
+	return hResult;
 }
 
 

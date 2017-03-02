@@ -18,6 +18,7 @@
     <ClInclude Include="Src\Teapot.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Engine\IAction.cpp" />
     <ClCompile Include="Src\Engine\L3DEngine.cpp" />
     <ClCompile Include="Src\LClient.cpp" />
     <ClCompile Include="Src\Cube.cpp" />
