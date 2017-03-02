@@ -13,21 +13,48 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\Engine">
+      <UniqueIdentifier>{4e86326c-95a6-4bdf-a7a9-7a90e0fd2202}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine">
+      <UniqueIdentifier>{910c6041-db5f-451d-8115-13b5b36d8c7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Action">
+      <UniqueIdentifier>{b0674c68-d54d-42da-98c3-7b86f2047c0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Action">
+      <UniqueIdentifier>{128eb4d8-176f-4c42-b7e6-0544b7095f1c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Src\L3DEngine.cpp">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="Src\Engine\L3DEngine.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\LAssert.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\IAction.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Cube.h">
+      <Filter>Header Files\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Teapot.h">
+      <Filter>Header Files\Action</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\Engine\L3DEngine.cpp">
+      <Filter>Source Files\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Src\LClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\LAssert.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\L3DEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="Src\Cube.cpp">
+      <Filter>Source Files\Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Teapot.cpp">
+      <Filter>Source Files\Action</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

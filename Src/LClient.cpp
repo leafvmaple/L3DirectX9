@@ -1,7 +1,9 @@
 
 #include <Windows.h>
-#include "LAssert.h"
-#include "L3DEngine.h"
+#include "Engine/LAssert.h"
+#include "Engine/L3DEngine.h"
+#include "Cube.h"
+#include "Teapot.h"
 
 L3DEngine* g_pL3DEngine = NULL;
 
@@ -9,6 +11,8 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 {
 	HRESULT hr = E_FAIL;
 	L3DEngine::L3DWINDOWPARAM WindowParam;
+	//Cube* pTexture = NULL;
+	Teapot* pTeapot = NULL;
 
 	g_pL3DEngine = new L3DEngine;
 	BOOL_ERROR_RETURN(g_pL3DEngine);
@@ -24,10 +28,20 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	hr = g_pL3DEngine->Init(hInstance, WindowParam);
 	HRESULT_ERROR_RETURN(hr);
 
+	//pTexture = new Cube;
+	//BOOL_ERROR_RETURN(pTexture);
+
+	pTeapot = new Teapot;
+	BOOL_ERROR_RETURN(pTeapot);
+
+	//hr = g_pL3DEngine->AddAction(pTexture);
+	hr = g_pL3DEngine->AddAction(pTeapot);
+	HRESULT_ERROR_RETURN(hr);
+
 	hr = g_pL3DEngine->Setup();
 	HRESULT_ERROR_RETURN(hr);
 
-	hr = g_pL3DEngine->Run();
+	hr = g_pL3DEngine->Active();
 	HRESULT_ERROR_RETURN(hr);
 
 	hr = g_pL3DEngine->Uninit();

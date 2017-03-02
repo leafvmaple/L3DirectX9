@@ -1,16 +1,17 @@
 #include <Windows.h>
 #include <strsafe.h>
 #include "LAssert.h"
+#include "IAction.h"
 #include "L3DEngine.h"
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
 
-DWORD Vertex::VERTEX_FVF = D3DFVF_XYZ;
+DWORD Vertex::VERTEX_FVF            = D3DFVF_XYZ;
 DWORD LightVertex::LIGHT_VERTEX_FVF = Vertex::VERTEX_FVF | D3DFVF_NORMAL;
 DWORD ColorVertex::COLOR_VERTEX_FVF = LightVertex::LIGHT_VERTEX_FVF | D3DFVF_DIFFUSE;
-DWORD TexVertex::TEX_VERTEX_FVF = ColorVertex::COLOR_VERTEX_FVF | D3DFVF_TEX1;
+DWORD TexVertex::TEX_VERTEX_FVF     = ColorVertex::COLOR_VERTEX_FVF | D3DFVF_TEX1;
 
 void L3D::InitVertexNormal(LightVertex* pVertexs)
 {
@@ -39,19 +40,15 @@ D3DLIGHT9 L3D::InitDirectionalLight(const D3DXVECTOR3& vDirection, const D3DXCOL
 L3DEngine::L3DEngine()
 : m_p3D9(NULL)
 , m_p3DDevice(NULL)
-, m_pVertexBuffer(NULL)
-, m_pIndexBuffer(NULL)
 , m_fLastTime(0.f)
+, m_CurSampFilter(m_SampFilter[GRAPHICS_LEVEL_MAX])
 {
 	memset(&m_Caps9, 0, sizeof(m_Caps9));
 	memset(&m_SampFilter, 0, sizeof(m_SampFilter));
 	memset(&m_WindowParam, 0, sizeof(m_WindowParam));
 	memset(&m_PresentParam, 0, sizeof(m_PresentParam));
-
 	m_AdapterModes.clear();
-
-	m_fAngleX = D3DX_PI / 4.0f;
-	m_fAngleY = 0;
+	m_ActionList.clear();
 }
 
 
@@ -88,10 +85,13 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = InitPresentParam(hWnd);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = InitTextureSamplerFilter(uAdapter, eDeviceType);
+		hr = InitSamplerFilter(uAdapter, eDeviceType);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = CreateL3DDevice(uAdapter, eDeviceType, hWnd);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = InitTransform();
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
@@ -100,112 +100,14 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 	return hResult;
 }
 
-HRESULT L3DEngine::Setup()
-{
-	HRESULT hr = E_FAIL;
-	HRESULT hResult = E_FAIL;
-	ColorVertex* pVertices = NULL;
-	WORD* pwIndices = NULL;
-	IDirect3DTexture9* pTexture = NULL;
-	D3DMATERIAL9 Material = {L3D::WHITE, L3D::WHITE, L3D::WHITE, L3D::BLACK, 5.f};
-	D3DLIGHT9 DirectionalLight;
-	D3DXVECTOR3 vPosition(0.0f, 0.0f, -5.0f);
-	D3DXVECTOR3 vTarget(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 vUp(0.0f, 1.0f, 0.0f);
-	D3DXMATRIX matCamera;
-	D3DXMATRIX matProj;
-
-	do 
-	{
-		hr = m_p3DDevice->CreateVertexBuffer(
-			8 * sizeof(ColorVertex), D3DUSAGE_WRITEONLY,
-			ColorVertex::COLOR_VERTEX_FVF , D3DPOOL_MANAGED, &m_pVertexBuffer, 0);
-		HRESULT_ERROR_BREAK(hr);
-
-		m_p3DDevice->CreateIndexBuffer(
-			36 * sizeof(WORD), D3DUSAGE_WRITEONLY,
-			D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, 0);
-		HRESULT_ERROR_BREAK(hr);
-
-		m_pVertexBuffer->Lock(0, 0, (void**)&pVertices, 0);
-
-		pVertices[0] = ColorVertex(-1.0f, -1.0f, -1.0f, D3DCOLOR_XRGB(255, 0, 0));
-		pVertices[1] = ColorVertex(-1.0f,  1.0f, -1.0f, D3DCOLOR_XRGB(0, 255, 0));
-		pVertices[2] = ColorVertex( 1.0f,  1.0f, -1.0f, D3DCOLOR_XRGB(0, 0, 255));
-		pVertices[3] = ColorVertex( 1.0f, -1.0f, -1.0f, D3DCOLOR_XRGB(255, 0, 0));
-		pVertices[4] = ColorVertex(-1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB(0, 255, 0));
-		pVertices[5] = ColorVertex(-1.0f,  1.0f,  1.0f, D3DCOLOR_XRGB(0, 0, 255));
-		pVertices[6] = ColorVertex( 1.0f,  1.0f,  1.0f, D3DCOLOR_XRGB(255, 0, 0));
-		pVertices[7] = ColorVertex( 1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB(0, 255, 0));
-
-		m_pVertexBuffer->Unlock();
-
-		//L3D::InitVertexNormal(&pVertices[0]);
-		//L3D::InitVertexNormal(&pVertices[3]);
-
-		m_p3DDevice->SetMaterial(&Material);
-
-		DirectionalLight = L3D::InitDirectionalLight(D3DXVECTOR3(1.f, 0.f, 0.f), L3D::WHITE);
-		m_p3DDevice->SetLight(0, &DirectionalLight);
-		m_p3DDevice->LightEnable(0, TRUE);
-
-		// 定义立方体的三角形
-		m_pIndexBuffer->Lock(0, 0, (void**)&pwIndices, 0);
-
-		pwIndices[0] = 0; pwIndices[1] = 1; pwIndices[2] = 2;
-		pwIndices[3] = 0; pwIndices[4] = 2; pwIndices[5] = 3;
-		// 背面
-		pwIndices[6] = 4; pwIndices[7] = 6; pwIndices[8] = 5;
-		pwIndices[9] = 4; pwIndices[10] = 7; pwIndices[11] = 6;
-		// 左面
-		pwIndices[12] = 4; pwIndices[13] = 5; pwIndices[14] = 1;
-		pwIndices[15] = 4; pwIndices[16] = 1; pwIndices[17] = 0;
-		// 右面
-		pwIndices[18] = 3; pwIndices[19] = 2; pwIndices[20] = 6;
-		pwIndices[21] = 3; pwIndices[22] = 6; pwIndices[23] = 7;
-		// 顶部
-		pwIndices[24] = 1; pwIndices[25] = 5; pwIndices[26] = 6;
-		pwIndices[27] = 1; pwIndices[28] = 6; pwIndices[29] = 2;
-		// 底部
-		pwIndices[30] = 4; pwIndices[31] = 0; pwIndices[32] = 3;
-		pwIndices[33] = 4; pwIndices[34] = 3; pwIndices[35] = 7;
-
-		m_pIndexBuffer->Unlock();
-
-		D3DXCreateTextureFromFile(m_p3DDevice, TEXT("res/metal_max.png"), &pTexture);
-		BOOL_ERROR_BREAK(pTexture);
-
-		//hr = m_p3DDevice->SetTexture(0, pTexture);
-		//HRESULT_ERROR_BREAK(hr);
-
-		// 视图矩阵
-		D3DXMatrixLookAtLH(&matCamera, &vPosition, &vTarget, &vUp);
-		m_p3DDevice->SetTransform(D3DTS_VIEW, &matCamera);
-
-		// 投影矩阵
-		D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
-		m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
-
-		// 渲染状态
-		//m_p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		m_p3DDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
-		m_p3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
-		m_p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
-
-		hResult = S_OK;
-	} while (0);
-
-	return hResult;
-}
-
-HRESULT L3DEngine::Run()
+HRESULT L3DEngine::Active()
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 
 	do 
 	{
-		hr = EnterMsgLoop(&L3DEngine::Display);
+		hr = EnterMsgLoop();
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
@@ -217,11 +119,47 @@ HRESULT L3DEngine::Run()
 
 HRESULT L3DEngine::Uninit()
 {
-	if (m_pVertexBuffer)
-		m_pVertexBuffer->Release();
+	IAction* pAction;
+	std::list<IAction*>::iterator it;
 
-	if (m_pIndexBuffer)
-		m_pIndexBuffer->Release();
+	for (it = m_ActionList.begin(); it != m_ActionList.end();)
+	{
+		pAction = *it;
+		BOOL_ERROR_CONTINUE(pAction);
+
+		it = m_ActionList.erase(it);
+		SAFE_DELETE(pAction);
+	}
+
+	return S_OK;
+}
+
+HRESULT L3DEngine::AddAction(IAction* pAction)
+{
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		BOOL_ERROR_BREAK(pAction);
+		m_ActionList.push_back(pAction);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+HRESULT L3DEngine::Setup()
+{
+	IAction* pAction;
+	std::list<IAction*>::iterator it;
+
+	for (it = m_ActionList.begin(); it != m_ActionList.end(); it++)
+	{
+		pAction = *it;
+		BOOL_ERROR_CONTINUE(pAction);
+		pAction->Setup(m_p3DDevice);
+	}
 
 	return S_OK;
 }
@@ -341,47 +279,66 @@ HRESULT L3DEngine::GetL3DAdapterMode(UINT uAdapter)
 	return hResult;
 }
 
-HRESULT L3DEngine::InitTextureSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType)
+HRESULT L3DEngine::InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType)
 {
 	m_p3D9->GetDeviceCaps(uAdapter, eDeviceType, &m_Caps9);
 
-	m_SampFilter.dwMinAnisotropy = 1;
-	m_SampFilter.dwMaxAnisotropy = m_Caps9.MaxAnisotropy;
+	m_SampFilter[GRAPHICS_LEVEL_MIN].dwAnisotropy = 1;
+	m_SampFilter[GRAPHICS_LEVEL_MAX].dwAnisotropy = m_Caps9.MaxAnisotropy;
 
-	m_SampFilter.nMinMipFilter = D3DTEXF_POINT;
-	m_SampFilter.nMinMinFilter = D3DTEXF_POINT;
-	m_SampFilter.nMinMagFilter = D3DTEXF_POINT;
+	m_SampFilter[GRAPHICS_LEVEL_MIN].nMipFilter = D3DTEXF_POINT;
+	m_SampFilter[GRAPHICS_LEVEL_MIN].nMinFilter = D3DTEXF_POINT;
+	m_SampFilter[GRAPHICS_LEVEL_MIN].nMagFilter = D3DTEXF_POINT;
 
-	m_SampFilter.nMaxMipFilter = D3DTEXF_POINT;
-	m_SampFilter.nMaxMinFilter = D3DTEXF_POINT;
-	m_SampFilter.nMaxMagFilter = D3DTEXF_POINT;
+	m_SampFilter[GRAPHICS_LEVEL_MAX].nMipFilter = D3DTEXF_POINT;
+	m_SampFilter[GRAPHICS_LEVEL_MAX].nMinFilter = D3DTEXF_POINT;
+	m_SampFilter[GRAPHICS_LEVEL_MAX].nMagFilter = D3DTEXF_POINT;
 
-	if (m_SampFilter.dwMaxAnisotropy <= 1)
+	if (m_Caps9.MaxAnisotropy <= 1)
 	{
 		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR)
-			m_SampFilter.nMaxMipFilter = D3DTEXF_LINEAR;
+			m_SampFilter[GRAPHICS_LEVEL_MAX].nMipFilter = D3DTEXF_LINEAR;
 
 		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR)
-			m_SampFilter.nMaxMinFilter = D3DTEXF_LINEAR;
+			m_SampFilter[GRAPHICS_LEVEL_MAX].nMinFilter = D3DTEXF_LINEAR;
 
 		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR)
-			m_SampFilter.nMaxMagFilter = D3DTEXF_LINEAR;
+			m_SampFilter[GRAPHICS_LEVEL_MAX].nMagFilter = D3DTEXF_LINEAR;
 	}
 	else
 	{
 		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR)
-			m_SampFilter.nMaxMipFilter = D3DTEXF_LINEAR;
+			m_SampFilter[GRAPHICS_LEVEL_MAX].nMipFilter = D3DTEXF_LINEAR;
 
 		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC)
-			m_SampFilter.nMaxMinFilter = D3DTEXF_ANISOTROPIC;
+			m_SampFilter[GRAPHICS_LEVEL_MAX].nMinFilter = D3DTEXF_ANISOTROPIC;
 		else if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR)
-			m_SampFilter.nMaxMinFilter = D3DTEXF_LINEAR;
+			m_SampFilter[GRAPHICS_LEVEL_MAX].nMinFilter = D3DTEXF_LINEAR;
 
 		if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC)
-			m_SampFilter.nMaxMagFilter = D3DTEXF_ANISOTROPIC;
+			m_SampFilter[GRAPHICS_LEVEL_MAX].nMagFilter = D3DTEXF_ANISOTROPIC;
 		else if (m_Caps9.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR)
-			m_SampFilter.nMaxMagFilter = D3DTEXF_LINEAR;
+			m_SampFilter[GRAPHICS_LEVEL_MAX].nMagFilter = D3DTEXF_LINEAR;
 	}
+	return S_OK;
+}
+
+HRESULT L3DEngine::InitTransform()
+{
+	D3DXVECTOR3 vPosition(0.0f, 0.0f, -5.0f);
+	D3DXVECTOR3 vTarget(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 vUp(0.0f, 1.0f, 0.0f);
+	D3DXMATRIX matCamera;
+	D3DXMATRIX matProj;
+
+	// 视图矩阵
+	D3DXMatrixLookAtLH(&matCamera, &vPosition, &vTarget, &vUp);
+	m_p3DDevice->SetTransform(D3DTS_VIEW, &matCamera);
+
+	// 投影矩阵
+	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
+	m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+
 	return S_OK;
 }
 
@@ -395,11 +352,10 @@ HRESULT L3DEngine::CreateL3DWindow(HWND* pWnd, HINSTANCE hInstance)
 	{
 		wndClassEx.cbSize        = sizeof(WNDCLASSEX);
 		wndClassEx.style         = CS_HREDRAW | CS_VREDRAW;
-		wndClassEx.lpfnWndProc   = (WNDPROC)L3DEngine::MsgProc;        //The WNDPROC type defines a pointer to this callback function
-		wndClassEx.cbClsExtra    = 0;	//The system initializes the bytes to zero                      
-		wndClassEx.cbWndExtra    = 0;	//The system initializes the bytes to zero
+		wndClassEx.lpfnWndProc   = (WNDPROC)L3DEngine::MsgProc;
+		wndClassEx.cbClsExtra    = 0;
+		wndClassEx.cbWndExtra    = 0;
 		wndClassEx.hInstance     = hInstance;
-		//wndClassEx.hInstance     = GetModuleHandle(NULL);
 		wndClassEx.hIcon         = ::LoadIcon(NULL, IDI_WINLOGO);
 		wndClassEx.hCursor       = ::LoadCursor(NULL, IDC_ARROW);
 		wndClassEx.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
@@ -430,20 +386,25 @@ HRESULT L3DEngine::CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND h
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	//int nVertexProcessing = 0;
+	int nVertexProcessing = 0;
 
 	do
 	{
-		//nVertexProcessing = (m_Caps9.DevCaps && D3DDEVCAPS_HWTRANSFORMANDLIGHT) ? D3DCREATE_HARDWARE_VERTEXPROCESSING : D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		m_CurSampFilter = m_SampFilter[GRAPHICS_LEVEL];
 
-		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, D3DCREATE_MIXED_VERTEXPROCESSING, &m_PresentParam, &m_p3DDevice);
-		HRESULT_SUCCESS_BREAK(hr);
+		nVertexProcessing = (m_Caps9.DevCaps && D3DDEVCAPS_HWTRANSFORMANDLIGHT) ? D3DCREATE_MIXED_VERTEXPROCESSING : D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
-		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &m_PresentParam, &m_p3DDevice);
-		HRESULT_SUCCESS_BREAK(hr);
+		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, nVertexProcessing, &m_PresentParam, &m_p3DDevice);
+		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_PresentParam, &m_p3DDevice);
-		HRESULT_SUCCESS_BREAK(hr);
+		m_p3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, m_CurSampFilter.nMipFilter);
+		m_p3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, m_CurSampFilter.nMinFilter);
+		m_p3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, m_CurSampFilter.nMagFilter);
+
+		m_p3DDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, m_CurSampFilter.dwAnisotropy);
+
+		m_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+		m_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
 		hResult = S_OK;
 	}
@@ -452,55 +413,12 @@ HRESULT L3DEngine::CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND h
 	return hResult;
 }
 
-HRESULT L3DEngine::Display(float fDeltaTime)
-{
-	HRESULT hr = E_FAIL;
-	HRESULT hResult = E_FAIL;
-	D3DXMATRIX matX;
-	D3DXMATRIX matY;
-	D3DXMATRIX matTransform;
-
-	do 
-	{
-		BOOL_ERROR_BREAK(m_p3DDevice);
-
-		D3DXMatrixRotationX(&matX, m_fAngleX);
-		D3DXMatrixRotationY(&matY, m_fAngleY);
-
-		m_fAngleY += fDeltaTime;
-		if(m_fAngleY >= 6.28f)
-			m_fAngleY = 0.0f;
-
-		matTransform = matX * matY;
-		m_p3DDevice->SetTransform(D3DTS_WORLD, &matTransform);
-
-		hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
-		HRESULT_ERROR_BREAK(hr);
-
-		m_p3DDevice->BeginScene();
-		m_p3DDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(ColorVertex));
-		m_p3DDevice->SetIndices(m_pIndexBuffer);
-		m_p3DDevice->SetFVF(ColorVertex::COLOR_VERTEX_FVF);
-		//m_p3DDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
-
-		// 绘制存在连续内存中的12个顶点
-		m_p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
-		m_p3DDevice->EndScene();
-
-		hr = m_p3DDevice->Present(0, 0, 0, 0);
-		HRESULT_ERROR_BREAK(hr);
-
-		hResult = S_OK;
-
-	} while (0);
-
-	return hResult;
-}
-
-HRESULT L3DEngine::EnterMsgLoop(HRESULT (L3DEngine::* pfnDisplay)(float fDeltaTime))
+HRESULT L3DEngine::EnterMsgLoop()
 {
 	float fCurTime = 0;
 	float fDeltaTime = 0;
+	IAction* pAction = NULL;
+	std::list<IAction*>::iterator it;
 	MSG Msg;
 
 	::ZeroMemory(&Msg, sizeof(MSG));
@@ -516,7 +434,12 @@ HRESULT L3DEngine::EnterMsgLoop(HRESULT (L3DEngine::* pfnDisplay)(float fDeltaTi
 		{
 			fCurTime = (float)timeGetTime();
 			fDeltaTime = (fCurTime - m_fLastTime) * 0.001f;
-			(this->*pfnDisplay)(fDeltaTime);
+			for (it = m_ActionList.begin(); it != m_ActionList.end(); it++)
+			{
+				pAction = *it;
+				BOOL_ERROR_CONTINUE(pAction);
+				pAction->Display(m_p3DDevice, fDeltaTime);
+			}
 		}
 		m_fLastTime = fCurTime;
 	}

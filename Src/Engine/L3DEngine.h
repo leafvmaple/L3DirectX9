@@ -3,6 +3,17 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <vector>
+#include <list>
+
+#define L3DX_2PI    ((FLOAT)  6.283185308f)
+
+#define GRAPHICS_LEVEL_COUNT 2
+#define GRAPHICS_LEVEL_MIN 0
+#define GRAPHICS_LEVEL_MAX 1
+
+static const BOOL GRAPHICS_LEVEL = 1;
+
+class IAction;
 
 struct Vertex
 {
@@ -45,6 +56,12 @@ struct ColorVertex : LightVertex
 
 struct TexVertex : ColorVertex
 {
+	TexVertex(){}
+	TexVertex(float x, float y, float z, D3DCOLOR color, float u, float v) : ColorVertex(x, y, z, color)
+	{
+		_u = u;
+		_v = v;
+	}
 	float _u, _v;
 	static DWORD TEX_VERTEX_FVF;
 };
@@ -89,9 +106,11 @@ public:
 	~L3DEngine();
 
 	HRESULT Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam);
-	HRESULT Setup();
-	HRESULT Run();
 	HRESULT Uninit();
+
+	HRESULT AddAction(IAction* pAction);
+	HRESULT Setup();
+	HRESULT Active();
 
 private:
 	struct ADAPTERMODE
@@ -103,44 +122,38 @@ private:
 
 	struct SampFilter
 	{
-		DWORD dwMinAnisotropy;
-		DWORD dwMaxAnisotropy;
-		int nMinMipFilter;
-		int nMinMinFilter;
-		int nMinMagFilter;
-		int nMaxMipFilter;
-		int nMaxMinFilter;
-		int nMaxMagFilter;
+		DWORD dwAnisotropy;
+		int nMipFilter;
+		int nMinFilter;
+		int nMagFilter;
 	};
 
 	IDirect3D9* m_p3D9;
 	IDirect3DDevice9* m_p3DDevice;
-	IDirect3DVertexBuffer9* m_pVertexBuffer;
-	IDirect3DIndexBuffer9* m_pIndexBuffer;
 
 	float m_fLastTime;
-	float m_fAngleX;
-	float m_fAngleY;
 
 	L3DWINDOWPARAM m_WindowParam;
-	SampFilter m_SampFilter;
+	SampFilter m_SampFilter[GRAPHICS_LEVEL_COUNT];
+	SampFilter& m_CurSampFilter;
 
 	D3DCAPS9 m_Caps9;
 	D3DPRESENT_PARAMETERS m_PresentParam;
 	std::vector<ADAPTERMODE> m_AdapterModes;
+	std::list<IAction*> m_ActionList;
 
 private:
 	static LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
 	HRESULT InitPresentParam(HWND hWnd);
-	HRESULT InitTextureSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType);
+	HRESULT InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType);
+	HRESULT InitTransform();
 
 	HRESULT GetL3DAdapter(PUINT puAdapter, D3DDEVTYPE* pDeviceType);
 	HRESULT GetL3DAdapterMode(UINT uAdapter);
 	HRESULT CreateL3DWindow(HWND* pWnd, HINSTANCE hInstance);
 	HRESULT CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND hWnd);
 
-	HRESULT Display(float fDeltaTime);
-	HRESULT EnterMsgLoop(HRESULT (L3DEngine::* pfnDisplay)(float fDeltaTime));
+	HRESULT EnterMsgLoop();
 };

@@ -55,6 +55,12 @@
 		(p) = NULL;     \
 	}
 
+#define  SAFE_DELETE(p) \
+	if ((p)) {          \
+		delete (p);     \
+		(p) = NULL;     \
+	}
+
 #define SAFE_CLOSE_HANDLE(h)    \
 	if ((h)) {                  \
 		CloseHandle((h));       \
