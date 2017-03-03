@@ -18,7 +18,10 @@
     <ClCompile Include="Src\L3DEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\ILObject.cpp">
+    <ClCompile Include="Src\L3DInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\L3DObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,7 +29,10 @@
     <ClInclude Include="..\Include\L3DEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\ILObject.h">
+    <ClInclude Include="..\Include\L3DInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\L3DObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

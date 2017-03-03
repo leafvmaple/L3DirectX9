@@ -30,6 +30,9 @@
     <ClCompile Include="Src\Object\LTeapot.cpp">
       <Filter>Source Files\Object</Filter>
     </ClCompile>
+    <ClCompile Include="Src\LObjectMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Object\LCube.h">
@@ -37,6 +40,12 @@
     </ClInclude>
     <ClInclude Include="Src\Object\LTeapot.h">
       <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Object\LObject.h">
+      <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\LObjectMgr.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

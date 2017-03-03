@@ -3,8 +3,6 @@
 
 LTeapot::LTeapot()
 {
-	m_pMeshTeapot = NULL;
-	m_pVertexBuffer = NULL;
 	m_fAngleY = 0;
 }
 
@@ -13,21 +11,25 @@ LTeapot::~LTeapot()
 
 }
 
-HRESULT LTeapot::Setup(IDirect3DDevice9* p3DDevice)
+HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	ID3DXMesh* pMesh = NULL;
 	IDirect3DTexture9* pTexture = NULL;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(p3DDevice);
+		BOOL_ERROR_BREAK(p3DEngine);
 
-		hr = D3DXCreateTeapot(p3DDevice, &m_pMeshTeapot, 0);
+		hr = CreateLObject(p3DEngine, &m_pObject);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pMeshTeapot->GetVertexBuffer(&m_pVertexBuffer);
+		hr = m_pObject->SetTranslation(D3DXVECTOR3(-1, -1, -1));
 		HRESULT_ERROR_BREAK(hr);
+
+		hr = m_pObject->CreateMesh(p3DDevice, &pMesh);
 
 		D3DXCreateTextureFromFile(p3DDevice, TEXT("res/texture.png"), &pTexture);
 		BOOL_ERROR_BREAK(pTexture);
@@ -45,7 +47,7 @@ HRESULT LTeapot::Setup(IDirect3DDevice9* p3DDevice)
 	return hResult;
 }
 
-HRESULT LTeapot::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
+HRESULT LTeapot::Display(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice, float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -54,15 +56,9 @@ HRESULT LTeapot::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
 	do 
 	{
 		D3DXQuaternionRotationYawPitchRoll(&qRotation, m_fAngleY, 0, 0);
-		SetRotation(qRotation);
-
-		hr = UpdateTransform(p3DDevice);
-		HRESULT_ERROR_BREAK(hr);
+		m_pObject->SetRotation(qRotation);
 
 		m_fAngleY += fDeltaTime;
-
-		hr = m_pMeshTeapot->DrawSubset(0);
-		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
 	} while (0);

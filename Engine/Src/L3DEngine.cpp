@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include <strsafe.h>
-#include "ILObject.h"
+#include "L3DObject.h"
 #include "LAssert.h"
 #include "L3DEngine.h"
 
@@ -8,34 +8,9 @@
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
 
-L3DENGINE_API void L3D::InitVertexNormal(LightVertex* pVertexs)
-{
-	D3DXVECTOR3 vNormal;
-	D3DXVECTOR3 u = pVertexs[0] - pVertexs[1];
-	D3DXVECTOR3 v = pVertexs[1] - pVertexs[2];
-	D3DXVec3Cross(&vNormal, &u, &v);
-	D3DXVec3Normalize(&vNormal, &vNormal);
-	pVertexs[0].SetNormal(vNormal);
-	pVertexs[1].SetNormal(vNormal);
-	pVertexs[2].SetNormal(vNormal);
-}
-
-L3DENGINE_API D3DLIGHT9 L3D::InitDirectionalLight(const D3DXVECTOR3& vDirection, const D3DXCOLOR& color)
-{
-	D3DLIGHT9 Light;
-	::ZeroMemory(&Light, sizeof(Light));
-	Light.Type = D3DLIGHT_DIRECTIONAL;
-	Light.Ambient = color * 0.4f;
-	Light.Diffuse = color;
-	Light.Specular = color * 0.6f;
-	Light.Direction = vDirection;
-	return Light;
-}
-
 L3DEngine::L3DEngine()
 : m_p3D9(NULL)
 , m_p3DDevice(NULL)
-, m_fLastTime(0.f)
 , m_CurSampFilter(m_SampFilter[GRAPHICS_LEVEL_MAX])
 {
 	memset(&m_Caps9, 0, sizeof(m_Caps9));
@@ -45,7 +20,6 @@ L3DEngine::L3DEngine()
 	m_AdapterModes.clear();
 	m_ActionList.clear();
 }
-
 
 L3DEngine::~L3DEngine()
 {
@@ -63,7 +37,6 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 	do 
 	{
 		m_WindowParam = WindowParam;
-		m_fLastTime = (float)timeGetTime();
 
 		m_p3D9 = Direct3DCreate9(D3D_SDK_VERSION);
 		BOOL_ERROR_BREAK(m_p3D9);
@@ -95,21 +68,44 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 	return hResult;
 }
 
-HRESULT L3DEngine::Active()
+HRESULT L3DEngine::Active(float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	L3DObject* pObject = NULL;
+	std::list<ILObject*>::iterator it;
 
-	do 
+	do
 	{
-		hr = EnterMsgLoop();
+		hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
+		HRESULT_ERROR_BREAK(hr);
+
+		m_p3DDevice->BeginScene();
+
+		for (it = m_ActionList.begin(); it != m_ActionList.end(); it++)
+		{
+			pObject = dynamic_cast<L3DObject*>(*it);
+			BOOL_ERROR_CONTINUE(pObject);
+
+			pObject->UpdateTransform(m_p3DDevice);
+			pObject->UpdateDisplay(m_p3DDevice);
+		}
+
+		m_p3DDevice->EndScene();
+
+		hr = m_p3DDevice->Present(0, 0, 0, 0);
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
-
-	} while (0);
+	} while(0);
 
 	return hResult;
+}
+
+HRESULT L3DEngine::GetDevice(IDirect3DDevice9** pp3DDevice)
+{
+	*pp3DDevice = m_p3DDevice;
+	return *pp3DDevice ? S_OK : E_FAIL;
 }
 
 HRESULT L3DEngine::Uninit()
@@ -129,7 +125,7 @@ HRESULT L3DEngine::Uninit()
 	return S_OK;
 }
 
-HRESULT L3DEngine::AddAction(ILObject* pAction)
+HRESULT L3DEngine::AttachObject(ILObject* pAction)
 {
 	HRESULT hResult = E_FAIL;
 
@@ -142,21 +138,6 @@ HRESULT L3DEngine::AddAction(ILObject* pAction)
 	} while (0);
 
 	return hResult;
-}
-
-HRESULT L3DEngine::Setup()
-{
-	ILObject* pAction;
-	std::list<ILObject*>::iterator it;
-
-	for (it = m_ActionList.begin(); it != m_ActionList.end(); it++)
-	{
-		pAction = *it;
-		BOOL_ERROR_CONTINUE(pAction);
-		pAction->Setup(m_p3DDevice);
-	}
-
-	return S_OK;
 }
 
 LRESULT WINAPI L3DEngine::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -406,55 +387,4 @@ HRESULT L3DEngine::CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND h
 	while(0);
 
 	return hResult;
-}
-
-HRESULT L3DEngine::EnterMsgLoop()
-{
-	HRESULT hr = E_FAIL;
-	float fCurTime = 0;
-	float fDeltaTime = 0;
-	ILObject* pAction = NULL;
-	std::list<ILObject*>::iterator it;
-	MSG Msg;
-
-	::ZeroMemory(&Msg, sizeof(MSG));
-
-	while(Msg.message != WM_QUIT)
-	{
-		if(::PeekMessage(&Msg, 0, 0, 0, PM_REMOVE))
-		{
-			::TranslateMessage(&Msg);
-			::DispatchMessage(&Msg);
-		}
-		else
-		{
-			fCurTime = (float)timeGetTime();
-			fDeltaTime = (fCurTime - m_fLastTime) * 0.001f;
-
-			hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
-			HRESULT_ERROR_BREAK(hr);
-
-			m_p3DDevice->BeginScene();
-
-			for (it = m_ActionList.begin(); it != m_ActionList.end(); it++)
-			{
-				pAction = *it;
-				BOOL_ERROR_CONTINUE(pAction);
-				pAction->Display(m_p3DDevice, fDeltaTime);
-			}
-
-			m_p3DDevice->EndScene();
-
-			hr = m_p3DDevice->Present(0, 0, 0, 0);
-			HRESULT_ERROR_BREAK(hr);
-		}
-		m_fLastTime = fCurTime;
-	}
-	return Msg.wParam;
-}
-
-L3DENGINE_API HRESULT CreateL3DEngine(L3DEngine** ppL3DEngine)
-{
-	*ppL3DEngine = new L3DEngine;
-	return *ppL3DEngine ? S_OK : E_FAIL;
 }

@@ -1,47 +1,42 @@
 #include "LCube.h"
 #include "LAssert.h"
+#include "L3DInterface.h"
 
 LCube::LCube()
 {
-	m_pVertexBuffer = NULL;
-	m_pIndexBuffer  = NULL;
-
 	m_fAngleX = D3DX_PI / 4.0f;
 	m_fAngleY = 0;
 }
 
 LCube::~LCube()
 {
-	if (m_pVertexBuffer)
-		m_pVertexBuffer->Release();
 
-	if (m_pIndexBuffer)
-		m_pIndexBuffer->Release();
 }
 
-HRESULT LCube::Setup(IDirect3DDevice9* p3DDevice)
+HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	IDirect3DVertexBuffer9* pVertexBuffer = NULL;
+	IDirect3DIndexBuffer9* pIndexBuffer = NULL;
 	TexVertex* pVertices = NULL;
 	WORD* pwIndices = NULL;
 	IDirect3DTexture9* pTexture = NULL;
 	D3DMATERIAL9 Material = {L3D::WHITE, L3D::WHITE, L3D::WHITE, L3D::BLACK, 5.f};
 	D3DLIGHT9 DirectionalLight;
 
-	do 
+	do
 	{
-		hr = p3DDevice->CreateVertexBuffer(
-			8 * sizeof(TexVertex), D3DUSAGE_WRITEONLY,
-			TEX_VERTEX_FVF , D3DPOOL_MANAGED, &m_pVertexBuffer, 0);
+		BOOL_ERROR_BREAK(p3DDevice);
+		BOOL_ERROR_BREAK(p3DEngine);
+
+		hr = CreateLObject(p3DEngine, &m_pObject);
 		HRESULT_ERROR_BREAK(hr);
 
-		p3DDevice->CreateIndexBuffer(
-			36 * sizeof(WORD), D3DUSAGE_WRITEONLY,
-			D3DFMT_INDEX16, D3DPOOL_MANAGED, &m_pIndexBuffer, 0);
+		hr = m_pObject->CreateVertex(p3DDevice, &pVertexBuffer, &pIndexBuffer);
 		HRESULT_ERROR_BREAK(hr);
 
-		m_pVertexBuffer->Lock(0, 0, (void**)&pVertices, 0);
+		pVertexBuffer->Lock(0, 0, (void**)&pVertices, 0);
 
 		pVertices[0] = TexVertex(-1.0f, -1.0f, -1.0f, D3DCOLOR_XRGB(255, 0, 0),  0.0f,  1.0f);
 		pVertices[1] = TexVertex(-1.0f,  1.0f, -1.0f, D3DCOLOR_XRGB(0, 255, 0),  0.0f,  0.0f);
@@ -52,7 +47,7 @@ HRESULT LCube::Setup(IDirect3DDevice9* p3DDevice)
 		pVertices[6] = TexVertex( 1.0f,  1.0f,  1.0f, D3DCOLOR_XRGB(255, 0, 0),  1.0f,  1.0f);
 		pVertices[7] = TexVertex( 1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB(0, 255, 0),  1.0f,  0.0f);
 
-		m_pVertexBuffer->Unlock();
+		pVertexBuffer->Unlock();
 
 		//L3D::InitVertexNormal(&pVertices[0]);
 		//L3D::InitVertexNormal(&pVertices[3]);
@@ -64,7 +59,7 @@ HRESULT LCube::Setup(IDirect3DDevice9* p3DDevice)
 		p3DDevice->LightEnable(0, TRUE);
 
 		// 定义立方体的三角形
-		m_pIndexBuffer->Lock(0, 0, (void**)&pwIndices, 0);
+		pIndexBuffer->Lock(0, 0, (void**)&pwIndices, 0);
 
 		pwIndices[0] = 0; pwIndices[1] = 1; pwIndices[2] = 2;
 		pwIndices[3] = 0; pwIndices[4] = 2; pwIndices[5] = 3;
@@ -84,7 +79,7 @@ HRESULT LCube::Setup(IDirect3DDevice9* p3DDevice)
 		pwIndices[30] = 4; pwIndices[31] = 0; pwIndices[32] = 3;
 		pwIndices[33] = 4; pwIndices[34] = 3; pwIndices[35] = 7;
 
-		m_pIndexBuffer->Unlock();
+		pIndexBuffer->Unlock();
 
 		D3DXCreateTextureFromFile(p3DDevice, TEXT("res/texture.png"), &pTexture);
 		BOOL_ERROR_BREAK(pTexture);
@@ -104,7 +99,7 @@ HRESULT LCube::Setup(IDirect3DDevice9* p3DDevice)
 	return hResult;
 }
 
-HRESULT LCube::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
+HRESULT LCube::Display(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice, float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -115,19 +110,9 @@ HRESULT LCube::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
 		BOOL_ERROR_BREAK(p3DDevice);
 
 		D3DXQuaternionRotationYawPitchRoll(&qRotation, m_fAngleY, m_fAngleX, 0);
-		SetRotation(qRotation);
-
-		hr = UpdateTransform(p3DDevice);
-		HRESULT_ERROR_BREAK(hr);
+		m_pObject->SetRotation(qRotation);
 
 		m_fAngleY += fDeltaTime;
-
-		p3DDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(TexVertex));
-		p3DDevice->SetIndices(m_pIndexBuffer);
-		p3DDevice->SetFVF(TEX_VERTEX_FVF);
-		//m_p3DDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
-
-		p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
 
 		hResult = S_OK;
 

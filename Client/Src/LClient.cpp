@@ -2,20 +2,20 @@
 #include <Windows.h>
 #include "LAssert.h"
 #include "LExports.h"
-#include "L3DEngine.h"
-#include "ILObject.h"
+#include "L3DInterface.h"
+#include "LObjectMgr.h"
 #include "Object/LCube.h"
 #include "Object/LTeapot.h"
 
-class L3DENGINE_CLASS L3DEngine;
-L3DEngine* g_pL3DEngine = NULL;
+class L3DENGINE_CLASS IL3DEngine;
+IL3DEngine* g_pL3DEngine = NULL;
 
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	HRESULT hr = E_FAIL;
 	L3DWINDOWPARAM WindowParam;
-	LCube* pCube = NULL;
-	LTeapot* pTeapot = NULL;
+	LObjectMgr* pObjectMgr = NULL;
+	IDirect3DDevice9* p3DDevice = NULL;
 
 	hr = CreateL3DEngine(&g_pL3DEngine);
 	HRESULT_ERROR_RETURN(hr);
@@ -31,28 +31,31 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	hr = g_pL3DEngine->Init(hInstance, WindowParam);
 	HRESULT_ERROR_RETURN(hr);
 
-	pCube = new LCube;
-	BOOL_ERROR_RETURN(pCube);
-
-	pTeapot = new LTeapot;
-	BOOL_ERROR_RETURN(pTeapot);
-
-	hr = pTeapot->SetTranslation(D3DXVECTOR3(-1, -1, -1));
+	hr = g_pL3DEngine->GetDevice(&p3DDevice);
 	HRESULT_ERROR_RETURN(hr);
 
-	hr = g_pL3DEngine->AddAction(pCube);
+	pObjectMgr = new LObjectMgr;
+	BOOL_ERROR_RETURN(pObjectMgr);
+
+	hr = pObjectMgr->Init(g_pL3DEngine, p3DDevice);
 	HRESULT_ERROR_RETURN(hr);
 
-	hr = g_pL3DEngine->AddAction(pTeapot);
+	hr = pObjectMgr->CreateObject<LCube>();
 	HRESULT_ERROR_RETURN(hr);
 
-	hr = g_pL3DEngine->Setup();
+	hr = pObjectMgr->CreateObject<LTeapot>();
 	HRESULT_ERROR_RETURN(hr);
 
-	hr = g_pL3DEngine->Active();
+	hr = pObjectMgr->Setup();
 	HRESULT_ERROR_RETURN(hr);
 
-	hr = g_pL3DEngine->Uninit();
+	while(true)
+	{
+		hr = pObjectMgr->Active();
+		HRESULT_ERROR_RETURN(hr);
+	}
+
+	hr = pObjectMgr->Uninit();
 	HRESULT_ERROR_RETURN(hr);
 
 	return 1;

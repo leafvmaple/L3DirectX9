@@ -82,12 +82,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Src\ILObject.cpp" />
+    <ClCompile Include="Src\L3DObject.cpp" />
     <ClCompile Include="Src\L3DEngine.cpp" />
+    <ClCompile Include="Src\L3DInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\ILObject.h" />
+    <ClInclude Include="..\Include\L3DObject.h" />
     <ClInclude Include="..\Include\L3DEngine.h" />
+    <ClInclude Include="..\Include\L3DInterface.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
