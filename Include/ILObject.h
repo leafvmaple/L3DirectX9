@@ -1,17 +1,18 @@
 #pragma once
 
 #include <d3dx9.h>
+#include "LExports.h"
 
 struct IDirect3DDevice9;
 
-class IAction
+class L3DENGINE_CLASS ILObject
 {
 public:
-	IAction();
+	ILObject();
 
 	virtual HRESULT Setup(IDirect3DDevice9* p3DDevice) = 0;
 	virtual HRESULT Display(IDirect3DDevice9* p3DDevice, float fDeltaTime) = 0;
-	virtual ~IAction() {};
+	virtual ~ILObject() {};
 
 public:
 	HRESULT SetTranslation(D3DXVECTOR3& vTranslation);

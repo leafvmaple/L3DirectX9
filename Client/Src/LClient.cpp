@@ -1,21 +1,24 @@
 
 #include <Windows.h>
-#include "Engine/LAssert.h"
-#include "Engine/L3DEngine.h"
-#include "Cube.h"
-#include "Teapot.h"
+#include "LAssert.h"
+#include "LExports.h"
+#include "L3DEngine.h"
+#include "ILObject.h"
+#include "Object/LCube.h"
+#include "Object/LTeapot.h"
 
+class L3DENGINE_CLASS L3DEngine;
 L3DEngine* g_pL3DEngine = NULL;
 
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	HRESULT hr = E_FAIL;
-	L3DEngine::L3DWINDOWPARAM WindowParam;
-	Cube* pCube = NULL;
-	Teapot* pTeapot = NULL;
+	L3DWINDOWPARAM WindowParam;
+	LCube* pCube = NULL;
+	LTeapot* pTeapot = NULL;
 
-	g_pL3DEngine = new L3DEngine;
-	BOOL_ERROR_RETURN(g_pL3DEngine);
+	hr = CreateL3DEngine(&g_pL3DEngine);
+	HRESULT_ERROR_RETURN(hr);
 
 	WindowParam.x = 100;
 	WindowParam.y = 100;
@@ -28,10 +31,10 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	hr = g_pL3DEngine->Init(hInstance, WindowParam);
 	HRESULT_ERROR_RETURN(hr);
 
-	pCube = new Cube;
+	pCube = new LCube;
 	BOOL_ERROR_RETURN(pCube);
 
-	pTeapot = new Teapot;
+	pTeapot = new LTeapot;
 	BOOL_ERROR_RETURN(pTeapot);
 
 	hr = pTeapot->SetTranslation(D3DXVECTOR3(-1, -1, -1));

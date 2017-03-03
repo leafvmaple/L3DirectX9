@@ -1,19 +1,14 @@
 #include <Windows.h>
 #include <strsafe.h>
+#include "ILObject.h"
 #include "LAssert.h"
-#include "IAction.h"
 #include "L3DEngine.h"
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
 
-DWORD Vertex::VERTEX_FVF            = D3DFVF_XYZ;
-DWORD LightVertex::LIGHT_VERTEX_FVF = Vertex::VERTEX_FVF | D3DFVF_NORMAL;
-DWORD ColorVertex::COLOR_VERTEX_FVF = LightVertex::LIGHT_VERTEX_FVF | D3DFVF_DIFFUSE;
-DWORD TexVertex::TEX_VERTEX_FVF     = ColorVertex::COLOR_VERTEX_FVF | D3DFVF_TEX1;
-
-void L3D::InitVertexNormal(LightVertex* pVertexs)
+L3DENGINE_API void L3D::InitVertexNormal(LightVertex* pVertexs)
 {
 	D3DXVECTOR3 vNormal;
 	D3DXVECTOR3 u = pVertexs[0] - pVertexs[1];
@@ -25,7 +20,7 @@ void L3D::InitVertexNormal(LightVertex* pVertexs)
 	pVertexs[2].SetNormal(vNormal);
 }
 
-D3DLIGHT9 L3D::InitDirectionalLight(const D3DXVECTOR3& vDirection, const D3DXCOLOR& color)
+L3DENGINE_API D3DLIGHT9 L3D::InitDirectionalLight(const D3DXVECTOR3& vDirection, const D3DXCOLOR& color)
 {
 	D3DLIGHT9 Light;
 	::ZeroMemory(&Light, sizeof(Light));
@@ -119,8 +114,8 @@ HRESULT L3DEngine::Active()
 
 HRESULT L3DEngine::Uninit()
 {
-	IAction* pAction;
-	std::list<IAction*>::iterator it;
+	ILObject* pAction;
+	std::list<ILObject*>::iterator it;
 
 	for (it = m_ActionList.begin(); it != m_ActionList.end();)
 	{
@@ -134,7 +129,7 @@ HRESULT L3DEngine::Uninit()
 	return S_OK;
 }
 
-HRESULT L3DEngine::AddAction(IAction* pAction)
+HRESULT L3DEngine::AddAction(ILObject* pAction)
 {
 	HRESULT hResult = E_FAIL;
 
@@ -151,8 +146,8 @@ HRESULT L3DEngine::AddAction(IAction* pAction)
 
 HRESULT L3DEngine::Setup()
 {
-	IAction* pAction;
-	std::list<IAction*>::iterator it;
+	ILObject* pAction;
+	std::list<ILObject*>::iterator it;
 
 	for (it = m_ActionList.begin(); it != m_ActionList.end(); it++)
 	{
@@ -418,8 +413,8 @@ HRESULT L3DEngine::EnterMsgLoop()
 	HRESULT hr = E_FAIL;
 	float fCurTime = 0;
 	float fDeltaTime = 0;
-	IAction* pAction = NULL;
-	std::list<IAction*>::iterator it;
+	ILObject* pAction = NULL;
+	std::list<ILObject*>::iterator it;
 	MSG Msg;
 
 	::ZeroMemory(&Msg, sizeof(MSG));
@@ -456,4 +451,10 @@ HRESULT L3DEngine::EnterMsgLoop()
 		m_fLastTime = fCurTime;
 	}
 	return Msg.wParam;
+}
+
+L3DENGINE_API HRESULT CreateL3DEngine(L3DEngine** ppL3DEngine)
+{
+	*ppL3DEngine = new L3DEngine;
+	return *ppL3DEngine ? S_OK : E_FAIL;
 }

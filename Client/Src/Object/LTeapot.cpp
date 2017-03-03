@@ -1,19 +1,19 @@
-#include "Teapot.h"
-#include "Engine/LAssert.h"
+#include "LTeapot.h"
+#include "LAssert.h"
 
-Teapot::Teapot()
+LTeapot::LTeapot()
 {
 	m_pMeshTeapot = NULL;
 	m_pVertexBuffer = NULL;
 	m_fAngleY = 0;
 }
 
-Teapot::~Teapot()
+LTeapot::~LTeapot()
 {
 
 }
 
-HRESULT Teapot::Setup(IDirect3DDevice9* p3DDevice)
+HRESULT LTeapot::Setup(IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -45,7 +45,7 @@ HRESULT Teapot::Setup(IDirect3DDevice9* p3DDevice)
 	return hResult;
 }
 
-HRESULT Teapot::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
+HRESULT LTeapot::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;

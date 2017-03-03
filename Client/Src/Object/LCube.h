@@ -1,20 +1,23 @@
 #pragma once
 
-#include "Engine/IAction.h"
-#include "Engine/L3DEngine.h"
+#include "ILObject.h"
+#include "L3DEngine.h"
+#include "LExports.h"
 
-class Teapot : public IAction
+class L3DENGINE_CLASS ILObject;
+class LCube : public ILObject
 {
 public:
-	Teapot();
-	~Teapot();
+	LCube();
+	~LCube();
 
 	virtual HRESULT Setup(IDirect3DDevice9* p3DDevice);
 	virtual HRESULT Display(IDirect3DDevice9* p3DDevice, float fDeltaTime);
 
 private:
-	ID3DXMesh* m_pMeshTeapot;
 	IDirect3DVertexBuffer9* m_pVertexBuffer;
+	IDirect3DIndexBuffer9* m_pIndexBuffer;
 
+	float m_fAngleX;
 	float m_fAngleY;
 };

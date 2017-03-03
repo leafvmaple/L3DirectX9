@@ -1,7 +1,7 @@
-#include "Cube.h"
-#include "Engine/LAssert.h"
+#include "LCube.h"
+#include "LAssert.h"
 
-Cube::Cube()
+LCube::LCube()
 {
 	m_pVertexBuffer = NULL;
 	m_pIndexBuffer  = NULL;
@@ -10,7 +10,7 @@ Cube::Cube()
 	m_fAngleY = 0;
 }
 
-Cube::~Cube()
+LCube::~LCube()
 {
 	if (m_pVertexBuffer)
 		m_pVertexBuffer->Release();
@@ -19,7 +19,7 @@ Cube::~Cube()
 		m_pIndexBuffer->Release();
 }
 
-HRESULT Cube::Setup(IDirect3DDevice9* p3DDevice)
+HRESULT LCube::Setup(IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -33,7 +33,7 @@ HRESULT Cube::Setup(IDirect3DDevice9* p3DDevice)
 	{
 		hr = p3DDevice->CreateVertexBuffer(
 			8 * sizeof(TexVertex), D3DUSAGE_WRITEONLY,
-			TexVertex::TEX_VERTEX_FVF , D3DPOOL_MANAGED, &m_pVertexBuffer, 0);
+			TEX_VERTEX_FVF , D3DPOOL_MANAGED, &m_pVertexBuffer, 0);
 		HRESULT_ERROR_BREAK(hr);
 
 		p3DDevice->CreateIndexBuffer(
@@ -104,7 +104,7 @@ HRESULT Cube::Setup(IDirect3DDevice9* p3DDevice)
 	return hResult;
 }
 
-HRESULT Cube::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
+HRESULT LCube::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -124,7 +124,7 @@ HRESULT Cube::Display(IDirect3DDevice9* p3DDevice, float fDeltaTime)
 
 		p3DDevice->SetStreamSource(0, m_pVertexBuffer, 0, sizeof(TexVertex));
 		p3DDevice->SetIndices(m_pIndexBuffer);
-		p3DDevice->SetFVF(TexVertex::TEX_VERTEX_FVF);
+		p3DDevice->SetFVF(TEX_VERTEX_FVF);
 		//m_p3DDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 
 		p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
