@@ -79,6 +79,13 @@ struct L3DWINDOWPARAM
 	LPCWSTR lpszWindowName;
 };
 
+struct ADAPTERMODE
+{
+	UINT uWidth;
+	UINT uHeight;
+	UINT uRefreshRates[32];
+};
+
 namespace L3D
 {
 	const D3DXCOLOR WHITE  (D3DCOLOR_XRGB(255, 255, 255));
@@ -100,6 +107,11 @@ namespace L3D
 	L3DENGINE_API D3DLIGHT9 InitDirectionalLight(const D3DXVECTOR3& vDirection, const D3DXCOLOR& color);
 }
 
+template class L3DENGINE_CLASS std::allocator<ADAPTERMODE>;
+template class L3DENGINE_CLASS std::vector<ADAPTERMODE, std::allocator<ADAPTERMODE> >;
+template class L3DENGINE_CLASS std::allocator<ILObject*>;
+template class L3DENGINE_CLASS std::list<ILObject*, std::allocator<ILObject*> >;
+
 class L3DENGINE_CLASS L3DEngine
 {
 public:
@@ -114,13 +126,6 @@ public:
 	HRESULT Active();
 
 private:
-	struct ADAPTERMODE
-	{
-		UINT uWidth;
-		UINT uHeight;
-		UINT uRefreshRates[32];
-	};
-
 	struct SampFilter
 	{
 		DWORD dwAnisotropy;
