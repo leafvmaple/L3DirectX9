@@ -3,6 +3,15 @@
 #include <d3dx9.h>
 #include "L3DInterface.h"
 
+enum LOBJECT_RENDER_PARAM
+{
+	LOBJECT_RENDER_NONE,
+	LOBJECT_RENDER_TRANSFORM = 1,
+	LOBJECT_RENDER_MATERIAL  = 2,
+	LOBJECT_RENDER_TEXTURE   = 4,
+	LOBJECT_RENDER_COUNT,
+};
+
 struct IDirect3DDevice9;
 
 class L3DObject : public ILObject
@@ -11,21 +20,32 @@ public:
 	L3DObject();
 	~L3DObject();
 
-	virtual HRESULT SetTranslation(D3DXVECTOR3& vTranslation);
-	virtual HRESULT SetRotation(D3DXQUATERNION& qRotation);
 	virtual HRESULT CreateVertex(IDirect3DDevice9* p3DDevice, IDirect3DVertexBuffer9** ppVertexBuffer, IDirect3DIndexBuffer9** ppIndexBuffer);
 	virtual HRESULT CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh);
 
+	virtual HRESULT SetMaterial(D3DMATERIAL9* pMaterial);
+	virtual HRESULT SetTexture(LPCSTR szTexture);
+	virtual HRESULT SetTranslation(D3DXVECTOR3& vTranslation);
+	virtual HRESULT SetRotation(D3DXQUATERNION& qRotation);
+
 public:
-	HRESULT UpdateTransform(IDirect3DDevice9* p3DDevice);
-	HRESULT UpdateDisplay(IDirect3DDevice9* p3DDevice);
+	HRESULT UpdateDisplay();
 
 private:
+	IDirect3DDevice9* m_p3DDevice;
+	D3DMATERIAL9* m_pMaterial;
+	IDirect3DTexture9* m_pTexture;
+	LOBJECT_TYPE m_ObjectType;
+	DWORD m_dwRenderParam;
+
 	D3DXVECTOR3 m_vTranslation;
 	D3DXQUATERNION m_qRotation;
 	D3DXMATRIX m_matTransform;
 
-	LOBJECT_TYPE m_ObjectType;
+	HRESULT UpdateMaterial();
+	HRESULT UpdateTexture();
+	HRESULT UpdateTransform();
+	HRESULT UpdateDraw();
 
 	union
 	{

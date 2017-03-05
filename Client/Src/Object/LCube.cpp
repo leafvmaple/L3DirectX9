@@ -17,9 +17,9 @@ HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	TexVertex* pVertices = NULL;
 	IDirect3DVertexBuffer9* pVertexBuffer = NULL;
 	IDirect3DIndexBuffer9* pIndexBuffer = NULL;
-	TexVertex* pVertices = NULL;
 	WORD* pwIndices = NULL;
 	IDirect3DTexture9* pTexture = NULL;
 	D3DMATERIAL9 Material = {L3D::WHITE, L3D::WHITE, L3D::WHITE, L3D::BLACK, 5.f};
@@ -52,11 +52,9 @@ HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		//L3D::InitVertexNormal(&pVertices[0]);
 		//L3D::InitVertexNormal(&pVertices[3]);
 
-		p3DDevice->SetMaterial(&Material);
-
-		DirectionalLight = L3D::InitDirectionalLight(D3DXVECTOR3(1.f, 0.f, 0.f), L3D::WHITE);
-		p3DDevice->SetLight(0, &DirectionalLight);
-		p3DDevice->LightEnable(0, TRUE);
+		//DirectionalLight = L3D::InitDirectionalLight(D3DXVECTOR3(1.f, 0.f, 0.f), L3D::WHITE);
+		//p3DDevice->SetLight(0, &DirectionalLight);
+		//p3DDevice->LightEnable(0, TRUE);
 
 		// 定义立方体的三角形
 		pIndexBuffer->Lock(0, 0, (void**)&pwIndices, 0);
@@ -81,15 +79,15 @@ HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 
 		pIndexBuffer->Unlock();
 
-		D3DXCreateTextureFromFile(p3DDevice, TEXT("res/texture.png"), &pTexture);
-		BOOL_ERROR_BREAK(pTexture);
+		//hr = m_pObject->SetMaterial(&Material);
+		//HRESULT_ERROR_BREAK(hr);
 
-		hr = p3DDevice->SetTexture(0, pTexture);
+		hr = m_pObject->SetTexture("res/texture.png");
 		HRESULT_ERROR_BREAK(hr);
 
 		// 渲染状态
 		//p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		p3DDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+		p3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 		p3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
 		p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 

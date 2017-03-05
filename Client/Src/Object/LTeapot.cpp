@@ -26,20 +26,18 @@ HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		hr = CreateLObject(p3DEngine, &m_pObject);
 		HRESULT_ERROR_BREAK(hr);
 
+		hr = m_pObject->CreateMesh(p3DDevice, &pMesh);
+		HRESULT_ERROR_BREAK(hr);
+
 		hr = m_pObject->SetTranslation(D3DXVECTOR3(-1, -1, -1));
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pObject->CreateMesh(p3DDevice, &pMesh);
-
-		D3DXCreateTextureFromFile(p3DDevice, TEXT("res/texture.png"), &pTexture);
-		BOOL_ERROR_BREAK(pTexture);
-
-		hr = p3DDevice->SetTexture(0, pTexture);
+		hr = m_pObject->SetTexture("res/texture.png");
 		HRESULT_ERROR_BREAK(hr);
 
-		p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		p3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
-		p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
+		//p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		//p3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+		//p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 
 		hResult = S_OK;
 	} while (0);

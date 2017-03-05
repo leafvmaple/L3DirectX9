@@ -115,10 +115,12 @@ class L3DENGINE_CLASS ILObject
 public:
 	ILObject() {};
 	virtual ~ILObject() {};
-
+	
 	virtual HRESULT CreateVertex(IDirect3DDevice9* p3DDevice, IDirect3DVertexBuffer9** ppVertexBuffer, IDirect3DIndexBuffer9** ppIndexBuffer) = 0;
 	virtual HRESULT CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh) = 0;
 
+	virtual HRESULT SetMaterial(D3DMATERIAL9* pMaterial) = 0;
+	virtual HRESULT SetTexture(LPCSTR szTexture) = 0;
 	virtual HRESULT SetTranslation(D3DXVECTOR3& vTranslation) = 0;
 	virtual HRESULT SetRotation(D3DXQUATERNION& qRotation) = 0;
 };

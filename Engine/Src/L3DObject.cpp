@@ -2,7 +2,11 @@
 #include "LAssert.h"
 
 L3DObject::L3DObject()
-: m_ObjectType(LOBJECT_TYPE_INVALID)
+: m_p3DDevice(NULL)
+, m_pMaterial(NULL)
+, m_pTexture(NULL)
+, m_ObjectType(LOBJECT_TYPE_INVALID)
+, m_dwRenderParam(0)
 {
 	ZeroMemory(&m_DisplaySource, sizeof(m_DisplaySource));
 	ZeroMemory(m_vTranslation, sizeof(m_vTranslation));
@@ -31,50 +35,6 @@ L3DObject::~L3DObject()
 	}
 }
 
-HRESULT L3DObject::SetTranslation(D3DXVECTOR3& vTranslation)
-{
-	m_vTranslation = vTranslation;
-	return S_OK;
-}
-
-HRESULT L3DObject::SetRotation(D3DXQUATERNION& qRotation)
-{
-	m_qRotation = qRotation;
-	return S_OK;
-}
-
-HRESULT L3DObject::UpdateTransform(IDirect3DDevice9* p3DDevice)
-{
-	D3DXMatrixTransformation(&m_matTransform, NULL, NULL, NULL, NULL, &m_qRotation, &m_vTranslation);
-	p3DDevice->SetTransform(D3DTS_WORLD, &m_matTransform);
-	return S_OK;
-}
-
-HRESULT L3DObject::UpdateDisplay(IDirect3DDevice9* p3DDevice)
-{
-	switch (m_ObjectType)
-	{
-	case LOBJECT_TYPE_INVALID:
-		break;
-	case LOBJECT_TYPE_VERTEX:
-		p3DDevice->SetStreamSource(0, m_DisplaySource.LVertex.pVertexBuffer, 0, sizeof(TexVertex));
-		p3DDevice->SetIndices(m_DisplaySource.LVertex.pIndexBuffer);
-		p3DDevice->SetFVF(TEX_VERTEX_FVF);
-
-		//m_p3DDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
-		p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
-		break;
-	case LOBJECT_TYPE_MESH:
-		BOOL_ERROR_BREAK(m_DisplaySource.LMesh.pMesh);
-		m_DisplaySource.LMesh.pMesh->DrawSubset(0);
-		break;
-	default:
-		break;
-	}
-
-	return S_OK;
-}
-
 HRESULT L3DObject::CreateVertex(IDirect3DDevice9* p3DDevice, IDirect3DVertexBuffer9** ppVertexBuffer, IDirect3DIndexBuffer9** ppIndexBuffer)
 {
 	HRESULT hr = E_FAIL;
@@ -92,6 +52,7 @@ HRESULT L3DObject::CreateVertex(IDirect3DDevice9* p3DDevice, IDirect3DVertexBuff
 			D3DFMT_INDEX16, D3DPOOL_MANAGED, ppIndexBuffer, 0);
 		HRESULT_ERROR_BREAK(hr);
 
+		m_p3DDevice = p3DDevice;
 		m_ObjectType = LOBJECT_TYPE_VERTEX;
 		m_DisplaySource.LVertex.pVertexBuffer = *ppVertexBuffer;
 		m_DisplaySource.LVertex.pIndexBuffer = *ppIndexBuffer;
@@ -112,6 +73,7 @@ HRESULT L3DObject::CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh)
 		hr = D3DXCreateTeapot(p3DDevice, ppMesh, 0);
 		HRESULT_ERROR_BREAK(hr);
 
+		m_p3DDevice = p3DDevice;
 		m_ObjectType = LOBJECT_TYPE_MESH;
 		m_DisplaySource.LMesh.pMesh = *ppMesh;
 
@@ -119,4 +81,90 @@ HRESULT L3DObject::CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh)
 	} while (0);
 
 	return hResult;
+}
+
+
+HRESULT L3DObject::SetMaterial(D3DMATERIAL9* pMaterial)
+{
+	m_pMaterial = pMaterial;
+	m_dwRenderParam |= LOBJECT_RENDER_MATERIAL;
+	return S_OK;
+}
+
+HRESULT L3DObject::SetTexture(LPCSTR szTexture)
+{
+	D3DXCreateTextureFromFile(m_p3DDevice, TEXT("res/texture.png"), &m_pTexture);
+	m_dwRenderParam |= LOBJECT_RENDER_TEXTURE;
+	return S_OK;
+}
+
+HRESULT L3DObject::SetTranslation(D3DXVECTOR3& vTranslation)
+{
+	m_vTranslation = vTranslation;
+	m_dwRenderParam |= LOBJECT_RENDER_TRANSFORM;
+	return S_OK;
+}
+
+HRESULT L3DObject::SetRotation(D3DXQUATERNION& qRotation)
+{
+	m_qRotation = qRotation;
+	m_dwRenderParam |= LOBJECT_RENDER_TRANSFORM;
+	return S_OK;
+}
+
+HRESULT L3DObject::UpdateDisplay()
+{
+	if (m_dwRenderParam & LOBJECT_RENDER_MATERIAL)
+		UpdateMaterial();
+	if (m_dwRenderParam & LOBJECT_RENDER_TEXTURE)
+		UpdateTexture();
+	if (m_dwRenderParam & LOBJECT_RENDER_TRANSFORM)
+		UpdateTransform();
+
+	UpdateDraw();
+
+	return S_OK;
+}
+
+HRESULT L3DObject::UpdateMaterial()
+{
+	m_p3DDevice->SetMaterial(m_pMaterial);
+	return S_OK;
+}
+
+HRESULT L3DObject::UpdateTexture()
+{
+	m_p3DDevice->SetTexture(0, m_pTexture);
+	return S_OK;
+}
+
+HRESULT L3DObject::UpdateTransform()
+{
+	D3DXMatrixTransformation(&m_matTransform, NULL, NULL, NULL, NULL, &m_qRotation, &m_vTranslation);
+	m_p3DDevice->SetTransform(D3DTS_WORLD, &m_matTransform);
+	return S_OK;
+}
+
+HRESULT L3DObject::UpdateDraw()
+{
+	switch (m_ObjectType)
+	{
+	case LOBJECT_TYPE_INVALID:
+		break;
+	case LOBJECT_TYPE_VERTEX:
+		m_p3DDevice->SetStreamSource(0, m_DisplaySource.LVertex.pVertexBuffer, 0, sizeof(TexVertex));
+		m_p3DDevice->SetIndices(m_DisplaySource.LVertex.pIndexBuffer);
+		m_p3DDevice->SetFVF(TEX_VERTEX_FVF);
+
+		//m_p3DDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
+		m_p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
+		break;
+	case LOBJECT_TYPE_MESH:
+		BOOL_ERROR_BREAK(m_DisplaySource.LMesh.pMesh);
+		m_DisplaySource.LMesh.pMesh->DrawSubset(0);
+		break;
+	default:
+		break;
+	}
+	return S_OK;
 }

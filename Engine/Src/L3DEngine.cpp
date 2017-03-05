@@ -87,8 +87,7 @@ HRESULT L3DEngine::Active(float fDeltaTime)
 			pObject = dynamic_cast<L3DObject*>(*it);
 			BOOL_ERROR_CONTINUE(pObject);
 
-			pObject->UpdateTransform(m_p3DDevice);
-			pObject->UpdateDisplay(m_p3DDevice);
+			pObject->UpdateDisplay();
 		}
 
 		m_p3DDevice->EndScene();
