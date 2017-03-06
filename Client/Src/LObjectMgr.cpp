@@ -22,11 +22,28 @@ LObjectMgr::~LObjectMgr()
 	}
 }
 
-HRESULT LObjectMgr::Init(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
+HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 {
-	m_fLastTime = (float)timeGetTime();
-	m_p3DEngine = p3DEngine;
-	m_p3DDevice = p3DDevice;
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		// Init Engine
+		hr = CreateL3DEngine(&m_p3DEngine);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = m_p3DEngine->Init(hInstance, WindowParam);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = m_p3DEngine->GetDevice(&m_p3DDevice);
+		HRESULT_ERROR_BREAK(hr);
+
+		m_fLastTime = (float)timeGetTime();
+
+	} while (0);
+
+	
 	return S_OK;
 }
 

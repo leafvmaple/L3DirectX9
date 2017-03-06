@@ -15,7 +15,7 @@ public:
 	LObjectMgr();
 	~LObjectMgr();
 
-	HRESULT Init(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice);
+	HRESULT Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam);
 	HRESULT Uninit();
 
 	template<typename T>
