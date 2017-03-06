@@ -49,7 +49,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 	return hResult;
 }
 
-HRESULT LClient::Active()
+HRESULT LClient::Update()
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -58,7 +58,7 @@ HRESULT LClient::Active()
 
 	do
 	{
-		hr = m_pObjectMgr->Active();
+		hr = m_pObjectMgr->Update();
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
@@ -82,6 +82,11 @@ HRESULT LClient::Uninit()
 	return S_OK;
 }
 
+BOOL LClient::IsActive()
+{
+	return m_pObjectMgr->IsActive();
+}
+
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	HRESULT hr = E_FAIL;
@@ -90,9 +95,9 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	hr = Client.Init(hInstance);
 	HRESULT_ERROR_RETURN(hr);
 
-	while (true)
+	while (Client.IsActive())
 	{
-		hr = Client.Active();
+		hr = Client.Update();
 		HRESULT_ERROR_BREAK(hr);
 	}
 

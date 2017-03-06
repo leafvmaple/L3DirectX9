@@ -23,7 +23,7 @@ public:
 	virtual HRESULT CreateVertex(IDirect3DDevice9* p3DDevice, IDirect3DVertexBuffer9** ppVertexBuffer, IDirect3DIndexBuffer9** ppIndexBuffer);
 	virtual HRESULT CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh);
 
-	virtual HRESULT SetMaterial(D3DMATERIAL9* pMaterial);
+	virtual HRESULT SetMaterial(D3DMATERIAL9& Material);
 	virtual HRESULT SetTexture(LPCSTR szTexture);
 	virtual HRESULT SetTranslation(D3DXVECTOR3& vTranslation);
 	virtual HRESULT SetRotation(D3DXQUATERNION& qRotation);
@@ -33,7 +33,7 @@ public:
 
 private:
 	IDirect3DDevice9* m_p3DDevice;
-	D3DMATERIAL9* m_pMaterial;
+	D3DMATERIAL9 m_Material;
 	IDirect3DTexture9* m_pTexture;
 	LOBJECT_TYPE m_ObjectType;
 	DWORD m_dwRenderParam;

@@ -10,7 +10,8 @@
 #pragma comment(lib, "winmm.lib")
 
 L3DEngine::L3DEngine()
-: m_p3D9(NULL)
+: m_bActive(FALSE)
+, m_p3D9(NULL)
 , m_p3DDevice(NULL)
 , m_CurSampFilter(m_SampFilter[GRAPHICS_LEVEL_MAX])
 {
@@ -62,8 +63,10 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = CreateL3DDevice(uAdapter, eDeviceType, hWnd);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = InitTransform();
+		hr = InitCameraTransform();
 		HRESULT_ERROR_BREAK(hr);
+
+		m_bActive = TRUE;
 
 		hResult = S_OK;
 	} while (0);
@@ -71,7 +74,7 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 	return hResult;
 }
 
-HRESULT L3DEngine::Active(float fDeltaTime)
+HRESULT L3DEngine::Update(float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -90,10 +93,11 @@ HRESULT L3DEngine::Active(float fDeltaTime)
 			UpdateMessage(&Msg);
 		}
 
-		hr = UpdateTransform(fDeltaTime);
+		hr = UpdateCameraTransform(fDeltaTime);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
+		//hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00000000, 1.0f, 0);
 		HRESULT_ERROR_BREAK(hr);
 
 		m_p3DDevice->BeginScene();
@@ -115,6 +119,11 @@ HRESULT L3DEngine::Active(float fDeltaTime)
 	} while(0);
 
 	return hResult;
+}
+
+BOOL L3DEngine::IsActive()
+{
+	return m_bActive;
 }
 
 HRESULT L3DEngine::GetDevice(IDirect3DDevice9** pp3DDevice)
@@ -313,7 +322,7 @@ HRESULT L3DEngine::InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType)
 	return S_OK;
 }
 
-HRESULT L3DEngine::InitTransform()
+HRESULT L3DEngine::InitCameraTransform()
 {
 	m_Camera.fSightDis = 5.f;
 	m_Camera.vTarget  = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -398,8 +407,10 @@ HRESULT L3DEngine::UpdateMessage(MSG* pMsg)
 	{
 	case WM_MOUSEWHEEL:
 		m_Camera.fSightDis += ((float)GET_WHEEL_DELTA_WPARAM(pMsg->wParam) * 0.005f);
+		break;
 	case WM_QUIT:
-		//Uninit();
+		m_bActive = FALSE;
+		break;
 	default:
 		break;
 	}
@@ -407,7 +418,7 @@ HRESULT L3DEngine::UpdateMessage(MSG* pMsg)
 	return S_OK;
 }
 
-HRESULT L3DEngine::UpdateTransform(float fDeltaTime)
+HRESULT L3DEngine::UpdateCameraTransform(float fDeltaTime)
 {
 	D3DXMATRIX matCamera;
 	D3DXMATRIX matProj;

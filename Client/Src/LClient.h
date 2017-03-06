@@ -15,8 +15,10 @@ public:
 	~LClient();
 
 	HRESULT Init(HINSTANCE hInstance);
-	HRESULT Active();
+	HRESULT Update();
 	HRESULT Uninit();
+
+	BOOL IsActive();
 protected:
 private:
 	LObjectMgr* m_pObjectMgr;

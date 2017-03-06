@@ -28,7 +28,9 @@ public:
 	}
 
 	HRESULT Setup();
-	HRESULT Active();
+	HRESULT Update();
+
+	BOOL IsActive();
 
 private:
 	float m_fLastTime;

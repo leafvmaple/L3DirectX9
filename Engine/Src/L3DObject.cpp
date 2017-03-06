@@ -3,12 +3,12 @@
 
 L3DObject::L3DObject()
 : m_p3DDevice(NULL)
-, m_pMaterial(NULL)
 , m_pTexture(NULL)
 , m_ObjectType(LOBJECT_TYPE_INVALID)
 , m_dwRenderParam(0)
 {
 	ZeroMemory(&m_DisplaySource, sizeof(m_DisplaySource));
+	ZeroMemory(&m_Material, sizeof(m_Material));
 	ZeroMemory(m_vTranslation, sizeof(m_vTranslation));
 	ZeroMemory(m_qRotation, sizeof(m_qRotation));
 	ZeroMemory(m_matTransform, sizeof(m_matTransform));
@@ -84,9 +84,9 @@ HRESULT L3DObject::CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh)
 }
 
 
-HRESULT L3DObject::SetMaterial(D3DMATERIAL9* pMaterial)
+HRESULT L3DObject::SetMaterial(D3DMATERIAL9& Material)
 {
-	m_pMaterial = pMaterial;
+	m_Material = Material;
 	m_dwRenderParam |= LOBJECT_RENDER_MATERIAL;
 	return S_OK;
 }
@@ -128,7 +128,7 @@ HRESULT L3DObject::UpdateDisplay()
 
 HRESULT L3DObject::UpdateMaterial()
 {
-	m_p3DDevice->SetMaterial(m_pMaterial);
+	m_p3DDevice->SetMaterial(&m_Material);
 	return S_OK;
 }
 

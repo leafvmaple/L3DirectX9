@@ -21,6 +21,7 @@ HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 	IDirect3DVertexBuffer9* pVertexBuffer = NULL;
 	IDirect3DIndexBuffer9* pIndexBuffer = NULL;
 	WORD* pwIndices = NULL;
+	D3DMATERIAL9 Material;
 
 	do
 	{
@@ -71,6 +72,11 @@ HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		pwIndices[33] = 4; pwIndices[34] = 3; pwIndices[35] = 7;
 
 		pIndexBuffer->Unlock();
+
+		Material = L3D::GREEN_MTL;
+
+		hr = m_pObject->SetMaterial(Material);
+		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_pObject->SetTexture("res/texture.png");
 		HRESULT_ERROR_BREAK(hr);

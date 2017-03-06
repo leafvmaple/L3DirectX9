@@ -18,7 +18,9 @@ public:
 	virtual HRESULT Uninit();
 
 	virtual HRESULT AttachObject(ILObject* pAction);
-	virtual HRESULT Active(float fDeltaTime);
+	virtual HRESULT Update(float fDeltaTime);
+
+	virtual BOOL IsActive();
 
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice);
 
@@ -42,6 +44,7 @@ private:
 		int nMagFilter;
 	};
 
+	BOOL m_bActive;
 	IDirect3D9* m_p3D9;
 	IDirect3DDevice9* m_p3DDevice;
 
@@ -60,7 +63,7 @@ private:
 private:
 	HRESULT InitPresentParam(HWND hWnd);
 	HRESULT InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType);
-	HRESULT InitTransform();
+	HRESULT InitCameraTransform();
 
 	HRESULT GetL3DAdapter(PUINT puAdapter, D3DDEVTYPE* pDeviceType);
 	HRESULT GetL3DAdapterMode(UINT uAdapter);
@@ -68,5 +71,5 @@ private:
 	HRESULT CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND hWnd);
 
 	HRESULT UpdateMessage(MSG* pMsg);
-	HRESULT UpdateTransform(float fDeltaTime);
+	HRESULT UpdateCameraTransform(float fDeltaTime);
 };

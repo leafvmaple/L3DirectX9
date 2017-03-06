@@ -82,6 +82,8 @@ namespace L3D
 
 	L3DENGINE_API void InitVertexNormal(LightVertex* pVertexs);
 	L3DENGINE_API D3DLIGHT9 InitDirectionalLight(const D3DXVECTOR3& vDirection, const D3DXCOLOR& color);
+	L3DENGINE_API D3DLIGHT9 InitPointLight(const D3DXVECTOR3& vPosition, const D3DXCOLOR& color);
+	L3DENGINE_API D3DLIGHT9 InitSpotLight(const D3DXVECTOR3& vPosition, const D3DXVECTOR3& vDirection, const D3DXCOLOR& color);
 }
 
 struct ADAPTERMODE
@@ -119,7 +121,7 @@ public:
 	virtual HRESULT CreateVertex(IDirect3DDevice9* p3DDevice, IDirect3DVertexBuffer9** ppVertexBuffer, IDirect3DIndexBuffer9** ppIndexBuffer) = 0;
 	virtual HRESULT CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh) = 0;
 
-	virtual HRESULT SetMaterial(D3DMATERIAL9* pMaterial) = 0;
+	virtual HRESULT SetMaterial(D3DMATERIAL9& Material) = 0;
 	virtual HRESULT SetTexture(LPCSTR szTexture) = 0;
 	virtual HRESULT SetTranslation(D3DXVECTOR3& vTranslation) = 0;
 	virtual HRESULT SetRotation(D3DXQUATERNION& qRotation) = 0;
@@ -135,7 +137,9 @@ public:
 	virtual HRESULT Uninit() = 0;
 
 	virtual HRESULT AttachObject(ILObject* pAction) = 0;
-	virtual HRESULT Active(float fDeltaTime) = 0;
+	virtual HRESULT Update(float fDeltaTime) = 0;
+
+	virtual BOOL IsActive() = 0;
 
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice) = 0;
 };

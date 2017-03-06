@@ -40,14 +40,20 @@ HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = m_p3DEngine->GetDevice(&m_p3DDevice);
 		HRESULT_ERROR_BREAK(hr);
 
-		DirectionalLight = L3D::InitDirectionalLight(D3DXVECTOR3(1.f, 0.f, 0.f), L3D::WHITE);
+		DirectionalLight = L3D::InitDirectionalLight(D3DXVECTOR3(1.0f, -0.0f, 0.25f), L3D::WHITE);
 		m_p3DDevice->SetLight(0, &DirectionalLight);
 		m_p3DDevice->LightEnable(0, TRUE);
 
 		//m_p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		m_p3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+		m_p3DDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 		m_p3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
-		m_p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
+		m_p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, FALSE);
+
+		//m_p3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_DIFFUSE);
+		//m_p3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+
+		//m_p3DDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		//m_p3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 		m_fLastTime = (float)timeGetTime();
 
@@ -78,7 +84,7 @@ HRESULT LObjectMgr::Setup()
 	return S_OK;
 }
 
-HRESULT LObjectMgr::Active()
+HRESULT LObjectMgr::Update()
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -99,7 +105,7 @@ HRESULT LObjectMgr::Active()
 			pObject->Display(m_p3DEngine, m_p3DDevice, fDeltaTime);
 		}
 
-		hr = m_p3DEngine->Active(fDeltaTime);
+		hr = m_p3DEngine->Update(fDeltaTime);
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
@@ -110,3 +116,7 @@ HRESULT LObjectMgr::Active()
 	return hResult;
 }
 
+BOOL LObjectMgr::IsActive()
+{
+	return m_p3DEngine->IsActive();
+}
