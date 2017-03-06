@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <process.h>
 #include <strsafe.h>
 #include "L3DObject.h"
 #include "LAssert.h"
@@ -14,9 +15,11 @@ L3DEngine::L3DEngine()
 , m_CurSampFilter(m_SampFilter[GRAPHICS_LEVEL_MAX])
 {
 	memset(&m_Caps9, 0, sizeof(m_Caps9));
+	memset(&m_Camera, 0, sizeof(m_Camera));
 	memset(&m_SampFilter, 0, sizeof(m_SampFilter));
 	memset(&m_WindowParam, 0, sizeof(m_WindowParam));
 	memset(&m_PresentParam, 0, sizeof(m_PresentParam));
+	
 	m_AdapterModes.clear();
 	m_ActionList.clear();
 }
@@ -74,9 +77,22 @@ HRESULT L3DEngine::Active(float fDeltaTime)
 	HRESULT hResult = E_FAIL;
 	L3DObject* pObject = NULL;
 	std::list<ILObject*>::iterator it;
+	MSG Msg;
+
+	::ZeroMemory(&Msg, sizeof(MSG));
 
 	do
 	{
+		while(::PeekMessage(&Msg, 0, 0, 0, PM_REMOVE))
+		{
+			::TranslateMessage(&Msg);
+			::DispatchMessage(&Msg);
+			UpdateMessage(&Msg);
+		}
+
+		hr = UpdateTransform(fDeltaTime);
+		HRESULT_ERROR_BREAK(hr);
+
 		hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
 		HRESULT_ERROR_BREAK(hr);
 
@@ -143,8 +159,7 @@ LRESULT WINAPI L3DEngine::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 {
 	switch (msg)  
 	{  
-	case WM_DESTROY:  
-		//Cleanup();  
+	case WM_DESTROY:
 		PostQuitMessage(0);  
 		break;
 	case WM_KEYDOWN:
@@ -300,20 +315,9 @@ HRESULT L3DEngine::InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType)
 
 HRESULT L3DEngine::InitTransform()
 {
-	D3DXVECTOR3 vPosition(0.0f, 0.0f, -5.0f);
-	D3DXVECTOR3 vTarget(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 vUp(0.0f, 1.0f, 0.0f);
-	D3DXMATRIX matCamera;
-	D3DXMATRIX matProj;
-
-	// ÊÓÍ¼¾ØÕó
-	D3DXMatrixLookAtLH(&matCamera, &vPosition, &vTarget, &vUp);
-	m_p3DDevice->SetTransform(D3DTS_VIEW, &matCamera);
-
-	// Í¶Ó°¾ØÕó
-	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
-	m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
-
+	m_Camera.fSightDis = 5.f;
+	m_Camera.vTarget  = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_Camera.vUp      = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 	return S_OK;
 }
 
@@ -386,4 +390,54 @@ HRESULT L3DEngine::CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND h
 	while(0);
 
 	return hResult;
+}
+
+HRESULT L3DEngine::UpdateMessage(MSG* pMsg)
+{
+	switch (pMsg->message)
+	{
+	case WM_MOUSEWHEEL:
+		m_Camera.fSightDis += ((float)GET_WHEEL_DELTA_WPARAM(pMsg->wParam) * 0.005f);
+	case WM_QUIT:
+		//Uninit();
+	default:
+		break;
+	}
+
+	return S_OK;
+}
+
+HRESULT L3DEngine::UpdateTransform(float fDeltaTime)
+{
+	D3DXMATRIX matCamera;
+	D3DXMATRIX matProj;
+	D3DXVECTOR3 vDelta;
+
+	if( ::GetAsyncKeyState(VK_LEFT) & 0x8000f )
+		m_Camera.fYaw -= 1.f * fDeltaTime;
+
+	if( ::GetAsyncKeyState(VK_RIGHT) & 0x8000f )
+		m_Camera.fYaw += 1.f * fDeltaTime;
+
+	if( ::GetAsyncKeyState(VK_UP) & 0x8000f )
+		m_Camera.fPitch += 1.f * fDeltaTime;
+
+	if( ::GetAsyncKeyState(VK_DOWN) & 0x8000f )
+		m_Camera.fPitch -= 1.f * fDeltaTime;
+
+	m_Camera.fSightDis = max(m_Camera.fSightDis, 3.f);
+
+	D3DXMatrixRotationYawPitchRoll(&matCamera, m_Camera.fYaw, m_Camera.fPitch, m_Camera.fRoll);
+	D3DXVec3TransformNormal(&vDelta, &D3DXVECTOR3(0.0f, 0.0f, -m_Camera.fSightDis), &matCamera);
+	m_Camera.vPositon = m_Camera.vTarget + vDelta;
+
+	// ÊÓÍ¼¾ØÕó
+	D3DXMatrixLookAtLH(&matCamera, &m_Camera.vPositon, &m_Camera.vTarget, &m_Camera.vUp);
+	m_p3DDevice->SetTransform(D3DTS_VIEW, &matCamera);
+
+	// Í¶Ó°¾ØÕó
+	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
+	m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+
+	return S_OK;
 }

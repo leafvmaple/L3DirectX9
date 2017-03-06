@@ -90,8 +90,11 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	hr = Client.Init(hInstance);
 	HRESULT_ERROR_RETURN(hr);
 
-	hr = Client.Active();
-	HRESULT_ERROR_RETURN(hr);
+	while (true)
+	{
+		hr = Client.Active();
+		HRESULT_ERROR_BREAK(hr);
+	}
 
 	Client.Uninit();
 

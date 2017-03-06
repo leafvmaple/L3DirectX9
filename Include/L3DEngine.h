@@ -23,6 +23,17 @@ public:
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice);
 
 private:
+	struct _CameraParam
+	{
+		float fSightDis;
+		float fYaw;
+		float fPitch;
+		float fRoll;
+		D3DXVECTOR3 vPositon;
+		D3DXVECTOR3 vTarget;
+		D3DXVECTOR3 vUp;
+	} m_Camera;
+
 	struct SampFilter
 	{
 		DWORD dwAnisotropy;
@@ -55,4 +66,7 @@ private:
 	HRESULT GetL3DAdapterMode(UINT uAdapter);
 	HRESULT CreateL3DWindow(HWND* pWnd, HINSTANCE hInstance);
 	HRESULT CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND hWnd);
+
+	HRESULT UpdateMessage(MSG* pMsg);
+	HRESULT UpdateTransform(float fDeltaTime);
 };

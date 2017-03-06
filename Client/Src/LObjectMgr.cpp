@@ -26,6 +26,7 @@ HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	D3DLIGHT9 DirectionalLight;
 
 	do 
 	{
@@ -39,11 +40,19 @@ HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = m_p3DEngine->GetDevice(&m_p3DDevice);
 		HRESULT_ERROR_BREAK(hr);
 
+		DirectionalLight = L3D::InitDirectionalLight(D3DXVECTOR3(1.f, 0.f, 0.f), L3D::WHITE);
+		m_p3DDevice->SetLight(0, &DirectionalLight);
+		m_p3DDevice->LightEnable(0, TRUE);
+
+		//m_p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		m_p3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+		m_p3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+		m_p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
+
 		m_fLastTime = (float)timeGetTime();
 
 	} while (0);
 
-	
 	return S_OK;
 }
 
@@ -72,39 +81,32 @@ HRESULT LObjectMgr::Setup()
 HRESULT LObjectMgr::Active()
 {
 	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
 	float fCurTime = 0;
 	float fDeltaTime = 0;
 	LObject* pObject = NULL;
 	std::list<LObject*>::iterator it;
-	MSG Msg;
 
-	::ZeroMemory(&Msg, sizeof(MSG));
-
-	while(Msg.message != WM_QUIT)
+	do
 	{
-		if(::PeekMessage(&Msg, 0, 0, 0, PM_REMOVE))
+		fCurTime = (float)timeGetTime();
+		fDeltaTime = (fCurTime - m_fLastTime) * 0.001f;
+
+		for (it = m_ObjectList.begin(); it != m_ObjectList.end(); it++)
 		{
-			::TranslateMessage(&Msg);
-			::DispatchMessage(&Msg);
+			pObject = *it;
+			BOOL_ERROR_CONTINUE(pObject);
+			pObject->Display(m_p3DEngine, m_p3DDevice, fDeltaTime);
 		}
-		else
-		{
-			fCurTime = (float)timeGetTime();
-			fDeltaTime = (fCurTime - m_fLastTime) * 0.001f;
 
-			for (it = m_ObjectList.begin(); it != m_ObjectList.end(); it++)
-			{
-				pObject = *it;
-				BOOL_ERROR_CONTINUE(pObject);
-				pObject->Display(m_p3DEngine, m_p3DDevice, fDeltaTime);
-			}
+		hr = m_p3DEngine->Active(fDeltaTime);
+		HRESULT_ERROR_BREAK(hr);
 
-			hr = m_p3DEngine->Active(fCurTime);
-			HRESULT_ERROR_BREAK(hr);
+		hResult = S_OK;
+	} while(0);
 
-			m_fLastTime = fCurTime;
-		}
-	}
-	return Msg.wParam;
+	m_fLastTime = fCurTime;
+
+	return hResult;
 }
 

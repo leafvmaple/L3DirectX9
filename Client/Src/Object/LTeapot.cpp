@@ -16,7 +16,6 @@ HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	ID3DXMesh* pMesh = NULL;
-	IDirect3DTexture9* pTexture = NULL;
 
 	do 
 	{
@@ -34,10 +33,6 @@ HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 
 		hr = m_pObject->SetTexture("res/texture.png");
 		HRESULT_ERROR_BREAK(hr);
-
-		//p3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		//p3DDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
-		//p3DDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 
 		hResult = S_OK;
 	} while (0);

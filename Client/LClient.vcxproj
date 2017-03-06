@@ -23,6 +23,11 @@
     <ClInclude Include="Src\Object\LObject.h" />
     <ClInclude Include="Src\Object\LTeapot.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Engine\LEngine.vcxproj">
+      <Project>{442d8edf-0444-4a3a-9693-c3235ac5c6ce}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{508AFAAF-6BC2-4F4D-96CC-64311FD324BA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
