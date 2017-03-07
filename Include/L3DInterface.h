@@ -122,10 +122,11 @@ public:
 	virtual HRESULT CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh) = 0;
 
 	virtual HRESULT SetAlpha(float fAlpha) = 0;
-	virtual HRESULT SetMaterial(D3DMATERIAL9& Material) = 0;
+	virtual HRESULT SetScale(float fScale) = 0;
 	virtual HRESULT SetTexture(LPCSTR szTexture) = 0;
-	virtual HRESULT SetTranslation(D3DXVECTOR3& vTranslation) = 0;
-	virtual HRESULT SetRotation(D3DXQUATERNION& qRotation) = 0;
+	virtual HRESULT SetMaterial(const D3DMATERIAL9& Material) = 0;
+	virtual HRESULT SetTranslation(const D3DXVECTOR3& vTranslation) = 0;
+	virtual HRESULT SetRotation(const D3DXQUATERNION& qRotation) = 0;
 };
 
 class L3DENGINE_CLASS IL3DEngine

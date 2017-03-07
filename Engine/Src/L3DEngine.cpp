@@ -406,7 +406,7 @@ HRESULT L3DEngine::UpdateMessage(MSG* pMsg)
 	switch (pMsg->message)
 	{
 	case WM_MOUSEWHEEL:
-		m_Camera.fSightDis += ((float)GET_WHEEL_DELTA_WPARAM(pMsg->wParam) * 0.005f);
+		m_Camera.fSightDis -= ((float)GET_WHEEL_DELTA_WPARAM(pMsg->wParam) * 0.005f);
 		break;
 	case WM_QUIT:
 		m_bActive = FALSE;

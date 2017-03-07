@@ -16,7 +16,6 @@ HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	ID3DXMesh* pMesh = NULL;
-	D3DMATERIAL9 Material;
 
 	do 
 	{
@@ -32,9 +31,7 @@ HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		hr = m_pObject->SetTranslation(D3DXVECTOR3(-1, -1, -1));
 		HRESULT_ERROR_BREAK(hr);
 
-		Material = L3D::RED_MTL;
-
-		hr = m_pObject->SetMaterial(Material);
+		hr = m_pObject->SetMaterial(L3D::RED_MTL);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_pObject->SetAlpha(0.5);

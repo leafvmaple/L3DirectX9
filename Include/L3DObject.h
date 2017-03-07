@@ -25,10 +25,11 @@ public:
 	virtual HRESULT CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh);
 
 	virtual HRESULT SetAlpha(float fAlpha);
-	virtual HRESULT SetMaterial(D3DMATERIAL9& Material);
+	virtual HRESULT SetScale(float fScale);
 	virtual HRESULT SetTexture(LPCSTR szTexture);
-	virtual HRESULT SetTranslation(D3DXVECTOR3& vTranslation);
-	virtual HRESULT SetRotation(D3DXQUATERNION& qRotation);
+	virtual HRESULT SetMaterial(const D3DMATERIAL9& Material);
+	virtual HRESULT SetTranslation(const D3DXVECTOR3& vTranslation);
+	virtual HRESULT SetRotation(const D3DXQUATERNION& qRotation);
 
 public:
 	HRESULT UpdateDisplay();
@@ -40,6 +41,7 @@ private:
 	DWORD m_dwRenderParam;
 
 	float m_fAlpha;
+	float m_fScale;
 	D3DMATERIAL9 m_Material;
 	D3DXVECTOR3 m_vTranslation;
 	D3DXQUATERNION m_qRotation;
@@ -50,6 +52,7 @@ private:
 	HRESULT UpdateTexture();
 	HRESULT UpdateTransform();
 	HRESULT UpdateDraw();
+	HRESULT ResetRendState();
 
 	union
 	{

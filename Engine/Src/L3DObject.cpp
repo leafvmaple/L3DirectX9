@@ -6,6 +6,7 @@ L3DObject::L3DObject()
 , m_pTexture(NULL)
 , m_ObjectType(LOBJECT_TYPE_INVALID)
 , m_fAlpha(1.f)
+, m_fScale(1.f)
 , m_dwRenderParam(0)
 {
 	ZeroMemory(&m_DisplaySource, sizeof(m_DisplaySource));
@@ -92,10 +93,9 @@ HRESULT L3DObject::SetAlpha(float fAlpha)
 	return S_OK;
 }
 
-HRESULT L3DObject::SetMaterial(D3DMATERIAL9& Material)
+HRESULT L3DObject::SetScale(float fScale)
 {
-	m_Material = Material;
-	m_dwRenderParam |= LOBJECT_RENDER_MATERIAL;
+	m_fScale = fScale;
 	return S_OK;
 }
 
@@ -106,14 +106,21 @@ HRESULT L3DObject::SetTexture(LPCSTR szTexture)
 	return S_OK;
 }
 
-HRESULT L3DObject::SetTranslation(D3DXVECTOR3& vTranslation)
+HRESULT L3DObject::SetMaterial(const D3DMATERIAL9& Material)
+{
+	m_Material = Material;
+	m_dwRenderParam |= LOBJECT_RENDER_MATERIAL;
+	return S_OK;
+}
+
+HRESULT L3DObject::SetTranslation(const D3DXVECTOR3& vTranslation)
 {
 	m_vTranslation = vTranslation;
 	m_dwRenderParam |= LOBJECT_RENDER_TRANSFORM;
 	return S_OK;
 }
 
-HRESULT L3DObject::SetRotation(D3DXQUATERNION& qRotation)
+HRESULT L3DObject::SetRotation(const D3DXQUATERNION& qRotation)
 {
 	m_qRotation = qRotation;
 	m_dwRenderParam |= LOBJECT_RENDER_TRANSFORM;
@@ -127,6 +134,9 @@ HRESULT L3DObject::UpdateDisplay()
 
 	do 
 	{
+		hr = UpdateRenderState();
+		HRESULT_ERROR_BREAK(hr);
+
 		hr = UpdateMaterial();
 		HRESULT_ERROR_BREAK(hr);
 
@@ -139,6 +149,9 @@ HRESULT L3DObject::UpdateDisplay()
 		hr = UpdateDraw();
 		HRESULT_ERROR_BREAK(hr);
 
+		hr = ResetRendState();
+		HRESULT_ERROR_BREAK(hr);
+
 		hResult = S_OK;
 	} while (0);
 
@@ -148,10 +161,7 @@ HRESULT L3DObject::UpdateDisplay()
 HRESULT L3DObject::UpdateRenderState()
 {
 	if (m_dwRenderParam & LOBJECT_RENDER_ALPHA)
-	{
-		m_p3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_DIFFUSE);
-		m_p3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-	}
+		m_p3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	return S_OK;
 }
 
@@ -170,7 +180,7 @@ HRESULT L3DObject::UpdateTexture()
 
 HRESULT L3DObject::UpdateTransform()
 {
-	D3DXMatrixTransformation(&m_matTransform, NULL, NULL, NULL, NULL, &m_qRotation, &m_vTranslation);
+	D3DXMatrixTransformation(&m_matTransform, NULL, NULL, &D3DXVECTOR3(m_fScale, m_fScale, m_fScale), NULL, &m_qRotation, &m_vTranslation);
 	m_p3DDevice->SetTransform(D3DTS_WORLD, &m_matTransform);
 	return S_OK;
 }
@@ -196,5 +206,12 @@ HRESULT L3DObject::UpdateDraw()
 	default:
 		break;
 	}
+	return S_OK;
+}
+
+HRESULT L3DObject::ResetRendState()
+{
+	if (m_dwRenderParam & LOBJECT_RENDER_ALPHA)
+		m_p3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	return S_OK;
 }
