@@ -63,7 +63,7 @@ private:
 private:
 	HRESULT InitPresentParam(HWND hWnd);
 	HRESULT InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType);
-	HRESULT InitCameraTransform();
+	HRESULT InitCameraParam();
 
 	HRESULT GetL3DAdapter(PUINT puAdapter, D3DDEVTYPE* pDeviceType);
 	HRESULT GetL3DAdapterMode(UINT uAdapter);
@@ -71,5 +71,5 @@ private:
 	HRESULT CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND hWnd);
 
 	HRESULT UpdateMessage(MSG* pMsg);
-	HRESULT UpdateCameraTransform(float fDeltaTime);
+	HRESULT UpdateCamera(float fDeltaTime);
 };

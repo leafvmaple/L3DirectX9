@@ -5,6 +5,7 @@ L3DObject::L3DObject()
 : m_p3DDevice(NULL)
 , m_pTexture(NULL)
 , m_ObjectType(LOBJECT_TYPE_INVALID)
+, m_fAlpha(1.f)
 , m_dwRenderParam(0)
 {
 	ZeroMemory(&m_DisplaySource, sizeof(m_DisplaySource));
@@ -84,6 +85,13 @@ HRESULT L3DObject::CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh)
 }
 
 
+HRESULT L3DObject::SetAlpha(float fAlpha)
+{
+	m_fAlpha = fAlpha;
+	m_dwRenderParam |= LOBJECT_RENDER_ALPHA;
+	return S_OK;
+}
+
 HRESULT L3DObject::SetMaterial(D3DMATERIAL9& Material)
 {
 	m_Material = Material;
@@ -114,20 +122,42 @@ HRESULT L3DObject::SetRotation(D3DXQUATERNION& qRotation)
 
 HRESULT L3DObject::UpdateDisplay()
 {
-	if (m_dwRenderParam & LOBJECT_RENDER_MATERIAL)
-		UpdateMaterial();
-	if (m_dwRenderParam & LOBJECT_RENDER_TEXTURE)
-		UpdateTexture();
-	if (m_dwRenderParam & LOBJECT_RENDER_TRANSFORM)
-		UpdateTransform();
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
 
-	UpdateDraw();
+	do 
+	{
+		hr = UpdateMaterial();
+		HRESULT_ERROR_BREAK(hr);
 
+		hr = UpdateTexture();
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = UpdateTransform();
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = UpdateDraw();
+		HRESULT_ERROR_BREAK(hr);
+
+		hResult = S_OK;
+	} while (0);
+
+	return S_OK;
+}
+
+HRESULT L3DObject::UpdateRenderState()
+{
+	if (m_dwRenderParam & LOBJECT_RENDER_ALPHA)
+	{
+		m_p3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_DIFFUSE);
+		m_p3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+	}
 	return S_OK;
 }
 
 HRESULT L3DObject::UpdateMaterial()
 {
+	m_Material.Diffuse.a = m_fAlpha;
 	m_p3DDevice->SetMaterial(&m_Material);
 	return S_OK;
 }

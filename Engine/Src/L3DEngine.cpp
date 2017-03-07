@@ -63,7 +63,7 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = CreateL3DDevice(uAdapter, eDeviceType, hWnd);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = InitCameraTransform();
+		hr = InitCameraParam();
 		HRESULT_ERROR_BREAK(hr);
 
 		m_bActive = TRUE;
@@ -93,7 +93,7 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 			UpdateMessage(&Msg);
 		}
 
-		hr = UpdateCameraTransform(fDeltaTime);
+		hr = UpdateCamera(fDeltaTime);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
@@ -322,7 +322,7 @@ HRESULT L3DEngine::InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType)
 	return S_OK;
 }
 
-HRESULT L3DEngine::InitCameraTransform()
+HRESULT L3DEngine::InitCameraParam()
 {
 	m_Camera.fSightDis = 5.f;
 	m_Camera.vTarget  = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -418,7 +418,7 @@ HRESULT L3DEngine::UpdateMessage(MSG* pMsg)
 	return S_OK;
 }
 
-HRESULT L3DEngine::UpdateCameraTransform(float fDeltaTime)
+HRESULT L3DEngine::UpdateCamera(float fDeltaTime)
 {
 	D3DXMATRIX matCamera;
 	D3DXMATRIX matProj;

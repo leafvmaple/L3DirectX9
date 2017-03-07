@@ -33,9 +33,11 @@ HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		HRESULT_ERROR_BREAK(hr);
 
 		Material = L3D::RED_MTL;
-		Material.Diffuse.a = 0.5;
 
 		hr = m_pObject->SetMaterial(Material);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = m_pObject->SetAlpha(0.5);
 		HRESULT_ERROR_BREAK(hr);
 
 		//hr = m_pObject->SetTexture("res/texture.png");
