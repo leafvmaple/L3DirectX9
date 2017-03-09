@@ -27,14 +27,7 @@ HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		BOOL_ERROR_BREAK(p3DDevice);
 		BOOL_ERROR_BREAK(p3DEngine);
 
-		hr = CreateLObject(p3DEngine, &m_pObject);
-		HRESULT_ERROR_BREAK(hr);
-
-		hr = m_pObject->CreateVertex(p3DDevice, &pVertexBuffer, &pIndexBuffer);
-		HRESULT_ERROR_BREAK(hr);
-
-		pVertexBuffer->Lock(0, 0, (void**)&pVertices, 0);
-
+		pVertices = new TexVertex[8];
 		pVertices[0] = TexVertex(-1.0f, -1.0f, -1.0f, D3DCOLOR_XRGB(255, 0, 0),  0.0f,  1.0f);
 		pVertices[1] = TexVertex(-1.0f,  1.0f, -1.0f, D3DCOLOR_XRGB(0, 255, 0),  0.0f,  0.0f);
 		pVertices[2] = TexVertex( 1.0f,  1.0f, -1.0f, D3DCOLOR_XRGB(0, 0, 255),  1.0f,  0.0f);
@@ -44,14 +37,7 @@ HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		pVertices[6] = TexVertex( 1.0f,  1.0f,  1.0f, D3DCOLOR_XRGB(255, 0, 0),  1.0f,  1.0f);
 		pVertices[7] = TexVertex( 1.0f, -1.0f,  1.0f, D3DCOLOR_XRGB(0, 255, 0),  1.0f,  0.0f);
 
-		pVertexBuffer->Unlock();
-
-		//L3D::InitVertexNormal(&pVertices[0]);
-		//L3D::InitVertexNormal(&pVertices[3]);
-
-		// 定义立方体的三角形
-		pIndexBuffer->Lock(0, 0, (void**)&pwIndices, 0);
-
+		pwIndices = new WORD[36];
 		pwIndices[0] = 0; pwIndices[1] = 1; pwIndices[2] = 2;
 		pwIndices[3] = 0; pwIndices[4] = 2; pwIndices[5] = 3;
 		// 背面
@@ -70,7 +56,8 @@ HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		pwIndices[30] = 4; pwIndices[31] = 0; pwIndices[32] = 3;
 		pwIndices[33] = 4; pwIndices[34] = 3; pwIndices[35] = 7;
 
-		pIndexBuffer->Unlock();
+		hr = ILModel::Create(p3DEngine, pVertices, 8 * sizeof(TexVertex), pwIndices, 36 * sizeof(WORD), &m_pObject);
+		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_pObject->SetScale(1.5);
 		HRESULT_ERROR_BREAK(hr);

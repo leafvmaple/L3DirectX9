@@ -4,6 +4,7 @@
 #include "LExports.h"
 
 #define L3DX_2PI    ((FLOAT)  6.283185308f)
+#define FONT_STRING_MAX 260
 
 #define GRAPHICS_LEVEL_COUNT 2
 #define GRAPHICS_LEVEL_MIN 0
@@ -112,23 +113,6 @@ enum LOBJECT_TYPE
 	LOBJECT_TYPE_COUNT,
 };
 
-class L3DENGINE_CLASS ILObject
-{
-public:
-	ILObject() {};
-	virtual ~ILObject() {};
-	
-	virtual HRESULT CreateVertex(IDirect3DDevice9* p3DDevice, IDirect3DVertexBuffer9** ppVertexBuffer, IDirect3DIndexBuffer9** ppIndexBuffer) = 0;
-	virtual HRESULT CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh) = 0;
-
-	virtual HRESULT SetAlpha(float fAlpha) = 0;
-	virtual HRESULT SetScale(float fScale) = 0;
-	virtual HRESULT SetTexture(LPCSTR szTexture) = 0;
-	virtual HRESULT SetMaterial(const D3DMATERIAL9& Material) = 0;
-	virtual HRESULT SetTranslation(const D3DXVECTOR3& vTranslation) = 0;
-	virtual HRESULT SetRotation(const D3DXQUATERNION& qRotation) = 0;
-};
-
 class L3DENGINE_CLASS IL3DEngine
 {
 public:
@@ -138,13 +122,41 @@ public:
 	virtual HRESULT Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam) = 0;
 	virtual HRESULT Uninit() = 0;
 
-	virtual HRESULT AttachObject(ILObject* pAction) = 0;
 	virtual HRESULT Update(float fDeltaTime) = 0;
 
 	virtual BOOL IsActive() = 0;
 
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice) = 0;
+
+	static HRESULT Create(IL3DEngine** ppL3DEngine);
 };
 
-L3DENGINE_API HRESULT CreateL3DEngine(IL3DEngine** ppL3DEngine);
-L3DENGINE_API HRESULT CreateLObject(IL3DEngine* pL3DEngie, ILObject** ppObject);
+class L3DENGINE_CLASS ILFont
+{
+public:
+	ILFont() {};
+	~ILFont() {};
+
+	virtual HRESULT SetText(LPCWSTR szString) = 0;
+	virtual HRESULT SetColor(const D3DXCOLOR& color) = 0;
+	virtual HRESULT SetPosition(int nX, int nY) = 0;
+
+	static HRESULT Create(IL3DEngine* pL3DEngie, ILFont** ppFont, int nSize = 9);
+};
+
+class L3DENGINE_CLASS ILModel
+{
+public:
+	ILModel() {};
+	virtual ~ILModel() {};
+
+	virtual HRESULT SetAlpha(float fAlpha) = 0;
+	virtual HRESULT SetScale(float fScale) = 0;
+	virtual HRESULT SetTexture(LPCSTR szTexture) = 0;
+	virtual HRESULT SetMaterial(const D3DMATERIAL9& Material) = 0;
+	virtual HRESULT SetTranslation(const D3DXVECTOR3& vTranslation) = 0;
+	virtual HRESULT SetRotation(const D3DXQUATERNION& qRotation) = 0;
+
+	static HRESULT Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel);
+	static HRESULT Create(IL3DEngine* pL3DEngie, ID3DXMesh** ppMesh, ILModel** ppModel);
+};

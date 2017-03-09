@@ -6,7 +6,7 @@
 #include "Object/LCube.h"
 #include "Object/LTeapot.h"
 
-class LObject;
+class LModel;
 class IL3DEngine;
 
 class LObjectMgr
@@ -19,22 +19,24 @@ public:
 	HRESULT Uninit();
 
 	template<typename T>
-	HRESULT CreateObject()
+	HRESULT CreateModel()
 	{
-		LObject* pObject = NULL;
+		LModel* pObject = NULL;
 		pObject = new T;
 		m_ObjectList.push_back(pObject);
 		return S_OK;
 	}
 
 	HRESULT Setup();
-	HRESULT Update();
+	HRESULT Update(float fDeltaTime);
 
 	BOOL IsActive();
+	IL3DEngine* GetEngine() const;
 
 private:
-	float m_fLastTime;
 	IL3DEngine* m_p3DEngine;
 	IDirect3DDevice9* m_p3DDevice;
-	std::list<LObject*> m_ObjectList;
+	std::list<LModel*> m_ObjectList;
+	
+	ILFont* m_pFont;
 };

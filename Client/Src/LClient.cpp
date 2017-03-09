@@ -1,7 +1,12 @@
 #include "LClient.h"
+#include "L3DInterface.h"
 
 LClient::LClient()
-: m_pObjectMgr(NULL)
+: m_fLastTime(0.f)
+, m_fTimeElapsed(0.f)
+, m_nFrame(0)
+, m_pFont(NULL)
+, m_pObjectMgr(NULL)
 {
 
 }
@@ -15,6 +20,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	IL3DEngine* pEngine = NULL;
 	L3DWINDOWPARAM WindowParam;
 
 	do 
@@ -33,14 +39,31 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		hr = m_pObjectMgr->Init(hInstance, WindowParam);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pObjectMgr->CreateObject<LCube>();
+		hr = m_pObjectMgr->CreateModel<LCube>();
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pObjectMgr->CreateObject<LTeapot>();
+		hr = m_pObjectMgr->CreateModel<LTeapot>();
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_pObjectMgr->Setup();
 		HRESULT_ERROR_BREAK(hr);
+
+		pEngine = m_pObjectMgr->GetEngine();
+		BOOL_ERROR_BREAK(pEngine);
+
+		hr = ILFont::Create(pEngine, &m_pFont, 12);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = m_pFont->SetText(TEXT("FPS:"));
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = m_pFont->SetColor(L3D::GREEN);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = m_pFont->SetPosition(0, 0);
+		HRESULT_ERROR_BREAK(hr);
+
+		m_fLastTime = (float)timeGetTime();
 
 		hResult = S_OK;
 
@@ -58,8 +81,16 @@ HRESULT LClient::Update()
 
 	do
 	{
-		hr = m_pObjectMgr->Update();
+		fCurTime = (float)timeGetTime();
+		fDeltaTime = (fCurTime - m_fLastTime) * 0.001f;
+
+		hr = m_pObjectMgr->Update(fDeltaTime);
 		HRESULT_ERROR_BREAK(hr);
+
+		hr = ShowFPS(fDeltaTime);
+		HRESULT_ERROR_BREAK(hr);
+
+		m_fLastTime = fCurTime;
 
 		hResult = S_OK;
 	} while(0);
@@ -85,6 +116,33 @@ HRESULT LClient::Uninit()
 BOOL LClient::IsActive()
 {
 	return m_pObjectMgr->IsActive();
+}
+
+HRESULT LClient::ShowFPS(float fDeltaTime)
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+	WCHAR wszFPS[FONT_STRING_MAX];
+
+	do 
+	{
+		m_nFrame++;
+		m_fTimeElapsed += fDeltaTime;
+
+		if (m_fTimeElapsed >= 1.0f)
+		{
+			swprintf(wszFPS, FONT_STRING_MAX, TEXT("FPS:%.2f"), m_nFrame / m_fTimeElapsed);
+
+			hr = m_pFont->SetText(wszFPS);
+			HRESULT_ERROR_BREAK(hr);
+
+			m_fTimeElapsed = 0.f;
+			m_nFrame = 0;
+		}
+		hResult = S_OK;
+	} while (0);
+	
+	return hResult;
 }
 
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)

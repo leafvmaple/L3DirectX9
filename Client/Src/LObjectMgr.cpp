@@ -1,19 +1,19 @@
 #include "LObjectMgr.h"
-#include "Object/LObject.h"
+#include "Object/LModel.h"
 #include "LAssert.h"
 
 LObjectMgr::LObjectMgr()
-: m_fLastTime(0.f)
-, m_p3DEngine(NULL)
+: m_p3DEngine(NULL)
 , m_p3DDevice(NULL)
+, m_pFont(NULL)
 {
 	m_ObjectList.clear();
 }
 
 LObjectMgr::~LObjectMgr()
 {
-	LObject* pObject = NULL;
-	std::list<LObject*>::iterator it;
+	LModel* pObject = NULL;
+	std::list<LModel*>::iterator it;
 
 	for (it = m_ObjectList.begin(); it != m_ObjectList.end(); it++)
 	{
@@ -31,7 +31,7 @@ HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 	do 
 	{
 		// Init Engine
-		hr = CreateL3DEngine(&m_p3DEngine);
+		hr = IL3DEngine::Create(&m_p3DEngine);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_p3DEngine->Init(hInstance, WindowParam);
@@ -55,8 +55,6 @@ HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		m_p3DDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_p3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-		m_fLastTime = (float)timeGetTime();
-
 	} while (0);
 
 	return S_OK;
@@ -71,33 +69,34 @@ HRESULT LObjectMgr::Uninit()
 
 HRESULT LObjectMgr::Setup()
 {
-	LObject* pObject = NULL;
-	std::list<LObject*>::iterator it;
+	HRESULT hr = E_FAIL;
+	LModel* pObject = NULL;
+	std::list<LModel*>::iterator itModel;
 
-	for (it = m_ObjectList.begin(); it != m_ObjectList.end(); it++)
+	do 
 	{
-		pObject = *it;
-		BOOL_ERROR_CONTINUE(pObject);
-		pObject->Setup(m_p3DEngine, m_p3DDevice);
-	}
+		for (itModel = m_ObjectList.begin(); itModel != m_ObjectList.end(); itModel++)
+		{
+			pObject = *itModel;
+			BOOL_ERROR_CONTINUE(pObject);
+			hr = pObject->Setup(m_p3DEngine, m_p3DDevice);
+			HRESULT_ERROR_CONTINUE(hr);
+		}
+
+	} while (0);
 
 	return S_OK;
 }
 
-HRESULT LObjectMgr::Update()
+HRESULT LObjectMgr::Update(float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	float fCurTime = 0;
-	float fDeltaTime = 0;
-	LObject* pObject = NULL;
-	std::list<LObject*>::iterator it;
+	LModel* pObject = NULL;
+	std::list<LModel*>::iterator it;
 
 	do
 	{
-		fCurTime = (float)timeGetTime();
-		fDeltaTime = (fCurTime - m_fLastTime) * 0.001f;
-
 		for (it = m_ObjectList.begin(); it != m_ObjectList.end(); it++)
 		{
 			pObject = *it;
@@ -111,12 +110,15 @@ HRESULT LObjectMgr::Update()
 		hResult = S_OK;
 	} while(0);
 
-	m_fLastTime = fCurTime;
-
 	return hResult;
 }
 
 BOOL LObjectMgr::IsActive()
 {
 	return m_p3DEngine->IsActive();
+}
+
+IL3DEngine* LObjectMgr::GetEngine() const
+{
+	return m_p3DEngine;
 }

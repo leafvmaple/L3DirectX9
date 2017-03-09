@@ -22,10 +22,7 @@ HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		BOOL_ERROR_BREAK(p3DDevice);
 		BOOL_ERROR_BREAK(p3DEngine);
 
-		hr = CreateLObject(p3DEngine, &m_pObject);
-		HRESULT_ERROR_BREAK(hr);
-
-		hr = m_pObject->CreateMesh(p3DDevice, &pMesh);
+		hr = ILModel::Create(p3DEngine, &pMesh, &m_pObject);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_pObject->SetTranslation(D3DXVECTOR3(-1, -1, -1));

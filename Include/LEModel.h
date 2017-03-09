@@ -15,14 +15,14 @@ enum LOBJECT_RENDER_PARAM
 
 struct IDirect3DDevice9;
 
-class L3DObject : public ILObject
+class LEModel : public ILModel
 {
 public:
-	L3DObject();
-	~L3DObject();
+	LEModel();
+	~LEModel();
 
-	virtual HRESULT CreateVertex(IDirect3DDevice9* p3DDevice, IDirect3DVertexBuffer9** ppVertexBuffer, IDirect3DIndexBuffer9** ppIndexBuffer);
-	virtual HRESULT CreateMesh(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh);
+	HRESULT Init(IDirect3DDevice9* p3DDevice, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount);
+	HRESULT Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh);
 
 	virtual HRESULT SetAlpha(float fAlpha);
 	virtual HRESULT SetScale(float fScale);

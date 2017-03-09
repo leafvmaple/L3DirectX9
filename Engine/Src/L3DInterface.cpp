@@ -1,7 +1,8 @@
 #include "LAssert.h"
 #include "L3DInterface.h"
 #include "L3DEngine.h"
-#include "L3DObject.h"
+#include "LEModel.h"
+#include "LEFont.h"
 
 L3DENGINE_API void L3D::InitVertexNormal(LightVertex* pVertexs)
 {
@@ -67,25 +68,104 @@ L3DENGINE_API D3DLIGHT9 L3D::InitSpotLight(const D3DXVECTOR3& vPosition, const D
 	return Light;
 }
 
-L3DENGINE_API HRESULT CreateL3DEngine(IL3DEngine** ppL3DEngine)
+HRESULT IL3DEngine::Create(IL3DEngine** ppL3DEngine)
 {
 	*ppL3DEngine = new L3DEngine;
 	return *ppL3DEngine ? S_OK : E_FAIL;
 }
 
-L3DENGINE_API HRESULT CreateLObject(IL3DEngine* pL3DEngie, ILObject** ppObject)
+HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	L3DEngine* pEngine = NULL;
+	LEModel* pEModel = NULL;
+	IDirect3DDevice9* p3DDevice = NULL;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(pL3DEngie);
 
-		*ppObject = new L3DObject;
-		BOOL_ERROR_BREAK(*ppObject);
+		pEModel = new LEModel;
+		BOOL_ERROR_BREAK(pEModel);
 
-		pL3DEngie->AttachObject(*ppObject);
+		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
+		BOOL_ERROR_BREAK(pEngine);
+
+		hr = pEngine->GetDevice(&p3DDevice);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = pEModel->Init(p3DDevice, pModelVerteices, nVerteicesCount, pwModelIndices, nIndicesCount);
+		HRESULT_ERROR_BREAK(hr);
+
+		pEngine->AttachObject(pEModel);
+		*ppModel = pEModel;
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+HRESULT ILModel::Create(IL3DEngine* pL3DEngie, ID3DXMesh** ppMesh, ILModel** ppModel)
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+	L3DEngine* pEngine = NULL;
+	LEModel* pEModel = NULL;
+	IDirect3DDevice9* p3DDevice = NULL;
+
+	do 
+	{
+		BOOL_ERROR_BREAK(pL3DEngie);
+
+		pEModel = new LEModel;
+		BOOL_ERROR_BREAK(pEModel);
+
+		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
+		BOOL_ERROR_BREAK(pEngine);
+
+		hr = pEngine->GetDevice(&p3DDevice);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = pEModel->Init(p3DDevice, ppMesh);
+		HRESULT_ERROR_BREAK(hr);
+
+		pEngine->AttachObject(pEModel);
+		*ppModel = pEModel;
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+HRESULT ILFont::Create(IL3DEngine* pL3DEngie, ILFont** ppFont, int nSize/* = 9 */)
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+	L3DEngine* pEngine = NULL;
+	LEFont* pEFont = NULL;
+	IDirect3DDevice9* p3DDevice = NULL;
+
+	do 
+	{
+		BOOL_ERROR_BREAK(pL3DEngie);
+
+		pEFont = new LEFont;
+		BOOL_ERROR_BREAK(pEFont);
+
+		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
+		BOOL_ERROR_BREAK(pEngine);
+
+		hr = pEngine->GetDevice(&p3DDevice);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = pEFont->Init(p3DDevice, nSize);
+		HRESULT_ERROR_BREAK(hr);
+
+		pEngine->AttachFont(pEFont);
+		*ppFont = pEFont;
 
 		hResult = S_OK;
 	} while (0);

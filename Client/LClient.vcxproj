@@ -20,7 +20,7 @@
     <ClInclude Include="Src\LClient.h" />
     <ClInclude Include="Src\LObjectMgr.h" />
     <ClInclude Include="Src\Object\LCube.h" />
-    <ClInclude Include="Src\Object\LObject.h" />
+    <ClInclude Include="Src\Object\LModel.h" />
     <ClInclude Include="Src\Object\LTeapot.h" />
   </ItemGroup>
   <ItemGroup>

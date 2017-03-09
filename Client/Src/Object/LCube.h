@@ -1,8 +1,8 @@
 #pragma once
 
-#include "LObject.h"
+#include "LModel.h"
 
-class LCube : public LObject
+class LCube : public LModel
 {
 public:
 	LCube();

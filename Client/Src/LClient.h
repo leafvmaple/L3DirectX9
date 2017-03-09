@@ -19,7 +19,13 @@ public:
 	HRESULT Uninit();
 
 	BOOL IsActive();
+
+	HRESULT ShowFPS(float fDeltaTime);
 protected:
 private:
+	float m_fLastTime;
+	float m_fTimeElapsed;
+	int m_nFrame;
+	ILFont* m_pFont;
 	LObjectMgr* m_pObjectMgr;
 };

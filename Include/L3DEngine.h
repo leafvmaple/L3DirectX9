@@ -6,7 +6,7 @@
 #include <list>
 #include "L3DInterface.h"
 
-class ILObject;
+class ILModel;
 
 class L3DEngine : public IL3DEngine
 {
@@ -16,13 +16,16 @@ public:
 
 	virtual HRESULT Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam);
 	virtual HRESULT Uninit();
-
-	virtual HRESULT AttachObject(ILObject* pAction);
+	
 	virtual HRESULT Update(float fDeltaTime);
 
 	virtual BOOL IsActive();
 
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice);
+
+public:
+	HRESULT AttachObject(ILModel* pAction);
+	HRESULT AttachFont(ILFont* pFont);
 
 private:
 	struct _CameraParam
@@ -55,7 +58,8 @@ private:
 	D3DCAPS9 m_Caps9;
 	D3DPRESENT_PARAMETERS m_PresentParam;
 	std::vector<ADAPTERMODE> m_AdapterModes;
-	std::list<ILObject*> m_ActionList;
+	std::list<ILModel*> m_ModelList;
+	std::list<ILFont*> m_FontList;
 
 private:
 	static LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "LObject.h"
+#include "LModel.h"
 
-class L3DENGINE_CLASS ILObject;
-class LTeapot : public LObject
+class LTeapot : public LModel
 {
 public:
 	LTeapot();

@@ -1,7 +1,8 @@
 #include <Windows.h>
 #include <process.h>
 #include <strsafe.h>
-#include "L3DObject.h"
+#include "LEModel.h"
+#include "LEFont.h"
 #include "LAssert.h"
 #include "L3DEngine.h"
 
@@ -22,7 +23,7 @@ L3DEngine::L3DEngine()
 	memset(&m_PresentParam, 0, sizeof(m_PresentParam));
 	
 	m_AdapterModes.clear();
-	m_ActionList.clear();
+	m_ModelList.clear();
 }
 
 L3DEngine::~L3DEngine()
@@ -78,8 +79,10 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	L3DObject* pObject = NULL;
-	std::list<ILObject*>::iterator it;
+	LEModel* pObject = NULL;
+	LEFont* pFont = NULL;
+	std::list<ILModel*>::iterator itModel;
+	std::list<ILFont*>::iterator itFont;
 	MSG Msg;
 
 	::ZeroMemory(&Msg, sizeof(MSG));
@@ -102,12 +105,20 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 
 		m_p3DDevice->BeginScene();
 
-		for (it = m_ActionList.begin(); it != m_ActionList.end(); it++)
+		for (itModel = m_ModelList.begin(); itModel != m_ModelList.end(); itModel++)
 		{
-			pObject = dynamic_cast<L3DObject*>(*it);
+			pObject = dynamic_cast<LEModel*>(*itModel);
 			BOOL_ERROR_CONTINUE(pObject);
 
 			pObject->UpdateDisplay();
+		}
+
+		for (itFont = m_FontList.begin(); itFont != m_FontList.end(); itFont++)
+		{
+			pFont = dynamic_cast<LEFont*>(*itFont);
+			BOOL_ERROR_CONTINUE(pFont);
+
+			pFont->UpdateDisplay();
 		}
 
 		m_p3DDevice->EndScene();
@@ -134,29 +145,44 @@ HRESULT L3DEngine::GetDevice(IDirect3DDevice9** pp3DDevice)
 
 HRESULT L3DEngine::Uninit()
 {
-	ILObject* pAction;
-	std::list<ILObject*>::iterator it;
+	ILModel* pAction;
+	std::list<ILModel*>::iterator it;
 
-	for (it = m_ActionList.begin(); it != m_ActionList.end();)
+	for (it = m_ModelList.begin(); it != m_ModelList.end();)
 	{
 		pAction = *it;
 		BOOL_ERROR_CONTINUE(pAction);
 
-		it = m_ActionList.erase(it);
+		it = m_ModelList.erase(it);
 		SAFE_DELETE(pAction);
 	}
 
 	return S_OK;
 }
 
-HRESULT L3DEngine::AttachObject(ILObject* pAction)
+HRESULT L3DEngine::AttachObject(ILModel* pAction)
 {
 	HRESULT hResult = E_FAIL;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(pAction);
-		m_ActionList.push_back(pAction);
+		m_ModelList.push_back(pAction);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+HRESULT L3DEngine::AttachFont(ILFont* pFont)
+{
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		BOOL_ERROR_BREAK(pFont);
+		m_FontList.push_back(pFont);
 
 		hResult = S_OK;
 	} while (0);
