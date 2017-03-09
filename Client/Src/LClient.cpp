@@ -54,9 +54,6 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		hr = ILFont::Create(pEngine, &m_pFont, 12);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pFont->SetText(TEXT("FPS:"));
-		HRESULT_ERROR_BREAK(hr);
-
 		hr = m_pFont->SetColor(L3D::GREEN);
 		HRESULT_ERROR_BREAK(hr);
 
