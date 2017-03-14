@@ -5,6 +5,7 @@
 #include "LObjectMgr.h"
 #include "Object/LCube.h"
 #include "Object/LTeapot.h"
+#include "Object/LCharacter.h"
 
 class L3DENGINE_CLASS IL3DEngine;
 

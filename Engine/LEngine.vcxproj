@@ -89,6 +89,8 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClCompile Include="Src\L3DInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Include\LAssert.h" />
+    <ClInclude Include="..\Include\LCommon.h" />
     <ClInclude Include="..\Include\LEModel.h" />
     <ClInclude Include="..\Include\L3DEngine.h" />
     <ClInclude Include="..\Include\L3DInterface.h" />

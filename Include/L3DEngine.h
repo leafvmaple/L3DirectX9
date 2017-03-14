@@ -19,8 +19,9 @@ public:
 	
 	virtual HRESULT Update(float fDeltaTime);
 
-	virtual BOOL IsActive();
+	virtual HRESULT SetResourceDir(LPCWSTR lpResourceDir);
 
+	virtual BOOL IsActive();
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice);
 
 public:
@@ -48,6 +49,7 @@ private:
 	};
 
 	BOOL m_bActive;
+	WCHAR m_szResourceDir[FILENAME_MAX];
 	IDirect3D9* m_p3D9;
 	IDirect3DDevice9* m_p3DDevice;
 

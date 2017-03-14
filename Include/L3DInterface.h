@@ -17,6 +17,13 @@
 
 static const BOOL GRAPHICS_LEVEL = 1;
 
+enum LOBJECT_MESH_TYPE
+{
+	LOBJECT_MESH_TEAPOT,
+	LOBJECT_MESH_DX,
+	LOBJECT_MESH_COUNT,
+};
+
 struct Vertex
 {
 	Vertex(){}
@@ -124,8 +131,9 @@ public:
 
 	virtual HRESULT Update(float fDeltaTime) = 0;
 
-	virtual BOOL IsActive() = 0;
+	virtual HRESULT SetResourceDir(LPCWSTR lpResourceDir) = 0;
 
+	virtual BOOL IsActive() = 0;
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice) = 0;
 
 	static HRESULT Create(IL3DEngine** ppL3DEngine);
@@ -152,11 +160,11 @@ public:
 
 	virtual HRESULT SetAlpha(float fAlpha) = 0;
 	virtual HRESULT SetScale(float fScale) = 0;
-	virtual HRESULT SetTexture(LPCSTR szTexture) = 0;
+	virtual HRESULT SetTexture(LPCWSTR szTexture) = 0;
 	virtual HRESULT SetMaterial(const D3DMATERIAL9& Material) = 0;
 	virtual HRESULT SetTranslation(const D3DXVECTOR3& vTranslation) = 0;
 	virtual HRESULT SetRotation(const D3DXQUATERNION& qRotation) = 0;
 
 	static HRESULT Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel);
-	static HRESULT Create(IL3DEngine* pL3DEngie, ID3DXMesh** ppMesh, ILModel** ppModel);
+	static HRESULT Create(IL3DEngine* pL3DEngie, ID3DXMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel);
 };

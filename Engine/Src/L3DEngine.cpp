@@ -21,6 +21,7 @@ L3DEngine::L3DEngine()
 	memset(&m_SampFilter, 0, sizeof(m_SampFilter));
 	memset(&m_WindowParam, 0, sizeof(m_WindowParam));
 	memset(&m_PresentParam, 0, sizeof(m_PresentParam));
+	memset(m_szResourceDir, 0, sizeof(m_szResourceDir));
 	
 	m_AdapterModes.clear();
 	m_ModelList.clear();
@@ -476,5 +477,11 @@ HRESULT L3DEngine::UpdateCamera(float fDeltaTime)
 	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
 	m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 
+	return S_OK;
+}
+
+HRESULT L3DEngine::SetResourceDir(LPCWSTR lpResourceDir)
+{
+	wcscpy_s(m_szResourceDir, lpResourceDir);
 	return S_OK;
 }

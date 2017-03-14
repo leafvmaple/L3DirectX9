@@ -33,6 +33,9 @@
     <ClCompile Include="Src\LObjectMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Object\LCharacter.cpp">
+      <Filter>Source Files\Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Object\LCube.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Object\LModel.h">
+      <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Object\LCharacter.h">
       <Filter>Header Files\Object</Filter>
     </ClInclude>
   </ItemGroup>

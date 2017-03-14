@@ -1,17 +1,19 @@
-#include "LTeapot.h"
+#include "LCharacter.h"
 #include "LAssert.h"
 
-LTeapot::LTeapot()
-{
-	m_fAngleY = 0;
-}
-
-LTeapot::~LTeapot()
+LCharacter::LCharacter()
+	: m_fAngleX(0.f)
+	, m_fAngleY(0.f)
 {
 
 }
 
-HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
+LCharacter::~LCharacter()
+{
+
+}
+
+HRESULT LCharacter::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -22,17 +24,20 @@ HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		BOOL_ERROR_BREAK(p3DDevice);
 		BOOL_ERROR_BREAK(p3DEngine);
 
-		hr = ILModel::Create(p3DEngine, &pMesh, LOBJECT_MESH_TEAPOT, NULL, &m_pObject);
+		hr = ILModel::Create(p3DEngine, &pMesh, LOBJECT_MESH_DX, TEXT("res/girl.x"), &m_pObject);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_pObject->SetTranslation(D3DXVECTOR3(-1, -1, -1));
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pObject->SetMaterial(L3D::RED_MTL);
+		hr = m_pObject->SetScale(0.01f);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pObject->SetAlpha(0.5f);
-		HRESULT_ERROR_BREAK(hr);
+		//hr = m_pObject->SetMaterial(L3D::RED_MTL);
+		//HRESULT_ERROR_BREAK(hr);
+
+		//hr = m_pObject->SetAlpha(0.5);
+		//HRESULT_ERROR_BREAK(hr);
 
 		//hr = m_pObject->SetTexture("res/texture.png");
 		//HRESULT_ERROR_BREAK(hr);
@@ -43,7 +48,7 @@ HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 	return hResult;
 }
 
-HRESULT LTeapot::Display(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice, float fDeltaTime)
+HRESULT LCharacter::Display(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice, float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -61,5 +66,4 @@ HRESULT LTeapot::Display(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice, flo
 
 	return hResult;
 }
-
 

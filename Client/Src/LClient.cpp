@@ -39,10 +39,13 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		hr = m_pObjectMgr->Init(hInstance, WindowParam);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pObjectMgr->CreateModel<LCube>();
-		HRESULT_ERROR_BREAK(hr);
+		//hr = m_pObjectMgr->CreateModel<LCube>();
+		//HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pObjectMgr->CreateModel<LTeapot>();
+		//hr = m_pObjectMgr->CreateModel<LTeapot>();
+		//HRESULT_ERROR_BREAK(hr);
+
+		hr = m_pObjectMgr->CreateModel<LCharacter>();
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_pObjectMgr->Setup();

@@ -65,7 +65,7 @@ HRESULT LCube::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		hr = m_pObject->SetMaterial(L3D::GREEN_MTL);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pObject->SetTexture("res/texture.png");
+		hr = m_pObject->SetTexture(TEXT("res/texture.png"));
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
