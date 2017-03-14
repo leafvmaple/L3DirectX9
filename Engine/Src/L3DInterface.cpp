@@ -4,6 +4,8 @@
 #include "LEModel.h"
 #include "LEFont.h"
 
+IL3DEngine* IL3DEngine::m_pInstance = NULL;
+
 L3DENGINE_API void L3D::InitVertexNormal(LightVertex* pVertexs)
 {
 	D3DXVECTOR3 vNormal;
@@ -68,10 +70,11 @@ L3DENGINE_API D3DLIGHT9 L3D::InitSpotLight(const D3DXVECTOR3& vPosition, const D
 	return Light;
 }
 
-HRESULT IL3DEngine::Create(IL3DEngine** ppL3DEngine)
+IL3DEngine* IL3DEngine::Instance()
 {
-	*ppL3DEngine = new L3DEngine;
-	return *ppL3DEngine ? S_OK : E_FAIL;
+	if (!m_pInstance)
+		m_pInstance = new L3DEngine;
+	return m_pInstance;
 }
 
 HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel)

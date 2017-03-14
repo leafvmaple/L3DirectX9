@@ -24,12 +24,7 @@ public:
 	virtual BOOL IsActive();
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice);
 
-public:
-	HRESULT AttachObject(ILModel* pAction);
-	HRESULT AttachFont(ILFont* pFont);
-
-private:
-	struct _CameraParam
+	static struct CameraParam
 	{
 		float fSightDis;
 		float fYaw;
@@ -40,6 +35,11 @@ private:
 		D3DXVECTOR3 vUp;
 	} m_Camera;
 
+public:
+	HRESULT AttachObject(ILModel* pAction);
+	HRESULT AttachFont(ILFont* pFont);
+
+private:
 	struct SampFilter
 	{
 		DWORD dwAnisotropy;
@@ -47,8 +47,7 @@ private:
 		int nMinFilter;
 		int nMagFilter;
 	};
-
-	BOOL m_bActive;
+	
 	WCHAR m_szResourceDir[FILENAME_MAX];
 	IDirect3D9* m_p3D9;
 	IDirect3DDevice9* m_p3DDevice;
@@ -57,6 +56,7 @@ private:
 	SampFilter m_SampFilter[GRAPHICS_LEVEL_COUNT];
 	SampFilter& m_CurSampFilter;
 
+	BOOL m_bActive;
 	D3DCAPS9 m_Caps9;
 	D3DPRESENT_PARAMETERS m_PresentParam;
 	std::vector<ADAPTERMODE> m_AdapterModes;
@@ -76,6 +76,6 @@ private:
 	HRESULT CreateL3DWindow(HWND* pWnd, HINSTANCE hInstance);
 	HRESULT CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND hWnd);
 
-	HRESULT UpdateMessage(MSG* pMsg);
+	HRESULT UpdateMessage();
 	HRESULT UpdateCamera(float fDeltaTime);
 };

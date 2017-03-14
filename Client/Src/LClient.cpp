@@ -20,7 +20,6 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	IL3DEngine* pEngine = NULL;
 	L3DWINDOWPARAM WindowParam;
 
 	do 
@@ -51,10 +50,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		hr = m_pObjectMgr->Setup();
 		HRESULT_ERROR_BREAK(hr);
 
-		pEngine = m_pObjectMgr->GetEngine();
-		BOOL_ERROR_BREAK(pEngine);
-
-		hr = ILFont::Create(pEngine, &m_pFont, 12);
+		hr = ILFont::Create(IL3DEngine::Instance(), &m_pFont, 12);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_pFont->SetColor(L3D::GREEN);

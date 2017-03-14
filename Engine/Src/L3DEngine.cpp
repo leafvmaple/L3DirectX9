@@ -10,6 +10,8 @@
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
 
+L3DEngine::CameraParam L3DEngine::m_Camera = {};
+
 L3DEngine::L3DEngine()
 : m_bActive(FALSE)
 , m_p3D9(NULL)
@@ -84,18 +86,11 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 	LEFont* pFont = NULL;
 	std::list<ILModel*>::iterator itModel;
 	std::list<ILFont*>::iterator itFont;
-	MSG Msg;
-
-	::ZeroMemory(&Msg, sizeof(MSG));
 
 	do
 	{
-		while(::PeekMessage(&Msg, 0, 0, 0, PM_REMOVE))
-		{
-			::TranslateMessage(&Msg);
-			::DispatchMessage(&Msg);
-			UpdateMessage(&Msg);
-		}
+		hr = UpdateMessage();
+		HRESULT_ERROR_BREAK(hr);
 
 		hr = UpdateCamera(fDeltaTime);
 		HRESULT_ERROR_BREAK(hr);
@@ -194,9 +189,12 @@ HRESULT L3DEngine::AttachFont(ILFont* pFont)
 LRESULT WINAPI L3DEngine::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)  
-	{  
+	{
 	case WM_DESTROY:
 		PostQuitMessage(0);  
+		break;
+	case WM_MOUSEWHEEL:
+		m_Camera.fSightDis -= ((float)GET_WHEEL_DELTA_WPARAM(wParam) * 0.005f);
 		break;
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE)
@@ -428,19 +426,20 @@ HRESULT L3DEngine::CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND h
 	return hResult;
 }
 
-HRESULT L3DEngine::UpdateMessage(MSG* pMsg)
+HRESULT L3DEngine::UpdateMessage()
 {
-	switch (pMsg->message)
+	MSG Msg;
+
+	::ZeroMemory(&Msg, sizeof(MSG));
+
+	while(::PeekMessage(&Msg, 0, 0, 0, PM_REMOVE))
 	{
-	case WM_MOUSEWHEEL:
-		m_Camera.fSightDis -= ((float)GET_WHEEL_DELTA_WPARAM(pMsg->wParam) * 0.005f);
-		break;
-	case WM_QUIT:
-		m_bActive = FALSE;
-		break;
-	default:
-		break;
+		::TranslateMessage(&Msg);
+		::DispatchMessage(&Msg);
 	}
+
+	if (Msg.message == WM_QUIT)
+		m_bActive = FALSE;
 
 	return S_OK;
 }

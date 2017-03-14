@@ -31,10 +31,8 @@ public:
 	HRESULT Update(float fDeltaTime);
 
 	BOOL IsActive();
-	IL3DEngine* GetEngine() const;
 
 private:
-	IL3DEngine* m_p3DEngine;
 	IDirect3DDevice9* m_p3DDevice;
 	std::list<LModel*> m_ObjectList;
 	

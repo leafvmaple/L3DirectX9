@@ -123,7 +123,6 @@ enum LOBJECT_TYPE
 class L3DENGINE_CLASS IL3DEngine
 {
 public:
-	IL3DEngine() {};
 	virtual ~IL3DEngine() {};
 
 	virtual HRESULT Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam) = 0;
@@ -136,7 +135,13 @@ public:
 	virtual BOOL IsActive() = 0;
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice) = 0;
 
-	static HRESULT Create(IL3DEngine** ppL3DEngine);
+	static IL3DEngine* Instance();
+
+protected:
+	IL3DEngine() {};
+
+private:
+	static IL3DEngine* m_pInstance;
 };
 
 class L3DENGINE_CLASS ILFont

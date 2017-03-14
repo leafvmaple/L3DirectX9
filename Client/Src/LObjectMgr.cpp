@@ -3,8 +3,7 @@
 #include "LAssert.h"
 
 LObjectMgr::LObjectMgr()
-: m_p3DEngine(NULL)
-, m_p3DDevice(NULL)
+: m_p3DDevice(NULL)
 , m_pFont(NULL)
 {
 	m_ObjectList.clear();
@@ -30,14 +29,10 @@ HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 
 	do 
 	{
-		// Init Engine
-		hr = IL3DEngine::Create(&m_p3DEngine);
+		hr = IL3DEngine::Instance()->Init(hInstance, WindowParam);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_p3DEngine->Init(hInstance, WindowParam);
-		HRESULT_ERROR_BREAK(hr);
-
-		hr = m_p3DEngine->GetDevice(&m_p3DDevice);
+		hr = IL3DEngine::Instance()->GetDevice(&m_p3DDevice);
 		HRESULT_ERROR_BREAK(hr);
 
 		DirectionalLight = L3D::InitDirectionalLight(D3DXVECTOR3(1.0f, -0.0f, 0.25f), L3D::WHITE);
@@ -62,8 +57,7 @@ HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 
 HRESULT LObjectMgr::Uninit()
 {
-	if (m_p3DEngine)
-		m_p3DEngine->Uninit();
+	IL3DEngine::Instance()->Uninit();
 	return S_OK;
 }
 
@@ -79,7 +73,7 @@ HRESULT LObjectMgr::Setup()
 		{
 			pObject = *itModel;
 			BOOL_ERROR_CONTINUE(pObject);
-			hr = pObject->Setup(m_p3DEngine, m_p3DDevice);
+			hr = pObject->Setup(IL3DEngine::Instance(), m_p3DDevice);
 			HRESULT_ERROR_CONTINUE(hr);
 		}
 
@@ -101,10 +95,10 @@ HRESULT LObjectMgr::Update(float fDeltaTime)
 		{
 			pObject = *it;
 			BOOL_ERROR_CONTINUE(pObject);
-			pObject->Display(m_p3DEngine, m_p3DDevice, fDeltaTime);
+			pObject->Display(IL3DEngine::Instance(), m_p3DDevice, fDeltaTime);
 		}
 
-		hr = m_p3DEngine->Update(fDeltaTime);
+		hr = IL3DEngine::Instance()->Update(fDeltaTime);
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
@@ -115,10 +109,5 @@ HRESULT LObjectMgr::Update(float fDeltaTime)
 
 BOOL LObjectMgr::IsActive()
 {
-	return m_p3DEngine->IsActive();
-}
-
-IL3DEngine* LObjectMgr::GetEngine() const
-{
-	return m_p3DEngine;
+	return IL3DEngine::Instance()->IsActive();
 }
