@@ -97,6 +97,7 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_M
 	HRESULT hResult = E_FAIL;
 	ID3DXBuffer* pMtlBuffer = NULL;
 	LPD3DXMATERIAL pMtls = NULL;
+	ID3DXMesh* pCloneMesh = NULL;
 	size_t uDirLength = 0;
 	WCHAR wcszDir[FONT_STRING_MAX];
 
@@ -154,11 +155,10 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_M
 
 					m_dwRenderParam |= LOBJECT_RENDER_TEXTURE;
 				}
+				m_dwRenderParam |= LOBJECT_RENDER_MATERIAL;
 			}
-			m_dwRenderParam |= LOBJECT_RENDER_MATERIAL;
 
-			if (pMtlBuffer)
-				pMtlBuffer->Release();
+			SAFE_RELEASE(pMtlBuffer);
 			
 			break;
 		case LOBJECT_MESH_COUNT:
@@ -166,6 +166,19 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_M
 		default:
 			break;
 		}
+
+		/*if (!((*ppMesh)->GetFVF() & D3DFVF_NORMAL))
+		{
+			hr = (*ppMesh)->CloneMeshFVF(D3DXMESH_MANAGED, (*ppMesh)->GetFVF() | D3DFVF_NORMAL, p3DDevice, &pCloneMesh);
+			HRESULT_ERROR_BREAK(hr);
+
+			hr = D3DXComputeNormals(pCloneMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer());
+			HRESULT_ERROR_BREAK(hr);
+
+			SAFE_RELEASE(*ppMesh);
+
+			*ppMesh = pCloneMesh;
+		}*/
 
 		m_p3DDevice = p3DDevice;
 		m_ObjectType = LOBJECT_TYPE_MESH;

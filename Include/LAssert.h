@@ -55,9 +55,15 @@
 		(p) = NULL;     \
 	}
 
-#define  SAFE_DELETE(p) \
+#define SAFE_DELETE(p) \
+	if ((p)) {         \
+		delete (p);    \
+		(p) = NULL;    \
+	}
+
+#define SAFE_RELEASE(p) \
 	if ((p)) {          \
-		delete (p);     \
+		(p)->Release(); \
 		(p) = NULL;     \
 	}
 
