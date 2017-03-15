@@ -6,10 +6,12 @@
 #include <list>
 #include "L3DInterface.h"
 
-class ILModel;
+class LEInput;
 
 class L3DEngine : public IL3DEngine
 {
+	friend LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 public:
 	L3DEngine();
 	virtual ~L3DEngine();
@@ -19,21 +21,8 @@ public:
 	
 	virtual HRESULT Update(float fDeltaTime);
 
-	virtual HRESULT SetResourceDir(LPCWSTR lpResourceDir);
-
 	virtual BOOL IsActive();
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice);
-
-	static struct CameraParam
-	{
-		float fSightDis;
-		float fYaw;
-		float fPitch;
-		float fRoll;
-		D3DXVECTOR3 vPositon;
-		D3DXVECTOR3 vTarget;
-		D3DXVECTOR3 vUp;
-	} m_Camera;
 
 public:
 	HRESULT AttachObject(ILModel* pAction);
@@ -47,10 +36,21 @@ private:
 		int nMinFilter;
 		int nMagFilter;
 	};
+
+	struct _CameraParam
+	{
+		float fSightDis;
+		float fYaw;
+		float fPitch;
+		float fRoll;
+		D3DXVECTOR3 vPositon;
+		D3DXVECTOR3 vTarget;
+		D3DXVECTOR3 vUp;
+	} m_Camera;
 	
-	WCHAR m_szResourceDir[FILENAME_MAX];
 	IDirect3D9* m_p3D9;
 	IDirect3DDevice9* m_p3DDevice;
+	LEInput* m_pInput;
 
 	L3DWINDOWPARAM m_WindowParam;
 	SampFilter m_SampFilter[GRAPHICS_LEVEL_COUNT];
@@ -64,11 +64,10 @@ private:
 	std::list<ILFont*> m_FontList;
 
 private:
-	static LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-private:
+	LRESULT	MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	HRESULT InitPresentParam(HWND hWnd);
 	HRESULT InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType);
+	HRESULT InitInput(HWND hWnd, HINSTANCE hInstance);
 	HRESULT InitCameraParam();
 
 	HRESULT GetL3DAdapter(PUINT puAdapter, D3DDEVTYPE* pDeviceType);
@@ -77,5 +76,6 @@ private:
 	HRESULT CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND hWnd);
 
 	HRESULT UpdateMessage();
+	HRESULT UpdateInput();
 	HRESULT UpdateCamera(float fDeltaTime);
 };

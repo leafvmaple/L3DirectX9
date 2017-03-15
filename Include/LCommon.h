@@ -23,19 +23,13 @@ namespace L3D
 
 	size_t GetFullPath(LPCWSTR wszFileName, WCHAR* wszPath)
 	{
-		size_t uSlash = -1;
 		size_t uLength = wcslen(wszFileName);
 		for (size_t u = 0; u < uLength; u++)
 		{
-			if (wszFileName[u] == '.')
-				uSlash = u;
 			if (wszFileName[u] == '.' || wszFileName[u] == '\\' || wszFileName[u] == '/')
 				continue;
-			if (uSlash != -1)
-			{
-				wcscat_s(wszPath, FILENAME_MAX, &wszFileName[u]);
-				return wcslen(wszPath);
-			}
+			wcscat_s(wszPath, FILENAME_MAX, &wszFileName[u]);
+			return wcslen(wszPath);
 		}
 		return 0;
 	}

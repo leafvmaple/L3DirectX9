@@ -4,7 +4,7 @@ class LEFont : public ILFont
 {
 public:
 	LEFont();
-	~LEFont();
+	virtual ~LEFont();
 
 	virtual HRESULT SetText(LPCWSTR szString);
 	virtual HRESULT SetColor(const D3DXCOLOR& color);
@@ -16,7 +16,7 @@ public:
 
 private:
 	ID3DXFont* m_pFont;
-	WCHAR m_wszFPS[FONT_STRING_MAX];
+	WCHAR m_wszFPS[LENGIEN_FONT_STRING_MAX];
 
 	int m_nSize;
 	RECT m_Rect;

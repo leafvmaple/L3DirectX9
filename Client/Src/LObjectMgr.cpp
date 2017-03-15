@@ -61,27 +61,6 @@ HRESULT LObjectMgr::Uninit()
 	return S_OK;
 }
 
-HRESULT LObjectMgr::Setup()
-{
-	HRESULT hr = E_FAIL;
-	LModel* pObject = NULL;
-	std::list<LModel*>::iterator itModel;
-
-	do 
-	{
-		for (itModel = m_ObjectList.begin(); itModel != m_ObjectList.end(); itModel++)
-		{
-			pObject = *itModel;
-			BOOL_ERROR_CONTINUE(pObject);
-			hr = pObject->Setup(IL3DEngine::Instance(), m_p3DDevice);
-			HRESULT_ERROR_CONTINUE(hr);
-		}
-
-	} while (0);
-
-	return S_OK;
-}
-
 HRESULT LObjectMgr::Update(float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;

@@ -19,7 +19,7 @@ class LEModel : public ILModel
 {
 public:
 	LEModel();
-	~LEModel();
+	virtual ~LEModel();
 
 	HRESULT Init(IDirect3DDevice9* p3DDevice, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount);
 	HRESULT Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName);

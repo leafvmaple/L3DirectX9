@@ -3,6 +3,7 @@
 #include "L3DEngine.h"
 #include "LEModel.h"
 #include "LEFont.h"
+#include "LEInput.h"
 
 IL3DEngine* IL3DEngine::m_pInstance = NULL;
 

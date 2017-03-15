@@ -84,17 +84,20 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Src\LEFont.cpp" />
-    <ClCompile Include="Src\LEModel.cpp" />
     <ClCompile Include="Src\L3DEngine.cpp" />
     <ClCompile Include="Src\L3DInterface.cpp" />
+    <ClCompile Include="Src\LEInput.cpp" />
+    <ClCompile Include="Src\LEModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\LAssert.h" />
     <ClInclude Include="..\Include\LCommon.h" />
-    <ClInclude Include="..\Include\LEModel.h" />
     <ClInclude Include="..\Include\L3DEngine.h" />
     <ClInclude Include="..\Include\L3DInterface.h" />
+    <ClInclude Include="..\Include\LExports.h" />
     <ClInclude Include="Src\LEFont.h" />
+    <ClInclude Include="Src\LEInput.h" />
+    <ClInclude Include="Src\LEModel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

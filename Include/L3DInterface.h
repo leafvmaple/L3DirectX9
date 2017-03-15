@@ -4,7 +4,8 @@
 #include "LExports.h"
 
 #define L3DX_2PI    ((FLOAT)  6.283185308f)
-#define FONT_STRING_MAX 260
+#define LENGIEN_FILENAME_MAX    260
+#define LENGIEN_FONT_STRING_MAX 260
 
 #define GRAPHICS_LEVEL_COUNT 2
 #define GRAPHICS_LEVEL_MIN 0
@@ -129,8 +130,6 @@ public:
 	virtual HRESULT Uninit() = 0;
 
 	virtual HRESULT Update(float fDeltaTime) = 0;
-
-	virtual HRESULT SetResourceDir(LPCWSTR lpResourceDir) = 0;
 
 	virtual BOOL IsActive() = 0;
 	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice) = 0;

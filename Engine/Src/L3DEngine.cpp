@@ -3,19 +3,27 @@
 #include <strsafe.h>
 #include "LEModel.h"
 #include "LEFont.h"
+#include "LEInput.h"
 #include "LAssert.h"
 #include "L3DEngine.h"
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
+#pragma comment(lib, "dinput8.lib")
+#pragma comment(lib, "dxguid.lib")
 
-L3DEngine::CameraParam L3DEngine::m_Camera = {};
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	L3DEngine* pEngine = dynamic_cast<L3DEngine*>(L3DEngine::Instance());
+	return pEngine->MsgProc(hWnd, msg, wParam, lParam);
+}
 
 L3DEngine::L3DEngine()
 : m_bActive(FALSE)
 , m_p3D9(NULL)
 , m_p3DDevice(NULL)
+, m_pInput(NULL)
 , m_CurSampFilter(m_SampFilter[GRAPHICS_LEVEL_MAX])
 {
 	memset(&m_Caps9, 0, sizeof(m_Caps9));
@@ -23,7 +31,6 @@ L3DEngine::L3DEngine()
 	memset(&m_SampFilter, 0, sizeof(m_SampFilter));
 	memset(&m_WindowParam, 0, sizeof(m_WindowParam));
 	memset(&m_PresentParam, 0, sizeof(m_PresentParam));
-	memset(m_szResourceDir, 0, sizeof(m_szResourceDir));
 	
 	m_AdapterModes.clear();
 	m_ModelList.clear();
@@ -67,6 +74,9 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = CreateL3DDevice(uAdapter, eDeviceType, hWnd);
 		HRESULT_ERROR_BREAK(hr);
 
+		hr = InitInput(hWnd, hInstance);
+		HRESULT_ERROR_BREAK(hr);
+
 		hr = InitCameraParam();
 		HRESULT_ERROR_BREAK(hr);
 
@@ -90,6 +100,9 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 	do
 	{
 		hr = UpdateMessage();
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = UpdateInput();
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = UpdateCamera(fDeltaTime);
@@ -153,6 +166,12 @@ HRESULT L3DEngine::Uninit()
 		SAFE_DELETE(pAction);
 	}
 
+	if (m_pInput)
+	{
+		m_pInput->Uninit();
+		SAFE_DELETE(m_pInput);
+	}
+
 	return S_OK;
 }
 
@@ -186,9 +205,9 @@ HRESULT L3DEngine::AttachFont(ILFont* pFont)
 	return hResult;
 }
 
-LRESULT WINAPI L3DEngine::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT L3DEngine::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch (msg)  
+	switch (uMsg)  
 	{
 	case WM_DESTROY:
 		PostQuitMessage(0);  
@@ -202,9 +221,8 @@ LRESULT WINAPI L3DEngine::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 		break;
 	}  
 
-	return DefWindowProc(hWnd, msg, wParam, lParam);
+	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
-
 
 HRESULT L3DEngine::InitPresentParam(HWND hWnd)
 {
@@ -347,6 +365,25 @@ HRESULT L3DEngine::InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType)
 	return S_OK;
 }
 
+HRESULT L3DEngine::InitInput(HWND hWnd, HINSTANCE hInstance)
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		m_pInput = new LEInput;
+		BOOL_ERROR_BREAK(m_pInput);
+
+		hr = m_pInput->Init(hWnd, hInstance, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE,DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+		HRESULT_ERROR_BREAK(hr);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
 HRESULT L3DEngine::InitCameraParam()
 {
 	m_Camera.fSightDis = 5.f;
@@ -365,7 +402,7 @@ HRESULT L3DEngine::CreateL3DWindow(HWND* pWnd, HINSTANCE hInstance)
 	{
 		wndClassEx.cbSize        = sizeof(WNDCLASSEX);
 		wndClassEx.style         = CS_HREDRAW | CS_VREDRAW;
-		wndClassEx.lpfnWndProc   = (WNDPROC)L3DEngine::MsgProc;
+		wndClassEx.lpfnWndProc   = (WNDPROC)WndProc;
 		wndClassEx.cbClsExtra    = 0;
 		wndClassEx.cbWndExtra    = 0;
 		wndClassEx.hInstance     = hInstance;
@@ -444,43 +481,70 @@ HRESULT L3DEngine::UpdateMessage()
 	return S_OK;
 }
 
+HRESULT L3DEngine::UpdateInput()
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		BOOL_ERROR_BREAK(m_pInput);
+
+		hr = m_pInput->Update();
+		HRESULT_ERROR_BREAK(hr);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
 HRESULT L3DEngine::UpdateCamera(float fDeltaTime)
 {
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
 	D3DXMATRIX matCamera;
 	D3DXMATRIX matProj;
 	D3DXVECTOR3 vDelta;
 
-	if( ::GetAsyncKeyState(VK_LEFT) & 0x8000f )
-		m_Camera.fYaw -= 1.f * fDeltaTime;
+	do 
+	{
+		BOOL_ERROR_BREAK(m_pInput);
 
-	if( ::GetAsyncKeyState(VK_RIGHT) & 0x8000f )
-		m_Camera.fYaw += 1.f * fDeltaTime;
+		if (m_pInput->IsMouseButtonDown(0)) 
+		{
+			m_Camera.fYaw += (m_pInput->MouseDX())*  0.01f;
+			m_Camera.fPitch += (m_pInput->MouseDY()) * 0.01f;
+		}
 
-	if( ::GetAsyncKeyState(VK_UP) & 0x8000f )
-		m_Camera.fPitch += 1.f * fDeltaTime;
+		if(m_pInput->IsKeyDown(DIK_LEFT))
+			m_Camera.fYaw -= 0.001f;
 
-	if( ::GetAsyncKeyState(VK_DOWN) & 0x8000f )
-		m_Camera.fPitch -= 1.f * fDeltaTime;
+		if(m_pInput->IsKeyDown(DIK_RIGHT))
+			m_Camera.fYaw += 0.001f;
 
-	m_Camera.fSightDis = max(m_Camera.fSightDis, 3.f);
+		if(m_pInput->IsKeyDown(DIK_UP))
+			m_Camera.fPitch += 0.001f;
 
-	D3DXMatrixRotationYawPitchRoll(&matCamera, m_Camera.fYaw, m_Camera.fPitch, m_Camera.fRoll);
-	D3DXVec3TransformNormal(&vDelta, &D3DXVECTOR3(0.0f, 0.0f, -m_Camera.fSightDis), &matCamera);
-	m_Camera.vPositon = m_Camera.vTarget + vDelta;
+		if(m_pInput->IsKeyDown(DIK_DOWN))
+			m_Camera.fPitch -= 0.001f;
 
-	// ÊÓÍ¼¾ØÕó
-	D3DXMatrixLookAtLH(&matCamera, &m_Camera.vPositon, &m_Camera.vTarget, &m_Camera.vUp);
-	m_p3DDevice->SetTransform(D3DTS_VIEW, &matCamera);
+		m_Camera.fSightDis = max(m_Camera.fSightDis, 3.f);
 
-	// Í¶Ó°¾ØÕó
-	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
-	m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+		D3DXMatrixRotationYawPitchRoll(&matCamera, m_Camera.fYaw, m_Camera.fPitch, m_Camera.fRoll);
+		D3DXVec3TransformNormal(&vDelta, &D3DXVECTOR3(0.0f, 0.0f, -m_Camera.fSightDis), &matCamera);
+		m_Camera.vPositon = m_Camera.vTarget + vDelta;
 
-	return S_OK;
-}
+		// ÊÓÍ¼¾ØÕó
+		D3DXMatrixLookAtLH(&matCamera, &m_Camera.vPositon, &m_Camera.vTarget, &m_Camera.vUp);
+		m_p3DDevice->SetTransform(D3DTS_VIEW, &matCamera);
 
-HRESULT L3DEngine::SetResourceDir(LPCWSTR lpResourceDir)
-{
-	wcscpy_s(m_szResourceDir, lpResourceDir);
+		// Í¶Ó°¾ØÕó
+		D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
+		m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+
+		hResult = S_OK;
+	} while (0);
+
 	return S_OK;
 }

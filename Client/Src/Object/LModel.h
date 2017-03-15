@@ -11,7 +11,6 @@ public:
 	LModel() { m_pObject = NULL; };
 	virtual ~LModel() {};
 
-	virtual HRESULT Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice) = 0;
 	virtual HRESULT Display(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice, float fDeltaTime) = 0;
 
 protected:

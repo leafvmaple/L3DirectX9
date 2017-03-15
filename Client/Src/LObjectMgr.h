@@ -19,15 +19,25 @@ public:
 	HRESULT Uninit();
 
 	template<typename T>
-	HRESULT CreateModel()
+	T* CreateModel(WCHAR* pwcsMeshPath)
 	{
-		LModel* pObject = NULL;
-		pObject = new T;
+		T* pObject = NULL;
+		pObject = new T(pwcsMeshPath);
 		m_ObjectList.push_back(pObject);
-		return S_OK;
+		pObject->Create(IL3DEngine::Instance(), m_p3DDevice);
+		return pObject;
 	}
 
-	HRESULT Setup();
+	template<typename T>
+	T* CreateModel()
+	{
+		T* pObject = NULL;
+		pObject = new T;
+		m_ObjectList.push_back(pObject);
+		pObject->Create(IL3DEngine::Instance(), m_p3DDevice);
+		return pObject;
+	}
+
 	HRESULT Update(float fDeltaTime);
 
 	BOOL IsActive();

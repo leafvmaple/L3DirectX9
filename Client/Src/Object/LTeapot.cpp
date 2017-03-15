@@ -11,7 +11,7 @@ LTeapot::~LTeapot()
 
 }
 
-HRESULT LTeapot::Setup(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
+HRESULT LTeapot::Create(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;

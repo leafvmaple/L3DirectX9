@@ -99,7 +99,7 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_M
 	LPD3DXMATERIAL pMtls = NULL;
 	ID3DXMesh* pCloneMesh = NULL;
 	size_t uDirLength = 0;
-	WCHAR wcszDir[FONT_STRING_MAX];
+	WCHAR wcszDir[LENGIEN_FONT_STRING_MAX];
 
 	do 
 	{
@@ -138,8 +138,8 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_M
 
 			for (DWORD u = 0; u < m_dwSubsetCount; u++)
 			{
-				pMtls[u].MatD3D.Ambient = pMtls[u].MatD3D.Diffuse;
-				memcpy_s(&m_pMaterial[u], sizeof(D3DMATERIAL9), &pMtls[u].MatD3D, sizeof(D3DMATERIAL9));
+				m_pMaterial[u] = pMtls[u].MatD3D;
+				m_pMaterial[u].Ambient = m_pMaterial[u].Diffuse;
 
 				if (pMtls[u].pTextureFilename)
 				{
@@ -160,8 +160,6 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_M
 
 			SAFE_RELEASE(pMtlBuffer);
 			
-			break;
-		case LOBJECT_MESH_COUNT:
 			break;
 		default:
 			break;

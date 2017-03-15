@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Engine">
+      <UniqueIdentifier>{9b39e9f3-7be3-4937-a47a-0e9f4bb40ec4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Object">
+      <UniqueIdentifier>{63b19067-5675-4dc8-b1f2-5502f2f2b2bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{1eb6cb3e-5235-43c2-9fdf-498a02ff661a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Object">
+      <UniqueIdentifier>{eb3a0fd4-c219-443a-9b96-40b4c1871ebe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\L3DEngine.cpp">
@@ -22,30 +34,39 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\LEFont.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\LEInput.cpp">
+      <Filter>Source Files\Object</Filter>
     </ClCompile>
     <ClCompile Include="Src\LEModel.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\LEFont.h">
+      <Filter>Header Files\Engine\Object</Filter>
+    </ClInclude>
     <ClInclude Include="..\Include\L3DEngine.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\L3DInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\LEFont.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\LEModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\LAssert.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\LCommon.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\LAssert.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\LEInput.h">
+      <Filter>Header Files\Engine\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\LExports.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\LEModel.h">
+      <Filter>Header Files\Engine\Object</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

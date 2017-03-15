@@ -21,6 +21,8 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	L3DWINDOWPARAM WindowParam;
+	LCharacter* pGirl = NULL;
+	LCharacter* pMiki = NULL;
 
 	do 
 	{
@@ -38,16 +40,25 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		hr = m_pObjectMgr->Init(hInstance, WindowParam);
 		HRESULT_ERROR_BREAK(hr);
 
-		//hr = m_pObjectMgr->CreateModel<LCube>();
-		//HRESULT_ERROR_BREAK(hr);
+		//m_pObjectMgr->CreateModel<LCube>();
+		//m_pObjectMgr->CreateModel<LTeapot>();
 
-		//hr = m_pObjectMgr->CreateModel<LTeapot>();
-		//HRESULT_ERROR_BREAK(hr);
+		pGirl = m_pObjectMgr->CreateModel<LCharacter>(TEXT("res/girl.x"));
+		BOOL_ERROR_BREAK(pGirl);
 
-		hr = m_pObjectMgr->CreateModel<LCharacter>();
+		hr = pGirl->SetTranslation(D3DXVECTOR3(0, 0, 0));
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_pObjectMgr->Setup();
+		hr = pGirl->SetScale(0.01f);
+		HRESULT_ERROR_BREAK(hr);
+
+		pMiki = m_pObjectMgr->CreateModel<LCharacter>(TEXT("res/miki.x"));
+		HRESULT_ERROR_BREAK(pMiki);
+
+		hr = pMiki->SetTranslation(D3DXVECTOR3(1, 1, 0));
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = pMiki->SetScale(0.01f);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = ILFont::Create(IL3DEngine::Instance(), &m_pFont, 12);
@@ -118,7 +129,7 @@ HRESULT LClient::ShowFPS(float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	WCHAR wszFPS[FONT_STRING_MAX];
+	WCHAR wszFPS[LENGIEN_FONT_STRING_MAX];
 
 	do 
 	{
@@ -127,7 +138,8 @@ HRESULT LClient::ShowFPS(float fDeltaTime)
 
 		if (m_fTimeElapsed >= 1.0f)
 		{
-			swprintf(wszFPS, FONT_STRING_MAX, TEXT("FPS:%.2f"), m_nFrame / m_fTimeElapsed);
+			swprintf(wszFPS, LENGIEN_FONT_STRING_MAX, TEXT("FPS:%.2f"), m_nFrame / m_fTimeElapsed);
+			//swprintf(wszFPS, FONT_STRING_MAX, TEXT("FPS:%d"), m_nFrame);
 
 			hr = m_pFont->SetText(wszFPS);
 			HRESULT_ERROR_BREAK(hr);
