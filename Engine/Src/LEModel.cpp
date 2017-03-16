@@ -168,18 +168,23 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJE
 			break;
 		}
 
-		/*if (!((*ppMesh)->GetFVF() & D3DFVF_NORMAL))
+		if (!(pMesh->GetFVF() & D3DFVF_NORMAL))
 		{
-			hr = (*ppMesh)->CloneMeshFVF(D3DXMESH_MANAGED, (*ppMesh)->GetFVF() | D3DFVF_NORMAL, p3DDevice, &pCloneMesh);
+			hr = pMesh->CloneMeshFVF(D3DXMESH_MANAGED, pMesh->GetFVF() | D3DFVF_NORMAL, p3DDevice, &pCloneMesh);
 			HRESULT_ERROR_BREAK(hr);
 
 			hr = D3DXComputeNormals(pCloneMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer());
-			HRESULT_ERROR_BREAK(hr);
-
-			SAFE_RELEASE(*ppMesh);
-
-			*ppMesh = pCloneMesh;
-		}*/
+			if (hr == S_OK)
+			{
+				SAFE_RELEASE(pMesh);
+				pMesh = pCloneMesh;
+				m_dwOptimizeParam |= LOBJECT_OPTIMIZE_FVF;
+			}
+			else
+			{
+				SAFE_RELEASE(pCloneMesh);
+			}
+		}
 
 		hr = D3DXGeneratePMesh(pMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer(), 0, 0, 1, D3DXMESHSIMP_FACE, &pProgressMesh);
 		if (hr == S_OK)
@@ -301,7 +306,7 @@ HRESULT LEModel::UpdateTransform()
 
 HRESULT LEModel::UpdateLOD()
 {
-	ID3DXPMesh* pProgressMesh = dynamic_cast<ID3DXPMesh*>(m_DisplaySource.LMesh.pMesh);
+	ID3DXPMesh* pProgressMesh = static_cast<ID3DXPMesh*>(m_DisplaySource.LMesh.pMesh);
 	if (m_dwOptimizeParam & LOBJECT_OPTIMIZE_PROGRESSIVE)
 		pProgressMesh->SetNumFaces(20);
 	return S_OK;

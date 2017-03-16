@@ -25,6 +25,15 @@
     <Filter Include="Source Files\Object">
       <UniqueIdentifier>{eb3a0fd4-c219-443a-9b96-40b4c1871ebe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Engine\IOManager">
+      <UniqueIdentifier>{c995824f-cc4e-4813-9adc-362ee54b2829}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IOManager">
+      <UniqueIdentifier>{b2c5c97a-5c3f-466b-8f8a-cc5eb4bf58c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\IOManager\Model">
+      <UniqueIdentifier>{d4eff88d-829e-4df6-a5a1-4a4d335f745e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\L3DEngine.cpp">
@@ -41,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="Src\LEModel.cpp">
       <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\IOManager\LFileReader.cpp">
+      <Filter>Source Files\IOManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +79,15 @@
     </ClInclude>
     <ClInclude Include="Src\LEModel.h">
       <Filter>Header Files\Engine\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\IOManager\LFileReader.h">
+      <Filter>Header Files\Engine\IOManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\IOManager\Model\L3DMeshStruct.h">
+      <Filter>Header Files\Engine\IOManager\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\IOManager\Model\L3DStruct.h">
+      <Filter>Header Files\Engine\IOManager\Model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

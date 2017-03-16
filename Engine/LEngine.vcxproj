@@ -83,6 +83,7 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\IOManager\LFileReader.cpp" />
     <ClCompile Include="Src\LEFont.cpp" />
     <ClCompile Include="Src\L3DEngine.cpp" />
     <ClCompile Include="Src\L3DInterface.cpp" />
@@ -95,6 +96,9 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClInclude Include="..\Include\L3DEngine.h" />
     <ClInclude Include="..\Include\L3DInterface.h" />
     <ClInclude Include="..\Include\LExports.h" />
+    <ClInclude Include="Src\IOManager\LFileReader.h" />
+    <ClInclude Include="Src\IOManager\Model\L3DMeshStruct.h" />
+    <ClInclude Include="Src\IOManager\Model\L3DStruct.h" />
     <ClInclude Include="Src\LEFont.h" />
     <ClInclude Include="Src\LEInput.h" />
     <ClInclude Include="Src\LEModel.h" />
