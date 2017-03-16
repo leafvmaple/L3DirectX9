@@ -6,7 +6,6 @@
 #include "LEInput.h"
 #include "LAssert.h"
 #include "L3DEngine.h"
-#include "IOManager/LFileReader.h"
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
@@ -80,10 +79,6 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 
 		hr = InitCameraParam();
 		HRESULT_ERROR_BREAK(hr);
-
-		//Test
-		LMESH_DATA LBMesh;
-		LFileReader::LoadMesh("Res/Mesh/M2_1035_body.mesh", &LBMesh);
 
 		m_bActive = TRUE;
 

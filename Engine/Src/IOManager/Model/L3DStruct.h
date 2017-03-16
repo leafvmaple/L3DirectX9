@@ -2,6 +2,8 @@
 #define defFILE_TAGLEN			8
 #define defFILE_DESCLEN			64
 
+#define MESH_SAVE_BONEBBOX  1
+
 struct TFileHeader
 {
 	char szCommonTag[defFILE_TAGLEN];

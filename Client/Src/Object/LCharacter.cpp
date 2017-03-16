@@ -31,7 +31,10 @@ HRESULT LCharacter::Create(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		BOOL_ERROR_BREAK(p3DDevice);
 		BOOL_ERROR_BREAK(p3DEngine);
 
-		hr = ILModel::Create(p3DEngine, &pMesh, LOBJECT_MESH_DX, m_wszMeshPath, &m_pObject);
+		//hr = ILModel::Create(p3DEngine, &pMesh, LOBJECT_MESH_DX, m_wszMeshPath, &m_pObject);
+		//HRESULT_ERROR_BREAK(hr);
+
+		hr = ILModel::Create(p3DEngine, &pMesh, LOBJECT_MESH_LX, TEXT("Res/Mesh/M2_1035_body.mesh"), &m_pObject);
 		HRESULT_ERROR_BREAK(hr);
 
 		//hr = m_pObject->SetMaterial(L3D::RED_MTL);

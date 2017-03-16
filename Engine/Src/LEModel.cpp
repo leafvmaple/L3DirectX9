@@ -2,6 +2,7 @@
 #include "LEModel.h"
 #include "LAssert.h"
 #include "LCommon.h"
+#include "IOManager/LFileReader.h"
 
 LEModel::LEModel()
 : m_p3DDevice(NULL)
@@ -33,7 +34,7 @@ LEModel::~LEModel()
 		if (m_DisplaySource.LVertex.pIndexBuffer)
 			m_DisplaySource.LVertex.pIndexBuffer->Release();
 		break;
-	case LOBJECT_TYPE_MESH:
+	case LOBJECT_TYPE_X:
 		if (m_DisplaySource.LMesh.pMesh)
 			m_DisplaySource.LMesh.pMesh->Release();
 		break;
@@ -98,10 +99,17 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJE
 	HRESULT hResult = E_FAIL;
 	ID3DXBuffer* pMtlBuffer = NULL;
 	LPD3DXMATERIAL pMtls = NULL;
+	ID3DXPMesh* pProgressMesh = NULL;
 	ID3DXMesh* pCloneMesh = NULL;
 	ID3DXMesh* pMesh = NULL;
-	ID3DXPMesh* pProgressMesh = NULL;
+	LMESH_DATA* pLBMesh = NULL;
 	size_t uDirLength = 0;
+	BYTE* pbyVertices = NULL;
+	WORD* pwIndices = NULL;
+	DWORD *pwAttributes = NULL;
+	DWORD dwVertexStride = 0;
+	DWORD dwDestVertexStride = 0;
+	const VertexFromatOffsetItem *pVertexFormat = NULL;
 	WCHAR wcszDir[LENGIEN_FONT_STRING_MAX];
 
 	do 
@@ -162,6 +170,69 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJE
 			}
 
 			SAFE_RELEASE(pMtlBuffer);
+
+		case LOBJECT_MESH_LX:
+			{
+				pLBMesh = new LMESH_DATA;
+				BOOL_ERROR_BREAK(pLBMesh)
+
+				LFileReader::LoadMesh(pcszFileName, pLBMesh);
+
+				if (pLBMesh->dwNumVertices <= 65535 && pLBMesh->dwNumFaces <= 65535)
+				{
+					hr = D3DXCreateMeshFVF(pLBMesh->dwNumFaces, pLBMesh->dwNumVertices,  D3DXMESH_SYSTEMMEM,  pLBMesh->dwMeshFVF, p3DDevice, &pMesh);
+					HRESULT_ERROR_BREAK(hr);
+				}
+				else
+				{
+					hr = D3DXCreateMeshFVF(pLBMesh->dwNumFaces, pLBMesh->dwNumVertices,  D3DXMESH_SYSTEMMEM | D3DXMESH_32BIT,  pLBMesh->dwMeshFVF, p3DDevice, &pMesh);
+					HRESULT_ERROR_BREAK(hr);
+				}
+
+				dwDestVertexStride = pMesh->GetNumBytesPerVertex();
+				BOOL_ERROR_BREAK(dwDestVertexStride);
+
+				hr = pMesh->LockVertexBuffer(0, (void**)(&pbyVertices));
+				HRESULT_ERROR_BREAK(hr);
+
+				pVertexFormat = GetVertexFormat(pLBMesh->dwMeshFVF);
+				HRESULT_ERROR_BREAK(pVertexFormat);
+
+				dwVertexStride = GetVertexStride(pLBMesh->dwMeshFVF);
+
+				for (DWORD i = 0; i < pLBMesh->dwNumVertices; i++)
+				{
+					BYTE *pCurrentVertexData = pbyVertices + dwDestVertexStride * i;
+					for (DWORD j = 0; j < pVertexFormat->dwNumElement; j++)
+					{
+						const BYTE *pCurrentSrc = *(reinterpret_cast<BYTE* const*>(pLBMesh) + pVertexFormat->dwSrcOffset[j]);
+						memcpy(pCurrentVertexData + pVertexFormat->dwDestOffset[j],
+							pCurrentSrc + pVertexFormat->dwSrcStride[j] * i,
+							pVertexFormat->dwDestStride[j]);
+					}
+				}
+
+				hr = pMesh->LockIndexBuffer(0, (void**)&pwIndices);
+				HRESULT_ERROR_BREAK(hr);
+
+				hr = pMesh->LockAttributeBuffer(0, &pwAttributes);
+				HRESULT_ERROR_BREAK(hr);
+
+
+				for(DWORD i = 0; i < pLBMesh->dwNumFaces; i++)
+				{
+					pwIndices[i * 3]     = static_cast<short>(pLBMesh->pFaceIndices[i * 3]);
+					pwIndices[i * 3 + 1] = static_cast<short>(pLBMesh->pFaceIndices[i * 3 + 1]);
+					pwIndices[i * 3 + 2] = static_cast<short>(pLBMesh->pFaceIndices[i * 3 + 2]);
+					pwAttributes[i] = pLBMesh->pSubsetIndices[i];
+				}
+
+				pMesh->UnlockVertexBuffer();
+				pMesh->UnlockIndexBuffer();
+				pMesh->UnlockAttributeBuffer();
+
+				SAFE_DELETE(pLBMesh);
+			}
 			
 			break;
 		default:
@@ -186,22 +257,25 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJE
 			}
 		}
 
-		hr = D3DXGeneratePMesh(pMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer(), 0, 0, 1, D3DXMESHSIMP_FACE, &pProgressMesh);
-		if (hr == S_OK)
+		if (m_pAdjBuffer)
 		{
-			SAFE_RELEASE(pMesh);
-			*ppMesh = pProgressMesh;
-			m_dwOptimizeParam |= LOBJECT_OPTIMIZE_PROGRESSIVE;
-		}
-		else
-		{
-			*ppMesh = pMesh;
+			hr = D3DXGeneratePMesh(pMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer(), 0, 0, 1, D3DXMESHSIMP_FACE, &pProgressMesh);
+			if (hr == S_OK)
+			{
+				SAFE_RELEASE(pMesh);
+				*ppMesh = pProgressMesh;
+				m_dwOptimizeParam |= LOBJECT_OPTIMIZE_PROGRESSIVE;
+			}
+			else
+			{
+				SAFE_RELEASE(pProgressMesh);
+			}
 		}
 
 		m_p3DDevice = p3DDevice;
-		m_ObjectType = LOBJECT_TYPE_MESH;
-		m_DisplaySource.LMesh.pMesh = *ppMesh;
-		
+		m_ObjectType = LOBJECT_TYPE_X;
+		m_DisplaySource.LMesh.pMesh = pMesh;
+		*ppMesh = pMesh;
 
 		hResult = S_OK;
 	} while (0);
@@ -340,10 +414,12 @@ HRESULT LEModel::UpdateDraw(DWORD uIndex)
 		//m_p3DDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 		m_p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
 		break;
-	case LOBJECT_TYPE_MESH:
+	case LOBJECT_TYPE_X:
 		BOOL_ERROR_BREAK(m_DisplaySource.LMesh.pMesh);
 		m_DisplaySource.LMesh.pMesh->DrawSubset(uIndex);
-		
+		break;
+	case LOBJECT_TYPE_MESH:
+
 		break;
 	default:
 		break;
