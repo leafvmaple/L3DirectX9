@@ -170,5 +170,5 @@ public:
 	virtual HRESULT SetRotation(const D3DXQUATERNION& qRotation) = 0;
 
 	static HRESULT Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel);
-	static HRESULT Create(IL3DEngine* pL3DEngie, ID3DXMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel);
+	static HRESULT Create(IL3DEngine* pL3DEngie, ID3DXBaseMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel);
 };

@@ -53,7 +53,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		HRESULT_ERROR_BREAK(hr);
 
 		pMiki = m_pObjectMgr->CreateModel<LCharacter>(TEXT("res/miki.x"));
-		HRESULT_ERROR_BREAK(pMiki);
+		BOOL_ERROR_BREAK(pMiki);
 
 		hr = pMiki->SetTranslation(D3DXVECTOR3(1, 1, 0));
 		HRESULT_ERROR_BREAK(hr);

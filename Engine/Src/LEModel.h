@@ -13,6 +13,14 @@ enum LOBJECT_RENDER_PARAM
 	LOBJECT_RENDER_COUNT,
 };
 
+enum LOBJECT_OPTIMIZE_PARAM
+{
+	LOBJECT_OPTIMIZE_NONE,
+	LOBJECT_OPTIMIZE_FVF          = 1,
+	LOBJECT_OPTIMIZE_PROGRESSIVE  = 2,
+	LOBJECT_OPTIMIZE_COUNT,
+};
+
 struct IDirect3DDevice9;
 
 class LEModel : public ILModel
@@ -22,7 +30,7 @@ public:
 	virtual ~LEModel();
 
 	HRESULT Init(IDirect3DDevice9* p3DDevice, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount);
-	HRESULT Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName);
+	HRESULT Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName);
 
 	virtual HRESULT SetAlpha(float fAlpha);
 	virtual HRESULT SetScale(float fScale);
@@ -42,6 +50,7 @@ private:
 	DWORD m_dwSubsetCount;
 	LOBJECT_TYPE m_ObjectType;
 	DWORD m_dwRenderParam;
+	DWORD m_dwOptimizeParam;
 
 	float m_fAlpha;
 	float m_fScale;
@@ -51,6 +60,7 @@ private:
 
 	HRESULT UpdateRenderState();
 	HRESULT UpdateTransform();
+	HRESULT UpdateLOD();
 	HRESULT UpdateMaterial(DWORD uIndex);
 	HRESULT UpdateTexture(DWORD uIndex);
 	HRESULT UpdateDraw(DWORD uIndex);
@@ -65,7 +75,7 @@ private:
 		} LVertex;
 		struct
 		{
-			ID3DXMesh* pMesh;
+			ID3DXBaseMesh* pMesh;
 		} LMesh;
 	}m_DisplaySource;
 };

@@ -24,7 +24,7 @@ HRESULT LCharacter::Create(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	ID3DXMesh* pMesh = NULL;
+	ID3DXBaseMesh* pMesh = NULL;
 
 	do
 	{

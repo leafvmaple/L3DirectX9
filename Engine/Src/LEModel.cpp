@@ -13,6 +13,7 @@ LEModel::LEModel()
 , m_fAlpha(1.f)
 , m_fScale(1.f)
 , m_dwRenderParam(0)
+, m_dwOptimizeParam(0)
 {
 	ZeroMemory(&m_DisplaySource, sizeof(m_DisplaySource));
 	ZeroMemory(m_vTranslation, sizeof(m_vTranslation));
@@ -91,13 +92,15 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, TexVertex* pModelVerteices, U
 	return hResult;
 }
 
-HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName)
+HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	ID3DXBuffer* pMtlBuffer = NULL;
 	LPD3DXMATERIAL pMtls = NULL;
 	ID3DXMesh* pCloneMesh = NULL;
+	ID3DXMesh* pMesh = NULL;
+	ID3DXPMesh* pProgressMesh = NULL;
 	size_t uDirLength = 0;
 	WCHAR wcszDir[LENGIEN_FONT_STRING_MAX];
 
@@ -106,7 +109,7 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_M
 		switch (eModelType)
 		{
 		case LOBJECT_MESH_TEAPOT:
-			hr = D3DXCreateTeapot(p3DDevice, ppMesh, &m_pAdjBuffer);
+			hr = D3DXCreateTeapot(p3DDevice, &pMesh, &m_pAdjBuffer);
 			HRESULT_ERROR_BREAK(hr);
 
 			m_dwSubsetCount = 1;
@@ -121,7 +124,7 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_M
 
 			break;
 		case LOBJECT_MESH_DX:
-			hr = D3DXLoadMeshFromX(pcszFileName, D3DXMESH_MANAGED, p3DDevice, &m_pAdjBuffer, &pMtlBuffer, NULL, &m_dwSubsetCount, ppMesh);
+			hr = D3DXLoadMeshFromX(pcszFileName, D3DXMESH_MANAGED, p3DDevice, &m_pAdjBuffer, &pMtlBuffer, NULL, &m_dwSubsetCount, &pMesh);
 			HRESULT_ERROR_BREAK(hr);
 
 			pMtls = (LPD3DXMATERIAL)pMtlBuffer->GetBufferPointer();
@@ -178,9 +181,22 @@ HRESULT LEModel::Init(IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh, LOBJECT_M
 			*ppMesh = pCloneMesh;
 		}*/
 
+		hr = D3DXGeneratePMesh(pMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer(), 0, 0, 1, D3DXMESHSIMP_FACE, &pProgressMesh);
+		if (hr == S_OK)
+		{
+			SAFE_RELEASE(pMesh);
+			*ppMesh = pProgressMesh;
+			m_dwOptimizeParam |= LOBJECT_OPTIMIZE_PROGRESSIVE;
+		}
+		else
+		{
+			*ppMesh = pMesh;
+		}
+
 		m_p3DDevice = p3DDevice;
 		m_ObjectType = LOBJECT_TYPE_MESH;
 		m_DisplaySource.LMesh.pMesh = *ppMesh;
+		
 
 		hResult = S_OK;
 	} while (0);
@@ -245,6 +261,9 @@ HRESULT LEModel::UpdateDisplay()
 		hr = UpdateTransform();
 		HRESULT_ERROR_BREAK(hr);
 
+		hr = UpdateLOD();
+		HRESULT_ERROR_BREAK(hr);
+
 		for (DWORD u = 0; u < m_dwSubsetCount; u++)
 		{
 			hr = UpdateMaterial(u);
@@ -277,6 +296,14 @@ HRESULT LEModel::UpdateTransform()
 {
 	D3DXMatrixTransformation(&m_matTransform, NULL, NULL, &D3DXVECTOR3(m_fScale, m_fScale, m_fScale), NULL, &m_qRotation, &m_vTranslation);
 	m_p3DDevice->SetTransform(D3DTS_WORLD, &m_matTransform);
+	return S_OK;
+}
+
+HRESULT LEModel::UpdateLOD()
+{
+	ID3DXPMesh* pProgressMesh = dynamic_cast<ID3DXPMesh*>(m_DisplaySource.LMesh.pMesh);
+	if (m_dwOptimizeParam & LOBJECT_OPTIMIZE_PROGRESSIVE)
+		pProgressMesh->SetNumFaces(20);
 	return S_OK;
 }
 

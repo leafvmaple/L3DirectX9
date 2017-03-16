@@ -111,7 +111,7 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT 
 	return hResult;
 }
 
-HRESULT ILModel::Create(IL3DEngine* pL3DEngie, ID3DXMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel)
+HRESULT ILModel::Create(IL3DEngine* pL3DEngie, ID3DXBaseMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
