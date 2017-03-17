@@ -54,7 +54,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Include;$(ProjectDir)Src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -83,12 +83,13 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Font\L3DFont.cpp" />
+    <ClCompile Include="Src\Input\L3DInput.cpp" />
     <ClCompile Include="Src\IOManager\LFileReader.cpp" />
-    <ClCompile Include="Src\LEFont.cpp" />
     <ClCompile Include="Src\L3DEngine.cpp" />
     <ClCompile Include="Src\L3DInterface.cpp" />
-    <ClCompile Include="Src\LEInput.cpp" />
-    <ClCompile Include="Src\LEModel.cpp" />
+    <ClCompile Include="Src\Model\L3DMesh.cpp" />
+    <ClCompile Include="Src\Model\L3DModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\LAssert.h" />
@@ -96,12 +97,12 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClInclude Include="..\Include\L3DEngine.h" />
     <ClInclude Include="..\Include\L3DInterface.h" />
     <ClInclude Include="..\Include\LExports.h" />
+    <ClInclude Include="Src\Font\L3DFont.h" />
+    <ClInclude Include="Src\Input\L3DInput.h" />
+    <ClInclude Include="Src\IOManager\LFileStruct.h" />
     <ClInclude Include="Src\IOManager\LFileReader.h" />
-    <ClInclude Include="Src\IOManager\Model\L3DMeshStruct.h" />
-    <ClInclude Include="Src\IOManager\Model\L3DStruct.h" />
-    <ClInclude Include="Src\LEFont.h" />
-    <ClInclude Include="Src\LEInput.h" />
-    <ClInclude Include="Src\LEModel.h" />
+    <ClInclude Include="Src\Model\L3DMesh.h" />
+    <ClInclude Include="Src\Model\L3DModel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

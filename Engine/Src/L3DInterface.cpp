@@ -1,9 +1,9 @@
 #include "LAssert.h"
 #include "L3DInterface.h"
 #include "L3DEngine.h"
-#include "LEModel.h"
-#include "LEFont.h"
-#include "LEInput.h"
+#include "Model/L3DModel.h"
+#include "Input/L3DInput.h"
+#include "Font/L3DFont.h"
 
 IL3DEngine* IL3DEngine::m_pInstance = NULL;
 
@@ -83,14 +83,14 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT 
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	L3DEngine* pEngine = NULL;
-	LEModel* pEModel = NULL;
+	L3DModel* pEModel = NULL;
 	IDirect3DDevice9* p3DDevice = NULL;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(pL3DEngie);
 
-		pEModel = new LEModel;
+		pEModel = new L3DModel;
 		BOOL_ERROR_BREAK(pEModel);
 
 		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
@@ -116,14 +116,14 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, ID3DXBaseMesh** ppMesh, LOBJECT_M
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	L3DEngine* pEngine = NULL;
-	LEModel* pEModel = NULL;
+	L3DModel* pEModel = NULL;
 	IDirect3DDevice9* p3DDevice = NULL;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(pL3DEngie);
 
-		pEModel = new LEModel;
+		pEModel = new L3DModel;
 		BOOL_ERROR_BREAK(pEModel);
 
 		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
@@ -149,14 +149,14 @@ HRESULT ILFont::Create(IL3DEngine* pL3DEngie, ILFont** ppFont, int nSize/* = 9 *
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	L3DEngine* pEngine = NULL;
-	LEFont* pEFont = NULL;
+	L3DFont* pEFont = NULL;
 	IDirect3DDevice9* p3DDevice = NULL;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(pL3DEngie);
 
-		pEFont = new LEFont;
+		pEFont = new L3DFont;
 		BOOL_ERROR_BREAK(pEFont);
 
 		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);

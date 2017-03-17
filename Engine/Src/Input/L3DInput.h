@@ -2,11 +2,11 @@
 #include <dinput.h>
 #include "L3DInterface.h"
 
-class LEInput
+class L3DInput
 {
 public:
-	LEInput();
-	~LEInput();
+	L3DInput();
+	~L3DInput();
 
 	HRESULT Init(HWND hWnd, HINSTANCE hInstance, DWORD dwKeyboardCoopFlags, DWORD dwMouseCoopFlags);
 	HRESULT Uninit();

@@ -16,14 +16,8 @@
     <Filter Include="Header Files\Engine">
       <UniqueIdentifier>{9b39e9f3-7be3-4937-a47a-0e9f4bb40ec4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Engine\Object">
-      <UniqueIdentifier>{63b19067-5675-4dc8-b1f2-5502f2f2b2bc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Common">
       <UniqueIdentifier>{1eb6cb3e-5235-43c2-9fdf-498a02ff661a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Object">
-      <UniqueIdentifier>{eb3a0fd4-c219-443a-9b96-40b4c1871ebe}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Engine\IOManager">
       <UniqueIdentifier>{c995824f-cc4e-4813-9adc-362ee54b2829}</UniqueIdentifier>
@@ -31,8 +25,23 @@
     <Filter Include="Source Files\IOManager">
       <UniqueIdentifier>{b2c5c97a-5c3f-466b-8f8a-cc5eb4bf58c9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Engine\IOManager\Model">
-      <UniqueIdentifier>{d4eff88d-829e-4df6-a5a1-4a4d335f745e}</UniqueIdentifier>
+    <Filter Include="Header Files\Engine\Model">
+      <UniqueIdentifier>{5bc15abb-7187-4c5c-a99c-d06fa196ef0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Font">
+      <UniqueIdentifier>{7e4bac11-0a55-4fce-a4a0-a490bac66ba3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Model">
+      <UniqueIdentifier>{0d7862c5-546e-4b1a-b18f-e1432d1a4eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Font">
+      <UniqueIdentifier>{fcca59af-9299-497b-a3c1-386d3de055da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Input">
+      <UniqueIdentifier>{7c29b482-a741-4e66-a393-08c67c08c869}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Input">
+      <UniqueIdentifier>{31beb20e-0503-4b8a-8d62-be2d70161815}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,23 +51,23 @@
     <ClCompile Include="Src\L3DInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\LEFont.cpp">
-      <Filter>Source Files\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\LEInput.cpp">
-      <Filter>Source Files\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\LEModel.cpp">
-      <Filter>Source Files\Object</Filter>
-    </ClCompile>
     <ClCompile Include="Src\IOManager\LFileReader.cpp">
       <Filter>Source Files\IOManager</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Model\L3DMesh.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Model\L3DModel.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Input\L3DInput.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Font\L3DFont.cpp">
+      <Filter>Source Files\Font</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Src\LEFont.h">
-      <Filter>Header Files\Engine\Object</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\L3DEngine.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
@@ -71,23 +80,26 @@
     <ClInclude Include="..\Include\LAssert.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Src\LEInput.h">
-      <Filter>Header Files\Engine\Object</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\LExports.h">
       <Filter>Header Files\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\LEModel.h">
-      <Filter>Header Files\Engine\Object</Filter>
     </ClInclude>
     <ClInclude Include="Src\IOManager\LFileReader.h">
       <Filter>Header Files\Engine\IOManager</Filter>
     </ClInclude>
-    <ClInclude Include="Src\IOManager\Model\L3DMeshStruct.h">
-      <Filter>Header Files\Engine\IOManager\Model</Filter>
+    <ClInclude Include="Src\Model\L3DMesh.h">
+      <Filter>Header Files\Engine\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Src\IOManager\Model\L3DStruct.h">
-      <Filter>Header Files\Engine\IOManager\Model</Filter>
+    <ClInclude Include="Src\Model\L3DModel.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Input\L3DInput.h">
+      <Filter>Header Files\Engine\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Font\L3DFont.h">
+      <Filter>Header Files\Engine\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\IOManager\LFileStruct.h">
+      <Filter>Header Files\Engine\IOManager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

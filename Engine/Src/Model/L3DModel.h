@@ -23,11 +23,11 @@ enum LOBJECT_OPTIMIZE_PARAM
 
 struct IDirect3DDevice9;
 
-class LEModel : public ILModel
+class L3DModel : public ILModel
 {
 public:
-	LEModel();
-	virtual ~LEModel();
+	L3DModel();
+	virtual ~L3DModel();
 
 	HRESULT Init(IDirect3DDevice9* p3DDevice, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount);
 	HRESULT Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName);

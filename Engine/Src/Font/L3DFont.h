@@ -1,10 +1,10 @@
 #include "L3DInterface.h"
 
-class LEFont : public ILFont
+class L3DFont : public ILFont
 {
 public:
-	LEFont();
-	virtual ~LEFont();
+	L3DFont();
+	virtual ~L3DFont();
 
 	virtual HRESULT SetText(LPCWSTR szString);
 	virtual HRESULT SetColor(const D3DXCOLOR& color);

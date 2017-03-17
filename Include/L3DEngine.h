@@ -6,7 +6,7 @@
 #include <list>
 #include "L3DInterface.h"
 
-class LEInput;
+class L3DInput;
 
 class L3DEngine : public IL3DEngine
 {
@@ -50,7 +50,7 @@ private:
 	
 	IDirect3D9* m_p3D9;
 	IDirect3DDevice9* m_p3DDevice;
-	LEInput* m_pInput;
+	L3DInput* m_pInput;
 
 	L3DWINDOWPARAM m_WindowParam;
 	SampFilter m_SampFilter[GRAPHICS_LEVEL_COUNT];

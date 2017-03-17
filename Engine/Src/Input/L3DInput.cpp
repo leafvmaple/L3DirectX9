@@ -1,7 +1,7 @@
-#include "LEInput.h"
+#include "L3DInput.h"
 #include "LAssert.h"
 
-LEInput::LEInput()
+L3DInput::L3DInput()
 : m_pDirectInput(NULL)
 , m_KeyboardDevice(NULL)
 , m_MouseDevice(NULL)
@@ -10,12 +10,12 @@ LEInput::LEInput()
 	ZeroMemory(&m_keyBuffer, sizeof(m_keyBuffer));
 }
 
-LEInput::~LEInput()
+L3DInput::~L3DInput()
 {
 
 }
 
-HRESULT LEInput::Init(HWND hWnd, HINSTANCE hInstance, DWORD dwKeyboardCoopFlags, DWORD dwMouseCoopFlags)
+HRESULT L3DInput::Init(HWND hWnd, HINSTANCE hInstance, DWORD dwKeyboardCoopFlags, DWORD dwMouseCoopFlags)
 {
 	HRESULT hr;
 	HRESULT hResult = E_FAIL;
@@ -61,7 +61,7 @@ HRESULT LEInput::Init(HWND hWnd, HINSTANCE hInstance, DWORD dwKeyboardCoopFlags,
 	return hResult;
 }
 
-HRESULT LEInput::Uninit()
+HRESULT L3DInput::Uninit()
 {
 	if(m_KeyboardDevice)
 		m_KeyboardDevice->Unacquire();
@@ -75,7 +75,7 @@ HRESULT LEInput::Uninit()
 	return S_OK;
 }
 
-HRESULT LEInput::Update()
+HRESULT L3DInput::Update()
 {
 	HRESULT hr = E_FAIL;
 
@@ -96,7 +96,7 @@ HRESULT LEInput::Update()
 	return S_OK;
 }
 
-bool LEInput::IsKeyDown(int nKey)
+bool L3DInput::IsKeyDown(int nKey)
 {
 	if(m_keyBuffer[nKey] & 0x80)
 		return true;
@@ -104,22 +104,22 @@ bool LEInput::IsKeyDown(int nKey)
 		return false;
 }
 
-bool LEInput::IsMouseButtonDown(int nButton)
+bool L3DInput::IsMouseButtonDown(int nButton)
 {
 	return (m_MouseState.rgbButtons[nButton] & 0x80) != 0;
 }
 
-float LEInput::MouseDX()
+float L3DInput::MouseDX()
 {
 	return (float)m_MouseState.lX;
 }
 
-float LEInput::MouseDY()
+float L3DInput::MouseDY()
 {
 	return (float)m_MouseState.lY;
 }
 
-float LEInput::MouseDZ()
+float L3DInput::MouseDZ()
 {
 	return (float)m_MouseState.lZ;
 }

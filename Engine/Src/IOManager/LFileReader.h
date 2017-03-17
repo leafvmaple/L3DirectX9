@@ -1,8 +1,6 @@
 #pragma once
-#include "Model/L3DMeshStruct.h"
-
-const VertexFromatOffsetItem* GetVertexFormat(DWORD dwFVF);
-DWORD GetVertexStride(DWORD dwFVF);
+#include "LFileStruct.h"
+#include <wtypes.h>
 
 class LFileReader
 {
@@ -10,9 +8,6 @@ class LFileReader
 	~LFileReader();
 
 public:
-	static HRESULT LoadMesh(LPCWSTR cszFileName, LMESH_DATA* pLMesh);
-
-private:
 	static HRESULT Reader(LPCWSTR cszFileName, BYTE* pBuffer, size_t uMaxLen, size_t* puLen);
 
 	template<typename Model>

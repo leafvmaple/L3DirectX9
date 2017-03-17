@@ -1,7 +1,7 @@
-#include "LEFont.h"
+#include "L3DFont.h"
 #include "LAssert.h"
 
-LEFont::LEFont()
+L3DFont::L3DFont()
 : m_pFont(NULL)
 , m_nSize(0)
 {
@@ -10,12 +10,12 @@ LEFont::LEFont()
 	ZeroMemory(m_wszFPS, sizeof(m_wszFPS));
 }
 
-LEFont::~LEFont()
+L3DFont::~L3DFont()
 {
 
 }
 
-HRESULT LEFont::Init(IDirect3DDevice9* p3DDevice, int nSize/* = 9*/)
+HRESULT L3DFont::Init(IDirect3DDevice9* p3DDevice, int nSize/* = 9*/)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -42,20 +42,20 @@ HRESULT LEFont::Init(IDirect3DDevice9* p3DDevice, int nSize/* = 9*/)
 	return hResult;
 }
 
-HRESULT LEFont::SetText(LPCWSTR szString)
+HRESULT L3DFont::SetText(LPCWSTR szString)
 {
 	m_Rect.right = m_Rect.left + wcslen(szString) * m_nSize;
 	wcscpy_s(m_wszFPS, szString);
 	return S_OK;
 }
 
-HRESULT LEFont::SetColor(const D3DXCOLOR& color)
+HRESULT L3DFont::SetColor(const D3DXCOLOR& color)
 {
 	m_Color = color;
 	return S_OK;
 }
 
-HRESULT LEFont::SetPosition(int nX, int nY)
+HRESULT L3DFont::SetPosition(int nX, int nY)
 {
 	int nWidth = 0;
 	int nHeight = 0;
@@ -67,7 +67,7 @@ HRESULT LEFont::SetPosition(int nX, int nY)
 	return S_OK;
 }
 
-HRESULT LEFont::UpdateDisplay()
+HRESULT L3DFont::UpdateDisplay()
 {
 	m_pFont->DrawText(NULL, m_wszFPS, -1, &m_Rect, DT_TOP | DT_LEFT, m_Color);
 	return S_OK;

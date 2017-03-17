@@ -1,11 +1,11 @@
 #include <Windows.h>
 #include <process.h>
 #include <strsafe.h>
-#include "LEModel.h"
-#include "LEFont.h"
-#include "LEInput.h"
 #include "LAssert.h"
 #include "L3DEngine.h"
+#include "Model/L3DModel.h"
+#include "Input/L3DInput.h"
+#include "Font/L3DFont.h"
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
@@ -92,8 +92,8 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	LEModel* pObject = NULL;
-	LEFont* pFont = NULL;
+	L3DModel* pObject = NULL;
+	L3DFont* pFont = NULL;
 	std::list<ILModel*>::iterator itModel;
 	std::list<ILFont*>::iterator itFont;
 
@@ -116,7 +116,7 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 
 		for (itModel = m_ModelList.begin(); itModel != m_ModelList.end(); itModel++)
 		{
-			pObject = dynamic_cast<LEModel*>(*itModel);
+			pObject = dynamic_cast<L3DModel*>(*itModel);
 			BOOL_ERROR_CONTINUE(pObject);
 
 			pObject->UpdateDisplay();
@@ -124,7 +124,7 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 
 		for (itFont = m_FontList.begin(); itFont != m_FontList.end(); itFont++)
 		{
-			pFont = dynamic_cast<LEFont*>(*itFont);
+			pFont = dynamic_cast<L3DFont*>(*itFont);
 			BOOL_ERROR_CONTINUE(pFont);
 
 			pFont->UpdateDisplay();
@@ -372,7 +372,7 @@ HRESULT L3DEngine::InitInput(HWND hWnd, HINSTANCE hInstance)
 
 	do 
 	{
-		m_pInput = new LEInput;
+		m_pInput = new L3DInput;
 		BOOL_ERROR_BREAK(m_pInput);
 
 		hr = m_pInput->Init(hWnd, hInstance, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE,DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
