@@ -13,12 +13,12 @@
 	}
 
 #define BOOL_ERROR_CONTINUE(Condition)   \
-	if (!Condition) {                    \
+	if (!(Condition)) {                  \
 		continue;                        \
 	}
 
 #define BOOL_ERROR_BREAK(Condition)   \
-	if (!Condition) {                 \
+	if (!(Condition)) {               \
 		break;                        \
 	}
 

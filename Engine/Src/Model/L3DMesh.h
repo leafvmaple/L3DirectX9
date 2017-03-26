@@ -27,63 +27,63 @@ struct VertexFromatOffsetItem
 };
 
 static VertexFromatOffsetItem s_VertexFormat[] = {
-	{ D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1, 3,   
+	{D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1, 3,   
 	0,  1,  3, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	12, 12, 12, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 	0, 12, 24, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 	12, 12,  8, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	D3DFVF_XYZ, D3DFVF_NORMAL, D3DFVF_TEX1, ELEMENT_FVF_END},//PosNorTex1
 
-	{ D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX2, 4,
+	{D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX2, 4,
 	0,  1,  3, 4, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	12, 12, 12, 12, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	0, 12, 24, 32, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	12, 12,  8,  8, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 	D3DFVF_XYZ, D3DFVF_NORMAL, D3DFVF_TEX1, D3DFVF_TEX2, ELEMENT_FVF_END,},//PosNorTex2
 
-	{ D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX3, 5,
+	{D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX3, 5,
 	0,  1,  3, 4, 5, 0xffffffff, 0xffffffff, 0xffffffff, 
 	12, 12, 12, 12, 12, 0xffffffff, 0xffffffff, 0xffffffff, 
 	0, 12, 24, 32, 40, 0xffffffff, 0xffffffff, 0xffffffff, 
 	12, 12,  8,  8,  8, 0xffffffff, 0xffffffff, 0xffffffff, 
 	D3DFVF_XYZ, D3DFVF_NORMAL, D3DFVF_TEX1, D3DFVF_TEX2, D3DFVF_TEX3, ELEMENT_FVF_END},//PosNorTex3 有问题
 
-	{ D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1, 3,
+	{D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1, 3,
 	0,  2,  3, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	12,  4, 12, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 	0, 12, 16, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 	12,  4,  8, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 	D3DFVF_XYZ, D3DFVF_DIFFUSE, D3DFVF_TEX1, ELEMENT_FVF_END, },//PosDiffuseTex1
 
-	{ D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX2, 4,
+	{D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX2, 4,
 	0,  2,  3,  4, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	12,  4, 12, 12, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 	0, 12, 16, 24, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 	12,  4,  8,  8, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	D3DFVF_XYZ, D3DFVF_DIFFUSE, D3DFVF_TEX1, D3DFVF_TEX2, ELEMENT_FVF_END},//PosDiffuseTex2
 
-	{ D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX3, 5, 
+	{D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX3, 5, 
 	0,  2,  3,  4,  5, 0xffffffff, 0xffffffff, 0xffffffff, 
 	12,  4, 12, 12, 12, 0xffffffff, 0xffffffff, 0xffffffff, 
 	0, 12, 16, 24, 32, 0xffffffff, 0xffffffff, 0xffffffff,
 	12,  4,  8,  8,  8, 0xffffffff, 0xffffffff, 0xffffffff, 
 	D3DFVF_XYZ, D3DFVF_DIFFUSE, D3DFVF_TEX1, D3DFVF_TEX2, D3DFVF_TEX3, ELEMENT_FVF_END},//PosDiffuseTex2
 
-	{ D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_NORMAL | D3DFVF_TEX1, 4,
+	{D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_NORMAL | D3DFVF_TEX1, 4,
 	0,  1,  2,  3, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	0, 12,  4, 12, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	0, 12, 16, 20, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	0, 12,  4,  8, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 
 	D3DFVF_XYZ, D3DFVF_DIFFUSE, D3DFVF_NORMAL, D3DFVF_TEX1, ELEMENT_FVF_END,},//PosNormalDiffuseTex1 ?????bug
 
-	{ D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_NORMAL | D3DFVF_TEX2, 5,
+	{D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_NORMAL | D3DFVF_TEX2, 5,
 	0,  1,  2,  3,  4, 0xffffffff, 0xffffffff, 0xffffffff, 
 	0, 12,  4, 12, 12, 0xffffffff, 0xffffffff, 0xffffffff,
 	0, 12, 16, 24, 32, 0xffffffff, 0xffffffff, 0xffffffff,
 	0, 12,  4,  8,  8, 0xffffffff, 0xffffffff, 0xffffffff, 
 	D3DFVF_XYZ, D3DFVF_DIFFUSE, D3DFVF_NORMAL, D3DFVF_TEX1, D3DFVF_TEX2, ELEMENT_FVF_END},//PosNormalDiffuseTex2
 
-	{ D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_NORMAL | D3DFVF_TEX3, 6,
+	{D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_NORMAL | D3DFVF_TEX3, 6,
 	0,  1,  2,  3,  4,  5, 0xffffffff, 0xffffffff, 
 	0, 12,  4,  8,  8,  8, 0xffffffff, 0xffffffff, 
 	0, 12, 16, 28, 40, 52, 0xffffffff, 0xffffffff, 
@@ -93,13 +93,6 @@ static VertexFromatOffsetItem s_VertexFormat[] = {
 
 class L3DMesh
 {
-public:
-	struct LoadMeshFunc
-	{
-		LPCWSTR pwcsFileExt;
-		HRESULT (L3DMesh::*fnLoadMesh)(LPCWSTR cszFileName, IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh);
-	};
-
 private:
 	typedef struct _KG3DOBJProperty
 	{
@@ -172,7 +165,7 @@ private:
 		DWORD dwParentIndex;
 
 		D3DXMATRIX  CurMatrix;
-		D3DXMATRIX  LocalWorldCurMatrix_NotNeeded; //骨骼在本身世界中的位置矩阵
+		D3DXMATRIX  LocalWorldCurMatrix_NotNeeded;
 		D3DXMATRIX  ParentReletiveMatrix;
 
 		BOOL        IsFlexibleBone;
@@ -202,7 +195,7 @@ private:
 		DWORD  SubsetIndexBlock;
 		DWORD  SkinInfoBlock;
 		DWORD  LODInfoBlock;
-		DWORD  FlexibleBodyBlock; // not need the data now
+		DWORD  FlexibleBodyBlock;
 		DWORD  BBoxBlock;
 		DWORD  BlendMeshBlock;
 		DWORD  ExtendBlock[17];
@@ -229,7 +222,7 @@ private:
 		DWORD       AnimationBlock_NotUse;
 		DWORD       ExtendBlock_NotUse[10];
 		DWORD       MeshCount_NotUse;
-		const static DWORD s_dwFileMask = 0x4d455348;//"mesh"
+		const static DWORD s_dwFileMask = 0x4d455348;
 		const static DWORD s_dwCurrentVersion = 0;
 	};
 #pragma pack(pop)
@@ -276,25 +269,22 @@ private:
 	};
 
 	static const VertexFromatOffsetItem* GetVertexFormat(DWORD dwFVF);
-	static const LoadMeshFunc* GetLoadMeshFunc(LPCWSTR cszFileName);
 	static DWORD GetVertexStride(DWORD dwFVF);
-	ID3DXMesh* m_pDXMesh;
+
+	ID3DXBaseMesh* m_pMeshBase;
+	DWORD m_dwNumSubset;
 
 public:
 	L3DMesh();
 	~L3DMesh();
 
-	HRESULT LoadMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName);
-	HRESULT DrawMesh();
+	HRESULT LoadXMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadLMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName);
 
-	HRESULT LoadXMesh(LPCWSTR cszFileName, IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh);
-	HRESULT LoadLMesh(LPCWSTR cszFileName, IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh);
+	HRESULT UpdateMesh(DWORD dwSubMesh);
+
+	DWORD GetSubsetCount() const;
 
 private:
 	HRESULT LoadLMeshBuffer(LPCWSTR cszFileName, LMESH_DATA* pLMeshData);
-};
-
-static L3DMesh::LoadMeshFunc s_LoadMeshFunc[] = {
-	{TEXT(".x"),    &L3DMesh::LoadXMesh},
-	{TEXT(".mesh"), &L3DMesh::LoadLMesh},
 };

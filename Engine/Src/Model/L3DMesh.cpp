@@ -19,27 +19,6 @@ const VertexFromatOffsetItem* L3DMesh::GetVertexFormat(DWORD dwFVF)
 	return pReturn;
 }
 
-
-const L3DMesh::LoadMeshFunc* L3DMesh::GetLoadMeshFunc(LPCWSTR cszFileName)
-{
-	TCHAR wszExt[FILENAME_MAX];
-	_wsplitpath_s(cszFileName, NULL, 0, NULL, 0, NULL, 0, wszExt, FILENAME_MAX);
-
-	const LoadMeshFunc *pReturn = NULL;
-	size_t uSize = sizeof(s_LoadMeshFunc) / sizeof(LoadMeshFunc);
-	size_t i = 0;
-	for (; i < uSize; i++)
-	{
-		if (!wcscmp(s_LoadMeshFunc[i].pwcsFileExt, wszExt))
-			break;
-	}
-	BOOL_ERROR_RETURN(i != uSize);
-
-	pReturn = &s_LoadMeshFunc[i];
-	return pReturn;
-}
-
-
 DWORD L3DMesh::GetVertexStride(DWORD dwFVF)
 {
 	DWORD dwStride = 0;
@@ -54,6 +33,8 @@ DWORD L3DMesh::GetVertexStride(DWORD dwFVF)
 
 
 L3DMesh::L3DMesh()
+: m_pMeshBase(NULL)
+, m_dwNumSubset(0)
 {
 
 }
@@ -63,32 +44,16 @@ L3DMesh::~L3DMesh()
 
 }
 
-
-HRESULT L3DMesh::LoadMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName)
-{
-	const LoadMeshFunc* pMeshFunc = GetLoadMeshFunc(cszFileName);
-	if (pMeshFunc)
-	{
-		(this->*(pMeshFunc->fnLoadMesh))(cszFileName, p3DDevice, &m_pDXMesh);
-	}
-	return S_OK;
-}
-
-HRESULT L3DMesh::DrawMesh()
+HRESULT L3DMesh::LoadXMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName)
 {
 	return S_OK;
 }
 
-HRESULT L3DMesh::LoadXMesh(LPCWSTR cszFileName, IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh)
-{
-	return S_OK;
-}
-
-HRESULT L3DMesh::LoadLMesh(LPCWSTR cszFileName, IDirect3DDevice9* p3DDevice, ID3DXMesh** ppMesh)
+HRESULT L3DMesh::LoadLMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	LMESH_DATA pMeshData;
+	LMESH_DATA MeshData;
 	ID3DXMesh* pMesh = NULL;
 	BYTE* pbyVertices = NULL;
 	WORD* pwIndices = NULL;
@@ -99,17 +64,17 @@ HRESULT L3DMesh::LoadLMesh(LPCWSTR cszFileName, IDirect3DDevice9* p3DDevice, ID3
 
 	do
 	{
-		hr = LoadLMeshBuffer(cszFileName, &pMeshData);
+		hr = LoadLMeshBuffer(cszFileName, &MeshData);
 		HRESULT_ERROR_BREAK(hr);
 
-		if (pMeshData.dwNumVertices <= 65535 && pMeshData.dwNumFaces <= 65535)
+		if (MeshData.dwNumVertices <= 65535 && MeshData.dwNumFaces <= 65535)
 		{
-			hr = D3DXCreateMeshFVF(pMeshData.dwNumFaces, pMeshData.dwNumVertices,  D3DXMESH_SYSTEMMEM, pMeshData.dwMeshFVF, p3DDevice, &pMesh);
+			hr = D3DXCreateMeshFVF(MeshData.dwNumFaces, MeshData.dwNumVertices,  D3DXMESH_SYSTEMMEM, MeshData.dwMeshFVF, p3DDevice, &pMesh);
 			HRESULT_ERROR_BREAK(hr);
 		}
 		else
 		{
-			hr = D3DXCreateMeshFVF(pMeshData.dwNumFaces, pMeshData.dwNumVertices,  D3DXMESH_SYSTEMMEM | D3DXMESH_32BIT,  pMeshData.dwMeshFVF, p3DDevice, &pMesh);
+			hr = D3DXCreateMeshFVF(MeshData.dwNumFaces, MeshData.dwNumVertices,  D3DXMESH_SYSTEMMEM | D3DXMESH_32BIT,  MeshData.dwMeshFVF, p3DDevice, &pMesh);
 			HRESULT_ERROR_BREAK(hr);
 		}
 
@@ -119,17 +84,17 @@ HRESULT L3DMesh::LoadLMesh(LPCWSTR cszFileName, IDirect3DDevice9* p3DDevice, ID3
 		hr = pMesh->LockVertexBuffer(0, (void**)(&pbyVertices));
 		HRESULT_ERROR_BREAK(hr);
 
-		pVertexFormat = GetVertexFormat(pMeshData.dwMeshFVF);
-		HRESULT_ERROR_BREAK(pVertexFormat);
+		pVertexFormat = GetVertexFormat(MeshData.dwMeshFVF);
+		BOOL_ERROR_BREAK(pVertexFormat);
 
-		dwVertexStride = GetVertexStride(pMeshData.dwMeshFVF);
+		dwVertexStride = GetVertexStride(MeshData.dwMeshFVF);
 
-		for (DWORD i = 0; i < pMeshData.dwNumVertices; i++)
+		for (DWORD i = 0; i < MeshData.dwNumVertices; i++)
 		{
 			BYTE *pCurrentVertexData = pbyVertices + dwDestVertexStride * i;
 			for (DWORD j = 0; j < pVertexFormat->dwNumElement; j++)
 			{
-				const BYTE *pCurrentSrc = *(reinterpret_cast<BYTE* const*>(&pMeshData) + pVertexFormat->dwSrcOffset[j]);
+				const BYTE *pCurrentSrc = *(reinterpret_cast<BYTE* const*>(&MeshData.pPos) + pVertexFormat->dwSrcOffset[j]);
 				memcpy(pCurrentVertexData + pVertexFormat->dwDestOffset[j],
 					pCurrentSrc + pVertexFormat->dwSrcStride[j] * i,
 					pVertexFormat->dwDestStride[j]);
@@ -143,12 +108,12 @@ HRESULT L3DMesh::LoadLMesh(LPCWSTR cszFileName, IDirect3DDevice9* p3DDevice, ID3
 		HRESULT_ERROR_BREAK(hr);
 
 
-		for(DWORD i = 0; i < pMeshData.dwNumFaces; i++)
+		for(DWORD i = 0; i < MeshData.dwNumFaces; i++)
 		{
-			pwIndices[i * 3]     = static_cast<short>(pMeshData.pFaceIndices[i * 3]);
-			pwIndices[i * 3 + 1] = static_cast<short>(pMeshData.pFaceIndices[i * 3 + 1]);
-			pwIndices[i * 3 + 2] = static_cast<short>(pMeshData.pFaceIndices[i * 3 + 2]);
-			pwAttributes[i] = pMeshData.pSubsetIndices[i];
+			pwIndices[i * 3]     = static_cast<WORD>(MeshData.pFaceIndices[i * 3]);
+			pwIndices[i * 3 + 1] = static_cast<WORD>(MeshData.pFaceIndices[i * 3 + 1]);
+			pwIndices[i * 3 + 2] = static_cast<WORD>(MeshData.pFaceIndices[i * 3 + 2]);
+			pwAttributes[i] = MeshData.pSubsetIndices[i];
 		}
 
 		pMesh->UnlockVertexBuffer();
@@ -158,7 +123,31 @@ HRESULT L3DMesh::LoadLMesh(LPCWSTR cszFileName, IDirect3DDevice9* p3DDevice, ID3
 		hResult = S_OK;
 	} while (0);
 
+	m_pMeshBase = pMesh;
+	m_dwNumSubset = MeshData.dwNumSubset;
+
 	return hResult;
+}
+
+HRESULT L3DMesh::UpdateMesh(DWORD dwSubMesh)
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		hr = m_pMeshBase->DrawSubset(dwSubMesh);
+		HRESULT_ERROR_BREAK(hr);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+DWORD L3DMesh::GetSubsetCount() const
+{
+	return m_dwNumSubset;
 }
 
 HRESULT L3DMesh::LoadLMeshBuffer(LPCWSTR cszFileName, LMESH_DATA* pLMeshData)
@@ -246,12 +235,12 @@ HRESULT L3DMesh::LoadLMeshBuffer(LPCWSTR cszFileName, LMESH_DATA* pLMeshData)
 
 		if (pMeshHead->Blocks.FacesIndexBlock)
 		{
-			LFileReader::Convert(pbyBufferHead + pMeshHead->Blocks.FacesIndexBlock, pLMeshData->pFaceIndices, pMeshHead->dwNumVertices);
+			LFileReader::Convert(pbyBufferHead + pMeshHead->Blocks.FacesIndexBlock, pLMeshData->pFaceIndices, 3 * pMeshHead->dwNumFaces);
 		}
 
 		if (pMeshHead->Blocks.SubsetIndexBlock)
 		{
-			LFileReader::Convert(pbyBufferHead + pMeshHead->Blocks.SubsetIndexBlock, pLMeshData->pSubsetIndices, pMeshHead->dwNumVertices);
+			LFileReader::Convert(pbyBufferHead + pMeshHead->Blocks.SubsetIndexBlock, pLMeshData->pSubsetIndices, pMeshHead->dwNumFaces);
 		}
 
 		if (pMeshHead->Blocks.SkinInfoBlock)

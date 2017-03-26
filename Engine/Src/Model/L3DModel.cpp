@@ -4,6 +4,7 @@
 #include "LCommon.h"
 #include "IOManager/LFileReader.h"
 #include "Model/L3DMesh.h"
+#include "Model/L3DMaterial.h"
 
 L3DModel::L3DModel()
 : m_p3DDevice(NULL)
@@ -16,6 +17,9 @@ L3DModel::L3DModel()
 , m_fScale(1.f)
 , m_dwRenderParam(0)
 , m_dwOptimizeParam(0)
+, m_pLMesh(NULL)
+, m_pLMaterial(NULL)
+, m_pLTexture(NULL)
 {
 	ZeroMemory(&m_DisplaySource, sizeof(m_DisplaySource));
 	ZeroMemory(m_vTranslation, sizeof(m_vTranslation));
@@ -35,7 +39,7 @@ L3DModel::~L3DModel()
 		if (m_DisplaySource.LVertex.pIndexBuffer)
 			m_DisplaySource.LVertex.pIndexBuffer->Release();
 		break;
-	case LOBJECT_TYPE_X:
+	case LOBJECT_TYPE_MESH:
 		if (m_DisplaySource.LMesh.pMesh)
 			m_DisplaySource.LMesh.pMesh->Release();
 		break;
@@ -44,7 +48,7 @@ L3DModel::~L3DModel()
 	}
 }
 
-HRESULT L3DModel::Init(IDirect3DDevice9* p3DDevice, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount)
+HRESULT L3DModel::Init(LPDIRECT3DDEVICE9 p3DDevice, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -94,7 +98,7 @@ HRESULT L3DModel::Init(IDirect3DDevice9* p3DDevice, TexVertex* pModelVerteices, 
 	return hResult;
 }
 
-HRESULT L3DModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName)
+HRESULT L3DModel::Init(LPDIRECT3DDEVICE9 p3DDevice, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -104,7 +108,7 @@ HRESULT L3DModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJ
 	ID3DXMesh* pCloneMesh = NULL;
 	ID3DXMesh* pMesh = NULL;
 	size_t uDirLength = 0;
-	WCHAR wcszDir[LENGIEN_FONT_STRING_MAX];
+	WCHAR wcszDir[LENGIEN_FILENAME_MAX];
 
 	do 
 	{
@@ -167,8 +171,10 @@ HRESULT L3DModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJ
 
 		case LOBJECT_MESH_LX:
 			{
-				L3DMesh lMesh;
-				lMesh.LoadMesh(p3DDevice, pcszFileName);
+				hr = LoadModel(p3DDevice, pcszFileName);
+				HRESULT_ERROR_BREAK(hr);
+
+				m_dwSubsetCount = m_pLMesh->GetSubsetCount();
 			}
 			
 			break;
@@ -176,7 +182,7 @@ HRESULT L3DModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJ
 			break;
 		}
 
-		if (!(pMesh->GetFVF() & D3DFVF_NORMAL))
+		/*if (!(pMesh->GetFVF() & D3DFVF_NORMAL))
 		{
 			hr = pMesh->CloneMeshFVF(D3DXMESH_MANAGED, pMesh->GetFVF() | D3DFVF_NORMAL, p3DDevice, &pCloneMesh);
 			HRESULT_ERROR_BREAK(hr);
@@ -200,26 +206,23 @@ HRESULT L3DModel::Init(IDirect3DDevice9* p3DDevice, ID3DXBaseMesh** ppMesh, LOBJ
 			if (hr == S_OK)
 			{
 				SAFE_RELEASE(pMesh);
-				*ppMesh = pProgressMesh;
 				m_dwOptimizeParam |= LOBJECT_OPTIMIZE_PROGRESSIVE;
 			}
 			else
 			{
 				SAFE_RELEASE(pProgressMesh);
 			}
-		}
+		}*/
 
 		m_p3DDevice = p3DDevice;
-		m_ObjectType = LOBJECT_TYPE_X;
+		m_ObjectType = LOBJECT_TYPE_MESH;
 		m_DisplaySource.LMesh.pMesh = pMesh;
-		*ppMesh = pMesh;
 
 		hResult = S_OK;
 	} while (0);
 
 	return hResult;
 }
-
 
 HRESULT L3DModel::SetAlpha(float fAlpha)
 {
@@ -264,6 +267,133 @@ HRESULT L3DModel::SetRotation(const D3DXQUATERNION& qRotation)
 	return S_OK;
 }
 
+HRESULT L3DModel::LoadModel(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+	do
+	{
+		const LoadModelFunc* pMeshFunc = GetLoadModelFunc(cszFileName);
+		BOOL_ERROR_BREAK(pMeshFunc);
+
+		hr = (this->*(pMeshFunc->fnLoadMesh))(p3DDevice, cszFileName);
+		HRESULT_ERROR_BREAK(hr);
+
+	} while (0);
+
+	return S_OK;
+}
+
+HRESULT L3DModel::LoadXMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
+{
+	HRESULT hr = E_FAIL;;
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		m_pLMesh = new L3DMesh;
+		BOOL_ERROR_BREAK(m_pLMesh);
+
+		hr = m_pLMesh->LoadXMesh(p3DDevice, cszFileName);
+		HRESULT_ERROR_BREAK(hr);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+HRESULT L3DModel::LoadLMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
+{
+	HRESULT hr = E_FAIL;;
+	HRESULT hResult = E_FAIL;
+	TCHAR wcszFileName[LENGIEN_FONT_STRING_MAX];
+	TCHAR* pwcszMtl = NULL;
+
+	do 
+	{
+		m_pLMesh = new L3DMesh;
+		BOOL_ERROR_BREAK(m_pLMesh);
+
+		hr = m_pLMesh->LoadLMesh(p3DDevice, cszFileName);
+		HRESULT_ERROR_BREAK(hr);
+
+		wcscpy_s(wcszFileName, cszFileName);
+		pwcszMtl = wcsstr(wcszFileName, TEXT("mesh"));
+
+		memcpy_s(pwcszMtl, 7, TEXT("mtl"), 7);
+		LoadLMaterial(p3DDevice, wcszFileName);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+HRESULT L3DModel::LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
+{
+	HRESULT hr = E_FAIL;;
+	HRESULT hResult = E_FAIL;
+	L3DTexture::LTextureParam* pTextureParam;
+	WCHAR wcszDir[LENGIEN_FILENAME_MAX];
+	size_t uDirLength = 0;
+
+	do 
+	{
+		m_pLMaterial = new L3DMaterial;
+		BOOL_ERROR_BREAK(m_pLMaterial);
+
+		hr = m_pLMaterial->LoadLMaterial(p3DDevice, cszFileName);
+		HRESULT_ERROR_BREAK(hr);
+
+		pTextureParam = new L3DTexture::LTextureParam[m_pLMaterial->m_dwNumMaterials];
+
+		m_pLTexture = new L3DTexture;
+		for (DWORD i = 0; i < m_pLMaterial->m_dwNumMaterials; i++)
+		{
+			pTextureParam->pSubTextureCount = m_pLMaterial->m_dwNumMaterials;
+			pTextureParam->pSubTexture = new L3DTexture::LTextureParam::SubTextureParam[m_pLMaterial->m_dwNumMaterials];
+			for (DWORD j = 0; j < m_pLMaterial->m_pMaterialSubset[i].dwNumUsedTexture; j++)
+			{
+				USES_CONVERSION;
+
+				uDirLength = L3D::GetPathDir(cszFileName, wcszDir);
+				BOOL_ERROR_BREAK(uDirLength);
+
+				L3D::GetFullPath(A2CW(m_pLMaterial->m_pMaterialSubset[i].pTextureInfo->pTexture->szTextureFileName), wcszDir);
+
+				wcscpy_s(pTextureParam->pSubTexture->wszTextureFileName, wcszDir);
+			}
+
+			hr = m_pLTexture->LoadLTextureByParam(p3DDevice, pTextureParam, m_pLMaterial->m_dwNumMaterials);
+			HRESULT_ERROR_BREAK(hr);
+		}
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+HRESULT L3DModel::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
+{
+	HRESULT hr = E_FAIL;;
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		m_pLTexture = new L3DTexture;
+		BOOL_ERROR_BREAK(m_pLMaterial);
+
+		hr = m_pLTexture->LoadLTexture(p3DDevice, cszFileName);
+		HRESULT_ERROR_BREAK(hr);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
 HRESULT L3DModel::UpdateDisplay()
 {
 	HRESULT hr = E_FAIL;
@@ -288,7 +418,7 @@ HRESULT L3DModel::UpdateDisplay()
 			hr = UpdateTexture(u);
 			HRESULT_ERROR_BREAK(hr);
 
-			hr = UpdateDraw(u);
+			hr = UpdateMesh(u);
 			HRESULT_ERROR_BREAK(hr);
 		}
 
@@ -323,17 +453,28 @@ HRESULT L3DModel::UpdateLOD()
 	return S_OK;
 }
 
+
+HRESULT L3DModel::UpdateMesh(DWORD uIndex)
+{
+	if (m_pLMesh)
+		m_pLMesh->UpdateMesh(uIndex);
+	return S_OK;
+}
+
 HRESULT L3DModel::UpdateMaterial(DWORD uIndex)
 {
-	m_pMaterial[uIndex].Diffuse.a = m_fAlpha;
-	m_p3DDevice->SetMaterial(&m_pMaterial[uIndex]);
-	
+	//m_pMaterial[uIndex].Diffuse.a = m_fAlpha;
+	//m_p3DDevice->SetMaterial(&m_pMaterial[uIndex]);
+	if (m_pLMaterial)
+		m_pLMaterial->UpdateMaterial(uIndex);
 	return S_OK;
 }
 
 HRESULT L3DModel::UpdateTexture(DWORD uIndex)
 {
-	m_p3DDevice->SetTexture(0, m_ppTexture[uIndex]);
+	//m_p3DDevice->SetTexture(0, m_ppTexture[uIndex]);
+	if (m_pLTexture)
+		m_pLTexture->UpdateTexture(uIndex);
 	return S_OK;
 }
 
@@ -351,12 +492,9 @@ HRESULT L3DModel::UpdateDraw(DWORD uIndex)
 		//m_p3DDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
 		m_p3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
 		break;
-	case LOBJECT_TYPE_X:
-		BOOL_ERROR_BREAK(m_DisplaySource.LMesh.pMesh);
-		m_DisplaySource.LMesh.pMesh->DrawSubset(uIndex);
-		break;
 	case LOBJECT_TYPE_MESH:
-
+		BOOL_ERROR_BREAK(m_pLMesh);
+		m_pLMesh->UpdateMesh(0);
 		break;
 	default:
 		break;
@@ -369,4 +507,23 @@ HRESULT L3DModel::ResetRendState()
 	if (m_dwRenderParam & LOBJECT_RENDER_ALPHA)
 		m_p3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	return S_OK;
+}
+
+const L3DModel::LoadModelFunc* L3DModel::GetLoadModelFunc(LPCWSTR cszFileName)
+{
+	TCHAR wszExt[FILENAME_MAX];
+	_wsplitpath_s(cszFileName, NULL, 0, NULL, 0, NULL, 0, wszExt, FILENAME_MAX);
+
+	const LoadModelFunc *pReturn = NULL;
+	size_t uSize = sizeof(s_LoadModelFunc) / sizeof(LoadModelFunc);
+	size_t i = 0;
+	for (; i < uSize; i++)
+	{
+		if (!wcscmp(s_LoadModelFunc[i].pwcsFileExt, wszExt))
+			break;
+	}
+	BOOL_ERROR_RETURN(i != uSize);
+
+	pReturn = &s_LoadModelFunc[i];
+	return pReturn;
 }

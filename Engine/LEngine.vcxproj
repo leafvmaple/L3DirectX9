@@ -88,8 +88,10 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClCompile Include="Src\IOManager\LFileReader.cpp" />
     <ClCompile Include="Src\L3DEngine.cpp" />
     <ClCompile Include="Src\L3DInterface.cpp" />
+    <ClCompile Include="Src\Model\L3DMaterial.cpp" />
     <ClCompile Include="Src\Model\L3DMesh.cpp" />
     <ClCompile Include="Src\Model\L3DModel.cpp" />
+    <ClCompile Include="Src\Model\L3DTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\LAssert.h" />
@@ -101,8 +103,10 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClInclude Include="Src\Input\L3DInput.h" />
     <ClInclude Include="Src\IOManager\LFileStruct.h" />
     <ClInclude Include="Src\IOManager\LFileReader.h" />
+    <ClInclude Include="Src\Model\L3DMaterial.h" />
     <ClInclude Include="Src\Model\L3DMesh.h" />
     <ClInclude Include="Src\Model\L3DModel.h" />
+    <ClInclude Include="Src\Model\L3DTexture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

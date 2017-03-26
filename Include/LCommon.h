@@ -1,6 +1,4 @@
-#ifndef _LM_LCOMMON_H_
-#define _LM_LCOMMON_H_
-
+#pragma once
 #include <winnt.h>
 #include <winerror.h>
 #include <cstdio>
@@ -34,5 +32,3 @@ namespace L3D
 		return 0;
 	}
 }
-
-#endif // !_LM_LCOMMON_H_

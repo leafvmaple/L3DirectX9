@@ -118,7 +118,6 @@ enum LOBJECT_TYPE
 {
 	LOBJECT_TYPE_INVALID,
 	LOBJECT_TYPE_VERTEX,
-	LOBJECT_TYPE_X,
 	LOBJECT_TYPE_MESH,
 	LOBJECT_TYPE_COUNT,
 };
@@ -172,5 +171,5 @@ public:
 	virtual HRESULT SetRotation(const D3DXQUATERNION& qRotation) = 0;
 
 	static HRESULT Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel);
-	static HRESULT Create(IL3DEngine* pL3DEngie, ID3DXBaseMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel);
+	static HRESULT Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel);
 };

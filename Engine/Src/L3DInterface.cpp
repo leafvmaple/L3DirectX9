@@ -111,7 +111,7 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT 
 	return hResult;
 }
 
-HRESULT ILModel::Create(IL3DEngine* pL3DEngie, ID3DXBaseMesh** ppMesh, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel)
+HRESULT ILModel::Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -132,7 +132,7 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, ID3DXBaseMesh** ppMesh, LOBJECT_M
 		hr = pEngine->GetDevice(&p3DDevice);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = pEModel->Init(p3DDevice, ppMesh, eModelType, pcszFileName);
+		hr = pEModel->Init(p3DDevice, eModelType, pcszFileName);
 		HRESULT_ERROR_BREAK(hr);
 
 		pEngine->AttachObject(pEModel);

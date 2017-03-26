@@ -66,6 +66,12 @@
     <ClCompile Include="Src\Font\L3DFont.cpp">
       <Filter>Source Files\Font</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Model\L3DMaterial.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Model\L3DTexture.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\L3DEngine.h">
@@ -100,6 +106,12 @@
     </ClInclude>
     <ClInclude Include="Src\IOManager\LFileStruct.h">
       <Filter>Header Files\Engine\IOManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Model\L3DMaterial.h">
+      <Filter>Header Files\Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Model\L3DTexture.h">
+      <Filter>Header Files\Engine\Model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

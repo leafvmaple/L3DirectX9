@@ -15,14 +15,13 @@ HRESULT LTeapot::Create(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	ID3DXBaseMesh* pMesh = NULL;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(p3DDevice);
 		BOOL_ERROR_BREAK(p3DEngine);
 
-		hr = ILModel::Create(p3DEngine, &pMesh, LOBJECT_MESH_TEAPOT, NULL, &m_pObject);
+		hr = ILModel::Create(p3DEngine, LOBJECT_MESH_TEAPOT, NULL, &m_pObject);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = m_pObject->SetTranslation(D3DXVECTOR3(-1, -1, -1));
