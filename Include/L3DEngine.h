@@ -7,6 +7,7 @@
 #include "L3DInterface.h"
 
 class L3DInput;
+class L3DCamera;
 
 class L3DEngine : public IL3DEngine
 {
@@ -36,21 +37,11 @@ private:
 		int nMinFilter;
 		int nMagFilter;
 	};
-
-	struct _CameraParam
-	{
-		float fSightDis;
-		float fYaw;
-		float fPitch;
-		float fRoll;
-		D3DXVECTOR3 vPositon;
-		D3DXVECTOR3 vTarget;
-		D3DXVECTOR3 vUp;
-	} m_Camera;
 	
 	IDirect3D9* m_p3D9;
 	IDirect3DDevice9* m_p3DDevice;
-	L3DInput* m_pInput;
+	L3DInput* m_pLInput;
+	L3DCamera* m_pLCamera;
 
 	L3DWINDOWPARAM m_WindowParam;
 	SampFilter m_SampFilter[GRAPHICS_LEVEL_COUNT];
@@ -68,7 +59,7 @@ private:
 	HRESULT InitPresentParam(HWND hWnd);
 	HRESULT InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType);
 	HRESULT InitInput(HWND hWnd, HINSTANCE hInstance);
-	HRESULT InitCameraParam();
+	HRESULT InitCamera(IDirect3DDevice9* p3DDevice, float fWidth, float fHeight);
 
 	HRESULT GetL3DAdapter(PUINT puAdapter, D3DDEVTYPE* pDeviceType);
 	HRESULT GetL3DAdapterMode(UINT uAdapter);

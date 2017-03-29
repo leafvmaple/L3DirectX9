@@ -83,6 +83,7 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Camera\L3DCamera.cpp" />
     <ClCompile Include="Src\Font\L3DFont.cpp" />
     <ClCompile Include="Src\Input\L3DInput.cpp" />
     <ClCompile Include="Src\IOManager\LFileReader.cpp" />
@@ -99,6 +100,7 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClInclude Include="..\Include\L3DEngine.h" />
     <ClInclude Include="..\Include\L3DInterface.h" />
     <ClInclude Include="..\Include\LExports.h" />
+    <ClInclude Include="Src\Camera\L3DCamera.h" />
     <ClInclude Include="Src\Font\L3DFont.h" />
     <ClInclude Include="Src\Input\L3DInput.h" />
     <ClInclude Include="Src\IOManager\LFileStruct.h" />

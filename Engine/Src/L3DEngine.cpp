@@ -5,6 +5,7 @@
 #include "L3DEngine.h"
 #include "Model/L3DModel.h"
 #include "Input/L3DInput.h"
+#include "Camera/L3DCamera.h"
 #include "Font/L3DFont.h"
 
 #pragma comment(lib, "d3d9.lib")
@@ -23,11 +24,11 @@ L3DEngine::L3DEngine()
 : m_bActive(FALSE)
 , m_p3D9(NULL)
 , m_p3DDevice(NULL)
-, m_pInput(NULL)
+, m_pLInput(NULL)
+, m_pLCamera(NULL)
 , m_CurSampFilter(m_SampFilter[GRAPHICS_LEVEL_MAX])
 {
 	memset(&m_Caps9, 0, sizeof(m_Caps9));
-	memset(&m_Camera, 0, sizeof(m_Camera));
 	memset(&m_SampFilter, 0, sizeof(m_SampFilter));
 	memset(&m_WindowParam, 0, sizeof(m_WindowParam));
 	memset(&m_PresentParam, 0, sizeof(m_PresentParam));
@@ -77,7 +78,7 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = InitInput(hWnd, hInstance);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = InitCameraParam();
+		hr = InitCamera(m_p3DDevice, m_WindowParam.Width, m_WindowParam.Height);
 		HRESULT_ERROR_BREAK(hr);
 
 		m_bActive = TRUE;
@@ -166,10 +167,10 @@ HRESULT L3DEngine::Uninit()
 		SAFE_DELETE(pAction);
 	}
 
-	if (m_pInput)
+	if (m_pLInput)
 	{
-		m_pInput->Uninit();
-		SAFE_DELETE(m_pInput);
+		m_pLInput->Uninit();
+		SAFE_DELETE(m_pLInput);
 	}
 
 	return S_OK;
@@ -213,7 +214,8 @@ LRESULT L3DEngine::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);  
 		break;
 	case WM_MOUSEWHEEL:
-		m_Camera.fSightDis -= ((float)GET_WHEEL_DELTA_WPARAM(wParam) * 0.005f);
+		if (m_pLCamera)
+			m_pLCamera->UpdateSightDistance(GET_WHEEL_DELTA_WPARAM(wParam) * -0.005f);
 		break;
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE)
@@ -372,10 +374,10 @@ HRESULT L3DEngine::InitInput(HWND hWnd, HINSTANCE hInstance)
 
 	do 
 	{
-		m_pInput = new L3DInput;
-		BOOL_ERROR_BREAK(m_pInput);
+		m_pLInput = new L3DInput;
+		BOOL_ERROR_BREAK(m_pLInput);
 
-		hr = m_pInput->Init(hWnd, hInstance, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE,DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+		hr = m_pLInput->Init(hWnd, hInstance, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE,DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
@@ -384,12 +386,23 @@ HRESULT L3DEngine::InitInput(HWND hWnd, HINSTANCE hInstance)
 	return hResult;
 }
 
-HRESULT L3DEngine::InitCameraParam()
+HRESULT L3DEngine::InitCamera(IDirect3DDevice9* p3DDevice, float fWidth, float fHeight)
 {
-	m_Camera.fSightDis = 5.f;
-	m_Camera.vTarget  = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_Camera.vUp      = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	return S_OK;
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		m_pLCamera = new L3DCamera;
+		BOOL_ERROR_BREAK(m_pLCamera);
+
+		hr = m_pLCamera->Init(p3DDevice, fWidth, fHeight);
+		HRESULT_ERROR_BREAK(hr);
+
+		hResult = S_OK;
+	} while (0);
+	
+	return hResult;
 }
 
 HRESULT L3DEngine::CreateL3DWindow(HWND* pWnd, HINSTANCE hInstance)
@@ -488,9 +501,9 @@ HRESULT L3DEngine::UpdateInput()
 
 	do 
 	{
-		BOOL_ERROR_BREAK(m_pInput);
+		BOOL_ERROR_BREAK(m_pLInput);
 
-		hr = m_pInput->Update();
+		hr = m_pLInput->Update();
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
@@ -506,42 +519,36 @@ HRESULT L3DEngine::UpdateCamera(float fDeltaTime)
 	D3DXMATRIX matCamera;
 	D3DXMATRIX matProj;
 	D3DXVECTOR3 vDelta;
+	float fYaw = 0.f;
+	float fPitch = 0.f;
+	float fRoll = 0.f;
 
 	do 
 	{
-		BOOL_ERROR_BREAK(m_pInput);
+		BOOL_ERROR_BREAK(m_pLInput);
 
-		if (m_pInput->IsMouseButtonDown(0)) 
+		if (m_pLInput->IsMouseButtonDown(0)) 
 		{
-			m_Camera.fYaw += (m_pInput->MouseDX())*  0.01f;
-			m_Camera.fPitch += (m_pInput->MouseDY()) * 0.01f;
+			fYaw += (m_pLInput->MouseDX())*  0.01f;
+			fPitch += (m_pLInput->MouseDY()) * 0.01f;
 		}
 
-		if(m_pInput->IsKeyDown(DIK_LEFT))
-			m_Camera.fYaw -= 0.001f;
+		if(m_pLInput->IsKeyDown(DIK_LEFT))
+			fYaw -= 0.001f;
 
-		if(m_pInput->IsKeyDown(DIK_RIGHT))
-			m_Camera.fYaw += 0.001f;
+		if(m_pLInput->IsKeyDown(DIK_RIGHT))
+			fYaw += 0.001f;
 
-		if(m_pInput->IsKeyDown(DIK_UP))
-			m_Camera.fPitch += 0.001f;
+		if(m_pLInput->IsKeyDown(DIK_UP))
+			fPitch += 0.001f;
 
-		if(m_pInput->IsKeyDown(DIK_DOWN))
-			m_Camera.fPitch -= 0.001f;
+		if(m_pLInput->IsKeyDown(DIK_DOWN))
+			fPitch -= 0.001f;
 
-		m_Camera.fSightDis = max(m_Camera.fSightDis, 3.f);
+		if (fYaw || fPitch || fRoll)
+			m_pLCamera->UpdateYawPitchRoll(fYaw, fPitch, fRoll);
 
-		D3DXMatrixRotationYawPitchRoll(&matCamera, m_Camera.fYaw, m_Camera.fPitch, m_Camera.fRoll);
-		D3DXVec3TransformNormal(&vDelta, &D3DXVECTOR3(0.0f, 0.0f, -m_Camera.fSightDis), &matCamera);
-		m_Camera.vPositon = m_Camera.vTarget + vDelta;
-
-		// ÊÓÍ¼¾ØÕó
-		D3DXMatrixLookAtLH(&matCamera, &m_Camera.vPositon, &m_Camera.vTarget, &m_Camera.vUp);
-		m_p3DDevice->SetTransform(D3DTS_VIEW, &matCamera);
-
-		// Í¶Ó°¾ØÕó
-		D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI * 0.5f, (float)m_WindowParam.Width / (float)m_WindowParam.Height, 1.0f, 1000.0f);
-		m_p3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+		m_pLCamera->UpdateCamera();
 
 		hResult = S_OK;
 	} while (0);
