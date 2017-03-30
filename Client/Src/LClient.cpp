@@ -23,6 +23,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 	L3DWINDOWPARAM WindowParam;
 	LCharacter* pGirl = NULL;
 	LCharacter* pMiki = NULL;
+	LScene* pCurScene = NULL;
 
 	do 
 	{
@@ -43,7 +44,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		//m_pObjectMgr->CreateModel<LCube>();
 		//m_pObjectMgr->CreateModel<LTeapot>();
 
-		pGirl = m_pObjectMgr->CreateModel<LCharacter>(TEXT("res/girl.x"));
+		pGirl = m_pObjectMgr->CreateModel<LCharacter>(TEXT("Res/Model/Mesh/M2_1035_body.mesh"));
 		BOOL_ERROR_BREAK(pGirl);
 
 		hr = pGirl->SetTranslation(D3DXVECTOR3(0, 0, 0));
@@ -52,8 +53,11 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		hr = pGirl->SetScale(0.01f);
 		HRESULT_ERROR_BREAK(hr);
 
-		pMiki = m_pObjectMgr->CreateModel<LCharacter>(TEXT("res/miki.x"));
+		pMiki = m_pObjectMgr->CreateModel<LCharacter>(TEXT("Res/Model/Mesh/M2_1035_body.mesh"));
 		BOOL_ERROR_BREAK(pMiki);
+
+		pCurScene = m_pObjectMgr->CreateScene(TEXT("Res/Scene/µ¾Ïã´å/µ¾Ïã´å.map"));
+		BOOL_ERROR_BREAK(pCurScene);
 
 		hr = pMiki->SetTranslation(D3DXVECTOR3(1, 1, 0));
 		HRESULT_ERROR_BREAK(hr);

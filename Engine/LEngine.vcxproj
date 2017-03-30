@@ -86,13 +86,16 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClCompile Include="Src\Camera\L3DCamera.cpp" />
     <ClCompile Include="Src\Font\L3DFont.cpp" />
     <ClCompile Include="Src\Input\L3DInput.cpp" />
-    <ClCompile Include="Src\IOManager\LFileReader.cpp" />
+    <ClCompile Include="Src\IO\LFileReader.cpp" />
+    <ClCompile Include="Src\IO\LIniReader.cpp" />
     <ClCompile Include="Src\L3DEngine.cpp" />
     <ClCompile Include="Src\L3DInterface.cpp" />
     <ClCompile Include="Src\Model\L3DMaterial.cpp" />
     <ClCompile Include="Src\Model\L3DMesh.cpp" />
     <ClCompile Include="Src\Model\L3DModel.cpp" />
     <ClCompile Include="Src\Model\L3DTexture.cpp" />
+    <ClCompile Include="Src\Scene\L3DScene.cpp" />
+    <ClCompile Include="Src\Scene\L3DTerrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\LAssert.h" />
@@ -103,12 +106,15 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClInclude Include="Src\Camera\L3DCamera.h" />
     <ClInclude Include="Src\Font\L3DFont.h" />
     <ClInclude Include="Src\Input\L3DInput.h" />
-    <ClInclude Include="Src\IOManager\LFileStruct.h" />
-    <ClInclude Include="Src\IOManager\LFileReader.h" />
+    <ClInclude Include="Src\IO\LFileReader.h" />
+    <ClInclude Include="Src\IO\LFileStruct.h" />
+    <ClInclude Include="Src\IO\LIniReader.h" />
     <ClInclude Include="Src\Model\L3DMaterial.h" />
     <ClInclude Include="Src\Model\L3DMesh.h" />
     <ClInclude Include="Src\Model\L3DModel.h" />
     <ClInclude Include="Src\Model\L3DTexture.h" />
+    <ClInclude Include="Src\Scene\L3DScene.h" />
+    <ClInclude Include="Src\Scene\L3DTerrain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

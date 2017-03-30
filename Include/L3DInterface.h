@@ -133,7 +133,7 @@ public:
 	virtual HRESULT Update(float fDeltaTime) = 0;
 
 	virtual BOOL IsActive() = 0;
-	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice) = 0;
+	virtual LPDIRECT3DDEVICE9 GetDevice() const = 0;
 
 	static IL3DEngine* Instance();
 
@@ -148,7 +148,7 @@ class L3DENGINE_CLASS ILFont
 {
 public:
 	ILFont() {};
-	~ILFont() {};
+	virtual ~ILFont() {};
 
 	virtual HRESULT SetText(LPCWSTR szString) = 0;
 	virtual HRESULT SetColor(const D3DXCOLOR& color) = 0;
@@ -172,4 +172,13 @@ public:
 
 	static HRESULT Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel);
 	static HRESULT Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel);
+};
+
+class L3DENGINE_CLASS ILScene
+{
+public:
+	ILScene() {};
+	virtual ~ILScene() {};
+
+	static HRESULT Create(IL3DEngine* pL3DEngie, LPCWSTR pcszFileName, ILScene** ppScene);
 };

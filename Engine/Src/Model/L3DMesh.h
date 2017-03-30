@@ -1,5 +1,5 @@
 #pragma once
-#include "IOManager/LFileStruct.h"
+#include "IO/LFileStruct.h"
 #include <d3dx9.h>
 #include <string>
 #include <vector>

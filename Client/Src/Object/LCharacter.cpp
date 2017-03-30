@@ -8,7 +8,7 @@ LCharacter::LCharacter()
 	ZeroMemory(m_wszMeshPath, sizeof(m_wszMeshPath));
 }
 
-LCharacter::LCharacter(WCHAR* pwszMeshPath)
+LCharacter::LCharacter(TCHAR* pwszMeshPath)
 : m_fAngleX(0.f)
 , m_fAngleY(0.f)
 {
@@ -33,7 +33,7 @@ HRESULT LCharacter::Create(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice)
 		//hr = ILModel::Create(p3DEngine, &pMesh, LOBJECT_MESH_DX, m_wszMeshPath, &m_pObject);
 		//HRESULT_ERROR_BREAK(hr);
 
-		hr = ILModel::Create(p3DEngine, LOBJECT_MESH_LX, TEXT("Res/Mesh/M2_1035_body.mesh"), &m_pObject);
+		hr = ILModel::Create(p3DEngine, LOBJECT_MESH_LX, m_wszMeshPath, &m_pObject);
 		HRESULT_ERROR_BREAK(hr);
 
 		//hr = m_pObject->SetMaterial(L3D::RED_MTL);

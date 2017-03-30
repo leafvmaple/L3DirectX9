@@ -2,7 +2,7 @@
 #include "L3DModel.h"
 #include "LAssert.h"
 #include "LCommon.h"
-#include "IOManager/LFileReader.h"
+#include "IO/LFileReader.h"
 #include "Model/L3DMesh.h"
 #include "Model/L3DMaterial.h"
 
@@ -308,7 +308,10 @@ HRESULT L3DModel::LoadLMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
 	HRESULT hr = E_FAIL;;
 	HRESULT hResult = E_FAIL;
 	TCHAR wcszFileName[LENGIEN_FONT_STRING_MAX];
+	TCHAR wcszFileRealName[LENGIEN_FONT_STRING_MAX];
 	TCHAR* pwcszMtl = NULL;
+	TCHAR wcszExt[MAX_PATH];
+	TCHAR wcszDir[MAX_PATH];
 
 	do 
 	{
@@ -318,10 +321,13 @@ HRESULT L3DModel::LoadLMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
 		hr = m_pLMesh->LoadLMesh(p3DDevice, cszFileName);
 		HRESULT_ERROR_BREAK(hr);
 
-		wcscpy_s(wcszFileName, cszFileName);
-		pwcszMtl = wcsstr(wcszFileName, TEXT("mesh"));
+		_wsplitpath_s(cszFileName, NULL, 0, wcszDir, MAX_PATH, wcszFileRealName, MAX_PATH, wcszExt, MAX_PATH);
 
-		memcpy_s(pwcszMtl, 7, TEXT("mtl"), 7);
+		pwcszMtl = wcsstr(wcszDir, TEXT("Mesh"));
+		if (pwcszMtl)
+			pwcszMtl[0] = '\0';
+
+		swprintf_s(wcszFileName, TEXT("%sMtl/%s.mtl"), wcszDir, wcszFileRealName);
 		LoadLMaterial(p3DDevice, wcszFileName);
 
 		hResult = S_OK;
@@ -336,6 +342,7 @@ HRESULT L3DModel::LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName
 	HRESULT hResult = E_FAIL;
 	L3DTexture::LTextureParam* pTextureParam;
 	WCHAR wcszDir[LENGIEN_FILENAME_MAX];
+	TCHAR* pwcszMtl = NULL;
 	size_t uDirLength = 0;
 
 	do 
@@ -357,12 +364,13 @@ HRESULT L3DModel::LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName
 			{
 				USES_CONVERSION;
 
-				uDirLength = L3D::GetPathDir(cszFileName, wcszDir);
-				BOOL_ERROR_BREAK(uDirLength);
+				_wsplitpath_s(cszFileName, NULL, 0, wcszDir, MAX_PATH, NULL, 0, NULL, 0);
 
-				L3D::GetFullPath(A2CW(m_pLMaterial->m_pMaterialSubset[i].pTextureInfo->pTexture->szTextureFileName), wcszDir);
+				pwcszMtl = wcsstr(wcszDir, TEXT("Mtl"));
+				if (pwcszMtl)
+					pwcszMtl[0] = '\0';
 
-				wcscpy_s(pTextureParam->pSubTexture->wszTextureFileName, wcszDir);
+				swprintf_s(pTextureParam->pSubTexture->wszTextureFileName, TEXT("%s%s"), wcszDir, A2CW(m_pLMaterial->m_pMaterialSubset[i].pTextureInfo->pTexture->szTextureFileName));
 			}
 
 			hr = m_pLTexture->LoadLTextureByParam(p3DDevice, pTextureParam, m_pLMaterial->m_dwNumMaterials);

@@ -16,8 +16,14 @@
     <Filter Include="Source Files\Object">
       <UniqueIdentifier>{bab44a3d-c1bb-4104-a8c0-9f22908f02a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scene">
+      <UniqueIdentifier>{2cb3e62a-a3df-4118-8c52-061742465f00}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Header Files\Object">
       <UniqueIdentifier>{02edc426-26c9-4290-a3d3-6c05034976c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scene">
+      <UniqueIdentifier>{9473e943-2e48-4b26-aca2-6577c376c960}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +41,9 @@
     </ClCompile>
     <ClCompile Include="Src\Object\LCharacter.cpp">
       <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scene\LScene.cpp">
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="Src\Object\LCharacter.h">
       <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scene\LScene.h">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

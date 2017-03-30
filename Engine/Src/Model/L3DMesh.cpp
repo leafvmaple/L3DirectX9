@@ -1,7 +1,7 @@
 #include <d3dx9.h>
 #include "L3DMesh.h"
 #include "LAssert.h"
-#include "IOManager/LFileReader.h"
+#include "IO/LFileReader.h"
 
 const VertexFromatOffsetItem* L3DMesh::GetVertexFormat(DWORD dwFVF)
 {

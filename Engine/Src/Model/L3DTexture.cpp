@@ -1,7 +1,7 @@
 #include <atlconv.h>
 #include "L3DTexture.h"
 #include "LAssert.h"
-#include "IOManager/LFileReader.h"
+#include "IO/LFileReader.h"
 #include "L3DInterface.h"
 
 L3DTexture::L3DTexture()

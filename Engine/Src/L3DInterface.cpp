@@ -2,6 +2,7 @@
 #include "L3DInterface.h"
 #include "L3DEngine.h"
 #include "Model/L3DModel.h"
+#include "Scene/L3DScene.h"
 #include "Input/L3DInput.h"
 #include "Font/L3DFont.h"
 
@@ -84,7 +85,7 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT 
 	HRESULT hResult = E_FAIL;
 	L3DEngine* pEngine = NULL;
 	L3DModel* pEModel = NULL;
-	IDirect3DDevice9* p3DDevice = NULL;
+	LPDIRECT3DDEVICE9 p3DDevice = NULL;
 
 	do 
 	{
@@ -96,8 +97,8 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT 
 		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
 		BOOL_ERROR_BREAK(pEngine);
 
-		hr = pEngine->GetDevice(&p3DDevice);
-		HRESULT_ERROR_BREAK(hr);
+		p3DDevice = pEngine->GetDevice();
+		BOOL_ERROR_BREAK(p3DDevice);
 
 		hr = pEModel->Init(p3DDevice, pModelVerteices, nVerteicesCount, pwModelIndices, nIndicesCount);
 		HRESULT_ERROR_BREAK(hr);
@@ -117,7 +118,7 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPC
 	HRESULT hResult = E_FAIL;
 	L3DEngine* pEngine = NULL;
 	L3DModel* pEModel = NULL;
-	IDirect3DDevice9* p3DDevice = NULL;
+	LPDIRECT3DDEVICE9 p3DDevice = NULL;
 
 	do 
 	{
@@ -129,8 +130,8 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPC
 		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
 		BOOL_ERROR_BREAK(pEngine);
 
-		hr = pEngine->GetDevice(&p3DDevice);
-		HRESULT_ERROR_BREAK(hr);
+		p3DDevice = pEngine->GetDevice();
+		BOOL_ERROR_BREAK(p3DDevice);
 
 		hr = pEModel->Init(p3DDevice, eModelType, pcszFileName);
 		HRESULT_ERROR_BREAK(hr);
@@ -149,27 +150,57 @@ HRESULT ILFont::Create(IL3DEngine* pL3DEngie, ILFont** ppFont, int nSize/* = 9 *
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	L3DEngine* pEngine = NULL;
-	L3DFont* pEFont = NULL;
-	IDirect3DDevice9* p3DDevice = NULL;
+	L3DFont* pLFont = NULL;
+	LPDIRECT3DDEVICE9 p3DDevice = NULL;
 
 	do 
 	{
 		BOOL_ERROR_BREAK(pL3DEngie);
 
-		pEFont = new L3DFont;
-		BOOL_ERROR_BREAK(pEFont);
+		pLFont = new L3DFont;
+		BOOL_ERROR_BREAK(pLFont);
 
 		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
 		BOOL_ERROR_BREAK(pEngine);
 
-		hr = pEngine->GetDevice(&p3DDevice);
+		p3DDevice = pEngine->GetDevice();
+		BOOL_ERROR_BREAK(p3DDevice);
+
+		hr = pLFont->Init(p3DDevice, nSize);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = pEFont->Init(p3DDevice, nSize);
-		HRESULT_ERROR_BREAK(hr);
+		pEngine->AttachFont(pLFont);
+		*ppFont = pLFont;
 
-		pEngine->AttachFont(pEFont);
-		*ppFont = pEFont;
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+HRESULT ILScene::Create(IL3DEngine* pL3DEngie, LPCWSTR pcszFileName,  ILScene** ppScene)
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+	L3DEngine* pEngine = NULL;
+	L3DScene* pLScene = NULL;
+	LPDIRECT3DDEVICE9 p3DDevice = NULL;
+
+	do 
+	{
+		BOOL_ERROR_BREAK(pL3DEngie);
+
+		pLScene = new L3DScene;
+		BOOL_ERROR_BREAK(pLScene);
+
+		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
+		BOOL_ERROR_BREAK(pEngine);
+
+		p3DDevice = pEngine->GetDevice();
+		BOOL_ERROR_BREAK(p3DDevice);
+
+		hr = pLScene->LoadScene(p3DDevice, pcszFileName);
+		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
 	} while (0);

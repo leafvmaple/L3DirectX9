@@ -1,0 +1,9 @@
+[Info]
+Version=1
+BlockWorldSize=512.000000,512.000000
+LeftTop=0.500000,-0.500000
+
+[Count]
+x=2
+z=2
+

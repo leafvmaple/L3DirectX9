@@ -7,6 +7,7 @@
 #include "Object/LTeapot.h"
 
 class LModel;
+class LScene;
 class IL3DEngine;
 
 class LObjectMgr
@@ -19,7 +20,7 @@ public:
 	HRESULT Uninit();
 
 	template<typename T>
-	T* CreateModel(WCHAR* pwcsMeshPath)
+	T* CreateModel(TCHAR* pwcsMeshPath)
 	{
 		T* pObject = NULL;
 		pObject = new T(pwcsMeshPath);
@@ -38,6 +39,8 @@ public:
 		return pObject;
 	}
 
+	LScene* CreateScene(TCHAR* pwcsMeshPath);
+
 	HRESULT Update(float fDeltaTime);
 
 	BOOL IsActive();
@@ -45,6 +48,7 @@ public:
 private:
 	IDirect3DDevice9* m_p3DDevice;
 	std::list<LModel*> m_ObjectList;
+	std::list<LScene*> m_SceneList;
 	
 	ILFont* m_pFont;
 };

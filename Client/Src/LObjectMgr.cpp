@@ -1,5 +1,6 @@
 #include "LObjectMgr.h"
 #include "Object/LModel.h"
+#include "Scene/LScene.h"
 #include "LAssert.h"
 
 LObjectMgr::LObjectMgr()
@@ -32,8 +33,8 @@ HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = IL3DEngine::Instance()->Init(hInstance, WindowParam);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = IL3DEngine::Instance()->GetDevice(&m_p3DDevice);
-		HRESULT_ERROR_BREAK(hr);
+		m_p3DDevice = IL3DEngine::Instance()->GetDevice();
+		BOOL_ERROR_BREAK(m_p3DDevice);
 
 		DirectionalLight = L3D::InitDirectionalLight(D3DXVECTOR3(1.0f, -0.0f, 0.25f), L3D::WHITE);
 		m_p3DDevice->SetLight(0, &DirectionalLight);
@@ -59,6 +60,23 @@ HRESULT LObjectMgr::Uninit()
 {
 	IL3DEngine::Instance()->Uninit();
 	return S_OK;
+}
+
+LScene* LObjectMgr::CreateScene(TCHAR* pwcsMeshPath)
+{
+	LScene* pLScene;
+
+	do
+	{
+		pLScene = new LScene;
+		BOOL_ERROR_BREAK(pLScene);
+
+		m_SceneList.push_back(pLScene);
+		pLScene->Create(IL3DEngine::Instance(), m_p3DDevice, pwcsMeshPath);
+
+	} while (0);
+
+	return pLScene;
 }
 
 HRESULT LObjectMgr::Update(float fDeltaTime)

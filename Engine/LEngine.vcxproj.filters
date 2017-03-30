@@ -19,12 +19,6 @@
     <Filter Include="Header Files\Common">
       <UniqueIdentifier>{1eb6cb3e-5235-43c2-9fdf-498a02ff661a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Engine\IOManager">
-      <UniqueIdentifier>{c995824f-cc4e-4813-9adc-362ee54b2829}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\IOManager">
-      <UniqueIdentifier>{b2c5c97a-5c3f-466b-8f8a-cc5eb4bf58c9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Engine\Model">
       <UniqueIdentifier>{5bc15abb-7187-4c5c-a99c-d06fa196ef0c}</UniqueIdentifier>
     </Filter>
@@ -46,6 +40,21 @@
     <Filter Include="Source Files\Camera">
       <UniqueIdentifier>{901c012b-a2a1-42ee-a2c1-f8d4937952d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Engine\IO">
+      <UniqueIdentifier>{9f47b421-289e-4768-90d8-8459cce704f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Camera">
+      <UniqueIdentifier>{6c571f0c-a107-4736-ba0e-50a6d9b5b014}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IO">
+      <UniqueIdentifier>{7917a524-953f-4954-8a8e-5fb87e779fb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Scene">
+      <UniqueIdentifier>{aad1e292-4ad8-4b64-9a6e-c1517f6267f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scene">
+      <UniqueIdentifier>{79265f0a-6247-48f3-b24a-f95cccf223f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\L3DEngine.cpp">
@@ -53,9 +62,6 @@
     </ClCompile>
     <ClCompile Include="Src\L3DInterface.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\IOManager\LFileReader.cpp">
-      <Filter>Source Files\IOManager</Filter>
     </ClCompile>
     <ClCompile Include="Src\Model\L3DMesh.cpp">
       <Filter>Source Files\Model</Filter>
@@ -78,6 +84,18 @@
     <ClCompile Include="Src\Camera\L3DCamera.cpp">
       <Filter>Source Files\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="Src\IO\LFileReader.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\IO\LIniReader.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scene\L3DTerrain.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scene\L3DScene.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\L3DEngine.h">
@@ -95,9 +113,6 @@
     <ClInclude Include="..\Include\LExports.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Src\IOManager\LFileReader.h">
-      <Filter>Header Files\Engine\IOManager</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Model\L3DMesh.h">
       <Filter>Header Files\Engine\Model</Filter>
     </ClInclude>
@@ -110,17 +125,29 @@
     <ClInclude Include="Src\Font\L3DFont.h">
       <Filter>Header Files\Engine\Font</Filter>
     </ClInclude>
-    <ClInclude Include="Src\IOManager\LFileStruct.h">
-      <Filter>Header Files\Engine\IOManager</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Model\L3DMaterial.h">
       <Filter>Header Files\Engine\Model</Filter>
     </ClInclude>
     <ClInclude Include="Src\Model\L3DTexture.h">
       <Filter>Header Files\Engine\Model</Filter>
     </ClInclude>
+    <ClInclude Include="Src\IO\LFileReader.h">
+      <Filter>Header Files\Engine\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\IO\LFileStruct.h">
+      <Filter>Header Files\Engine\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\IO\LIniReader.h">
+      <Filter>Header Files\Engine\IO</Filter>
+    </ClInclude>
     <ClInclude Include="Src\Camera\L3DCamera.h">
-      <Filter>Source Files\Camera</Filter>
+      <Filter>Header Files\Engine\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scene\L3DTerrain.h">
+      <Filter>Header Files\Engine\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scene\L3DScene.h">
+      <Filter>Header Files\Engine\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

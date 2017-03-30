@@ -16,6 +16,7 @@
     <ClCompile Include="Src\Object\LCharacter.cpp" />
     <ClCompile Include="Src\Object\LCube.cpp" />
     <ClCompile Include="Src\Object\LTeapot.cpp" />
+    <ClCompile Include="Src\Scene\LScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\LClient.h" />
@@ -24,6 +25,7 @@
     <ClInclude Include="Src\Object\LCube.h" />
     <ClInclude Include="Src\Object\LModel.h" />
     <ClInclude Include="Src\Object\LTeapot.h" />
+    <ClInclude Include="Src\Scene\LScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\LEngine.vcxproj">

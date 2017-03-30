@@ -147,10 +147,9 @@ BOOL L3DEngine::IsActive()
 	return m_bActive;
 }
 
-HRESULT L3DEngine::GetDevice(IDirect3DDevice9** pp3DDevice)
+LPDIRECT3DDEVICE9 L3DEngine::GetDevice() const
 {
-	*pp3DDevice = m_p3DDevice;
-	return *pp3DDevice ? S_OK : E_FAIL;
+	return m_p3DDevice;
 }
 
 HRESULT L3DEngine::Uninit()

@@ -1,5 +1,5 @@
 #include "L3DMaterial.h"
-#include "IOManager/LFileReader.h"
+#include "IO/LFileReader.h"
 #include "LAssert.h"
 
 L3DMaterial::L3DMaterial()

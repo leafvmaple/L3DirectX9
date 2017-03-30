@@ -23,7 +23,7 @@ public:
 	virtual HRESULT Update(float fDeltaTime);
 
 	virtual BOOL IsActive();
-	virtual HRESULT GetDevice(IDirect3DDevice9** pp3DDevice);
+	virtual LPDIRECT3DDEVICE9 GetDevice() const;
 
 public:
 	HRESULT AttachObject(ILModel* pAction);

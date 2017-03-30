@@ -1,7 +1,6 @@
 #pragma once
 
 #include "L3DInterface.h"
-#include "LExports.h"
 
 class L3DENGINE_CLASS ILModel;
 
