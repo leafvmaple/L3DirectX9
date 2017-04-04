@@ -8,43 +8,17 @@
 #define NORMALIZE_MAT_POWER(a) { if (a > 100.0f || a <= 0.0f) a = 15.0f; }
 #define MATERIAL_OPTION_VERSION_2        (1 << 18)
 
-class L3DMaterial
+class L3DTexture;
+
+class L3DSubsetMaterial
 {
-public:
-	struct MaterialTexture
-	{
-		struct _TEXTURE
-		{
-			float fAmount;
-			char  szTextureType[MAT_TEXTURETYPE_LENGTH];
-			char  szTextureFileName[MAT_TEXTUREFILENAME_LENGTH];
-			DWORD dwTextureOptionCount;
-		} *pTexture;
-
-		std::vector<L3DTexture::_MtlOption*> TextureOptions;
-	};
-
 private:
-	struct MaterialSubset
+	struct _TEXTURE
 	{
-		const static int cNumID = 8;
-		const static int cNumColorCast = 8;
-		D3DMATERIAL9     Material9;
-		DWORD            dwNumFaces;
-		//KG3DTexture*     m_lpTextures[cNumID];
-		MaterialTexture* pTextureInfo;
-		DWORD            dwOption;
-		DWORD            dwNumOptions;
-		DWORD            dwHashValue;//
-		DWORD            dwNumUsedTexture;
-		//KG3DTextureHolder* lpNormalMap;
-
-		D3DCOLORVALUE    ColorCast[cNumColorCast];
-		float            fSpecPower;
-		float            fEmssPower;
-
-		DWORD m_dwMaterialID;
-		DWORD m_dwPassID;
+		float fAmount;
+		char  szTextureType[MAT_TEXTURETYPE_LENGTH];
+		char  szTextureFileName[MAT_TEXTUREFILENAME_LENGTH];
+		DWORD dwTextureOptionCount;
 	};
 
 	struct _MatCull 
@@ -145,9 +119,37 @@ private:
 		MATERIAL_OPTION_SETCOLOR = (1<<25),
 	};
 
+private:
+	const static int cNumID = 8;
+	const static int cNumColorCast = 8;
+	D3DMATERIAL9     Material9;
+	DWORD            dwNumFaces;
+	//KG3DTexture*     m_lpTextures[cNumID];
+	L3DTexture*      pLTexture;
+	DWORD            dwOption;
+	DWORD            dwNumOptions;
+	DWORD            dwHashValue;//
+	DWORD            m_dwNumUsedTexture;
+	//KG3DTextureHolder* lpNormalMap;
+
+	D3DCOLORVALUE    ColorCast[cNumColorCast];
+	float            fSpecPower;
+	float            fEmssPower;
+
+	LPDIRECT3DDEVICE9 m_p3DDevice;
+
+public:
+	HRESULT LoadLSubsetMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirectory, BYTE*& pbyMaterial);
+	HRESULT LoadOption(BYTE*& pbyMaterial);
+
+	HRESULT UpdateSubsetMaterial();
+};
+
+class L3DMaterial
+{
 public:
 	DWORD m_dwNumMaterials;
-	MaterialSubset* m_pMaterialSubset;
+	L3DSubsetMaterial* m_pMaterialSubset;
 
 public:
 
@@ -157,10 +159,6 @@ public:
 	HRESULT LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
 
 	HRESULT UpdateMaterial(DWORD dwSubMaterial);
-
-private:
-	HRESULT LoadMaterialBuffer(BYTE*& pbyMaterial, MaterialSubset* pLMaterialData);
-	HRESULT LoadMaterialOption(BYTE*& pbyMaterial, MaterialSubset* pLMaterialData);
 
 private:
 	LPDIRECT3DDEVICE9 m_p3DDevice;

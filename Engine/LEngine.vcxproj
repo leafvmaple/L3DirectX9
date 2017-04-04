@@ -93,7 +93,10 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClCompile Include="Src\Model\L3DMaterial.cpp" />
     <ClCompile Include="Src\Model\L3DMesh.cpp" />
     <ClCompile Include="Src\Model\L3DModel.cpp" />
+    <ClCompile Include="Src\Model\L3DParticle.cpp" />
     <ClCompile Include="Src\Model\L3DTexture.cpp" />
+    <ClCompile Include="Src\Scene\L3DBlock.cpp" />
+    <ClCompile Include="Src\Scene\L3DEntity.cpp" />
     <ClCompile Include="Src\Scene\L3DScene.cpp" />
     <ClCompile Include="Src\Scene\L3DTerrain.cpp" />
   </ItemGroup>
@@ -112,7 +115,10 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClInclude Include="Src\Model\L3DMaterial.h" />
     <ClInclude Include="Src\Model\L3DMesh.h" />
     <ClInclude Include="Src\Model\L3DModel.h" />
+    <ClInclude Include="Src\Model\L3DParticle.h" />
     <ClInclude Include="Src\Model\L3DTexture.h" />
+    <ClInclude Include="Src\Scene\L3DBlock.h" />
+    <ClInclude Include="Src\Scene\L3DEntity.h" />
     <ClInclude Include="Src\Scene\L3DScene.h" />
     <ClInclude Include="Src\Scene\L3DTerrain.h" />
   </ItemGroup>

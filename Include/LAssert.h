@@ -1,6 +1,8 @@
 #ifndef _LM_ASSERT_H_
 #define _LM_ASSERT_H_
 
+#include <assert.h>
+
 #define BOOL_ERROR_RETURN(Condition) \
 	if (!(Condition)) {              \
 		return 0;                    \
@@ -19,6 +21,12 @@
 
 #define BOOL_ERROR_BREAK(Condition)   \
 	if (!(Condition)) {               \
+		break;                        \
+	}
+
+#define BOOL_SUCCESS_BREAK(Condition) \
+	if ((Condition)) {               \
+		hResult = S_OK;               \
 		break;                        \
 	}
 

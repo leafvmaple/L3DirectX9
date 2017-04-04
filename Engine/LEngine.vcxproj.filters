@@ -96,6 +96,15 @@
     <ClCompile Include="Src\Scene\L3DScene.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Scene\L3DEntity.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scene\L3DBlock.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Model\L3DParticle.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\L3DEngine.h">
@@ -148,6 +157,15 @@
     </ClInclude>
     <ClInclude Include="Src\Scene\L3DScene.h">
       <Filter>Header Files\Engine\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scene\L3DEntity.h">
+      <Filter>Header Files\Engine\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scene\L3DBlock.h">
+      <Filter>Header Files\Engine\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Model\L3DParticle.h">
+      <Filter>Header Files\Engine\Model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

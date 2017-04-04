@@ -3,8 +3,9 @@
 #include "LAssert.h"
 #include "LCommon.h"
 #include "IO/LFileReader.h"
-#include "Model/L3DMesh.h"
-#include "Model/L3DMaterial.h"
+#include "L3DMesh.h"
+#include "L3DMaterial.h"
+#include "L3DParticle.h"
 
 L3DModel::L3DModel()
 : m_p3DDevice(NULL)
@@ -307,11 +308,6 @@ HRESULT L3DModel::LoadLMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
 {
 	HRESULT hr = E_FAIL;;
 	HRESULT hResult = E_FAIL;
-	TCHAR wcszFileName[LENGIEN_FONT_STRING_MAX];
-	TCHAR wcszFileRealName[LENGIEN_FONT_STRING_MAX];
-	TCHAR* pwcszMtl = NULL;
-	TCHAR wcszExt[MAX_PATH];
-	TCHAR wcszDir[MAX_PATH];
 
 	do 
 	{
@@ -320,15 +316,6 @@ HRESULT L3DModel::LoadLMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
 
 		hr = m_pLMesh->LoadLMesh(p3DDevice, cszFileName);
 		HRESULT_ERROR_BREAK(hr);
-
-		_wsplitpath_s(cszFileName, NULL, 0, wcszDir, MAX_PATH, wcszFileRealName, MAX_PATH, wcszExt, MAX_PATH);
-
-		pwcszMtl = wcsstr(wcszDir, TEXT("Mesh"));
-		if (pwcszMtl)
-			pwcszMtl[0] = '\0';
-
-		swprintf_s(wcszFileName, TEXT("%sMtl/%s.mtl"), wcszDir, wcszFileRealName);
-		LoadLMaterial(p3DDevice, wcszFileName);
 
 		hResult = S_OK;
 	} while (0);
@@ -340,10 +327,6 @@ HRESULT L3DModel::LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName
 {
 	HRESULT hr = E_FAIL;;
 	HRESULT hResult = E_FAIL;
-	L3DTexture::LTextureParam* pTextureParam;
-	WCHAR wcszDir[LENGIEN_FILENAME_MAX];
-	TCHAR* pwcszMtl = NULL;
-	size_t uDirLength = 0;
 
 	do 
 	{
@@ -352,30 +335,6 @@ HRESULT L3DModel::LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName
 
 		hr = m_pLMaterial->LoadLMaterial(p3DDevice, cszFileName);
 		HRESULT_ERROR_BREAK(hr);
-
-		pTextureParam = new L3DTexture::LTextureParam[m_pLMaterial->m_dwNumMaterials];
-
-		m_pLTexture = new L3DTexture;
-		for (DWORD i = 0; i < m_pLMaterial->m_dwNumMaterials; i++)
-		{
-			pTextureParam->pSubTextureCount = m_pLMaterial->m_dwNumMaterials;
-			pTextureParam->pSubTexture = new L3DTexture::LTextureParam::SubTextureParam[m_pLMaterial->m_dwNumMaterials];
-			for (DWORD j = 0; j < m_pLMaterial->m_pMaterialSubset[i].dwNumUsedTexture; j++)
-			{
-				USES_CONVERSION;
-
-				_wsplitpath_s(cszFileName, NULL, 0, wcszDir, MAX_PATH, NULL, 0, NULL, 0);
-
-				pwcszMtl = wcsstr(wcszDir, TEXT("Mtl"));
-				if (pwcszMtl)
-					pwcszMtl[0] = '\0';
-
-				swprintf_s(pTextureParam->pSubTexture->wszTextureFileName, TEXT("%s%s"), wcszDir, A2CW(m_pLMaterial->m_pMaterialSubset[i].pTextureInfo->pTexture->szTextureFileName));
-			}
-
-			hr = m_pLTexture->LoadLTextureByParam(p3DDevice, pTextureParam, m_pLMaterial->m_dwNumMaterials);
-			HRESULT_ERROR_BREAK(hr);
-		}
 
 		hResult = S_OK;
 	} while (0);
@@ -402,6 +361,24 @@ HRESULT L3DModel::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
 	return hResult;
 }
 
+HRESULT L3DModel::LoadLParticle(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		m_pLParticle = new L3DParticle;
+		BOOL_ERROR_BREAK(m_pLParticle);
+
+		hr = m_pLParticle->LoadParticle(p3DDevice, cszFileName);
+		HRESULT_ERROR_BREAK(hr);
+
+	} while (0);
+
+	return S_OK;
+}
+
 HRESULT L3DModel::UpdateDisplay()
 {
 	HRESULT hr = E_FAIL;
@@ -420,12 +397,6 @@ HRESULT L3DModel::UpdateDisplay()
 
 		for (DWORD u = 0; u < m_dwSubsetCount; u++)
 		{
-			hr = UpdateMaterial(u);
-			HRESULT_ERROR_BREAK(hr);
-
-			hr = UpdateTexture(u);
-			HRESULT_ERROR_BREAK(hr);
-
 			hr = UpdateMesh(u);
 			HRESULT_ERROR_BREAK(hr);
 		}
@@ -478,14 +449,6 @@ HRESULT L3DModel::UpdateMaterial(DWORD uIndex)
 	return S_OK;
 }
 
-HRESULT L3DModel::UpdateTexture(DWORD uIndex)
-{
-	//m_p3DDevice->SetTexture(0, m_ppTexture[uIndex]);
-	if (m_pLTexture)
-		m_pLTexture->UpdateTexture(uIndex);
-	return S_OK;
-}
-
 HRESULT L3DModel::UpdateDraw(DWORD uIndex)
 {
 	switch (m_ObjectType)
@@ -523,15 +486,15 @@ const L3DModel::LoadModelFunc* L3DModel::GetLoadModelFunc(LPCWSTR cszFileName)
 	_wsplitpath_s(cszFileName, NULL, 0, NULL, 0, NULL, 0, wszExt, FILENAME_MAX);
 
 	const LoadModelFunc *pReturn = NULL;
-	size_t uSize = sizeof(s_LoadModelFunc) / sizeof(LoadModelFunc);
+	size_t uSize = sizeof(s_ModelLoadFunc) / sizeof(LoadModelFunc);
 	size_t i = 0;
 	for (; i < uSize; i++)
 	{
-		if (!wcscmp(s_LoadModelFunc[i].pwcsFileExt, wszExt))
+		if (!wcscmp(s_ModelLoadFunc[i].pwcsFileExt, wszExt))
 			break;
 	}
 	BOOL_ERROR_RETURN(i != uSize);
 
-	pReturn = &s_LoadModelFunc[i];
+	pReturn = &s_ModelLoadFunc[i];
 	return pReturn;
 }

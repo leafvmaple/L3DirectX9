@@ -199,7 +199,7 @@ HRESULT ILScene::Create(IL3DEngine* pL3DEngie, LPCWSTR pcszFileName,  ILScene** 
 		p3DDevice = pEngine->GetDevice();
 		BOOL_ERROR_BREAK(p3DDevice);
 
-		hr = pLScene->LoadScene(p3DDevice, pcszFileName);
+		hr = pLScene->Init(p3DDevice, pcszFileName);
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;

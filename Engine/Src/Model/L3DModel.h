@@ -25,6 +25,7 @@ struct IDirect3DDevice9;
 class L3DMesh;
 class L3DMaterial;
 class L3DTexture;
+class L3DParticle;
 
 class L3DModel : public ILModel
 {
@@ -56,6 +57,7 @@ public:
 	HRESULT LoadLMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
 	HRESULT LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
 	HRESULT LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadLParticle(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
 
 public:
 	HRESULT UpdateDisplay();
@@ -73,6 +75,7 @@ private:
 	L3DMesh* m_pLMesh;
 	L3DMaterial* m_pLMaterial;
 	L3DTexture* m_pLTexture;
+	L3DParticle* m_pLParticle;
 
 	float m_fAlpha;
 	float m_fScale;
@@ -85,7 +88,6 @@ private:
 	HRESULT UpdateLOD();
 	HRESULT UpdateMesh(DWORD uIndex);
 	HRESULT UpdateMaterial(DWORD uIndex);
-	HRESULT UpdateTexture(DWORD uIndex);
 	HRESULT UpdateDraw(DWORD uIndex);
 	HRESULT ResetRendState();
 
@@ -105,8 +107,9 @@ private:
 	}m_DisplaySource;
 };
 
-static L3DModel::LoadModelFunc s_LoadModelFunc[] = {
+static L3DModel::LoadModelFunc s_ModelLoadFunc[] = {
 	{TEXT(".x"),    &L3DModel::LoadXMesh},
 	{TEXT(".mesh"), &L3DModel::LoadLMesh},
 	{TEXT(".mtl"),  &L3DModel::LoadLMaterial},
+	{TEXT(".pss"),  &L3DModel::LoadLParticle},
 };

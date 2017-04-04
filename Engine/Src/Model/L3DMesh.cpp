@@ -1,5 +1,6 @@
 #include <d3dx9.h>
 #include "L3DMesh.h"
+#include "L3DMaterial.h"
 #include "LAssert.h"
 #include "IO/LFileReader.h"
 
@@ -35,6 +36,7 @@ DWORD L3DMesh::GetVertexStride(DWORD dwFVF)
 L3DMesh::L3DMesh()
 : m_pMeshBase(NULL)
 , m_dwNumSubset(0)
+, m_pLMaterial(NULL)
 {
 
 }
@@ -54,77 +56,33 @@ HRESULT L3DMesh::LoadLMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName)
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	LMESH_DATA MeshData;
-	ID3DXMesh* pMesh = NULL;
-	BYTE* pbyVertices = NULL;
-	WORD* pwIndices = NULL;
-	DWORD *pwAttributes = NULL;
-	DWORD dwVertexStride = 0;
-	DWORD dwDestVertexStride = 0;
-	const VertexFromatOffsetItem *pVertexFormat = NULL;
+	TCHAR wcszFileName[MAX_PATH];
+	TCHAR wcszFileRealName[MAX_PATH];
+	TCHAR wcszExt[MAX_PATH];
+	TCHAR wcszDir[MAX_PATH];
 
 	do
 	{
-		hr = LoadLMeshBuffer(cszFileName, &MeshData);
+		hr = LoadMeshData(cszFileName, &MeshData);
 		HRESULT_ERROR_BREAK(hr);
 
-		if (MeshData.dwNumVertices <= 65535 && MeshData.dwNumFaces <= 65535)
+		hr = CreateMesh(p3DDevice, &MeshData);
+		HRESULT_ERROR_BREAK(hr);
+
+		_wsplitpath_s(cszFileName, NULL, 0, wcszDir, MAX_PATH, wcszFileRealName, MAX_PATH, wcszExt, MAX_PATH);
+		swprintf_s(wcszFileName, TEXT("%s%s.mtl"), wcszDir, wcszFileRealName);
+
+		if (LFileReader::IsExist(wcszFileName))
 		{
-			hr = D3DXCreateMeshFVF(MeshData.dwNumFaces, MeshData.dwNumVertices,  D3DXMESH_SYSTEMMEM, MeshData.dwMeshFVF, p3DDevice, &pMesh);
+			m_pLMaterial = new L3DMaterial;
+			BOOL_ERROR_BREAK(m_pLMaterial);
+
+			hr = m_pLMaterial->LoadLMaterial(p3DDevice, wcszFileName);
 			HRESULT_ERROR_BREAK(hr);
 		}
-		else
-		{
-			hr = D3DXCreateMeshFVF(MeshData.dwNumFaces, MeshData.dwNumVertices,  D3DXMESH_SYSTEMMEM | D3DXMESH_32BIT,  MeshData.dwMeshFVF, p3DDevice, &pMesh);
-			HRESULT_ERROR_BREAK(hr);
-		}
-
-		dwDestVertexStride = pMesh->GetNumBytesPerVertex();
-		BOOL_ERROR_BREAK(dwDestVertexStride);
-
-		hr = pMesh->LockVertexBuffer(0, (void**)(&pbyVertices));
-		HRESULT_ERROR_BREAK(hr);
-
-		pVertexFormat = GetVertexFormat(MeshData.dwMeshFVF);
-		BOOL_ERROR_BREAK(pVertexFormat);
-
-		dwVertexStride = GetVertexStride(MeshData.dwMeshFVF);
-
-		for (DWORD i = 0; i < MeshData.dwNumVertices; i++)
-		{
-			BYTE *pCurrentVertexData = pbyVertices + dwDestVertexStride * i;
-			for (DWORD j = 0; j < pVertexFormat->dwNumElement; j++)
-			{
-				const BYTE *pCurrentSrc = *(reinterpret_cast<BYTE* const*>(&MeshData.pPos) + pVertexFormat->dwSrcOffset[j]);
-				memcpy(pCurrentVertexData + pVertexFormat->dwDestOffset[j],
-					pCurrentSrc + pVertexFormat->dwSrcStride[j] * i,
-					pVertexFormat->dwDestStride[j]);
-			}
-		}
-
-		hr = pMesh->LockIndexBuffer(0, (void**)&pwIndices);
-		HRESULT_ERROR_BREAK(hr);
-
-		hr = pMesh->LockAttributeBuffer(0, &pwAttributes);
-		HRESULT_ERROR_BREAK(hr);
-
-
-		for(DWORD i = 0; i < MeshData.dwNumFaces; i++)
-		{
-			pwIndices[i * 3]     = static_cast<WORD>(MeshData.pFaceIndices[i * 3]);
-			pwIndices[i * 3 + 1] = static_cast<WORD>(MeshData.pFaceIndices[i * 3 + 1]);
-			pwIndices[i * 3 + 2] = static_cast<WORD>(MeshData.pFaceIndices[i * 3 + 2]);
-			pwAttributes[i] = MeshData.pSubsetIndices[i];
-		}
-
-		pMesh->UnlockVertexBuffer();
-		pMesh->UnlockIndexBuffer();
-		pMesh->UnlockAttributeBuffer();
 
 		hResult = S_OK;
 	} while (0);
-
-	m_pMeshBase = pMesh;
-	m_dwNumSubset = MeshData.dwNumSubset;
 
 	return hResult;
 }
@@ -136,8 +94,17 @@ HRESULT L3DMesh::UpdateMesh(DWORD dwSubMesh)
 
 	do 
 	{
-		hr = m_pMeshBase->DrawSubset(dwSubMesh);
-		HRESULT_ERROR_BREAK(hr);
+		if (m_pLMaterial)
+		{
+			hr = m_pLMaterial->UpdateMaterial(dwSubMesh);
+			HRESULT_ERROR_BREAK(hr);
+		}
+
+		if (m_pMeshBase)
+		{
+			hr = m_pMeshBase->DrawSubset(dwSubMesh);
+			HRESULT_ERROR_BREAK(hr);
+		}
 
 		hResult = S_OK;
 	} while (0);
@@ -150,10 +117,10 @@ DWORD L3DMesh::GetSubsetCount() const
 	return m_dwNumSubset;
 }
 
-HRESULT L3DMesh::LoadLMeshBuffer(LPCWSTR cszFileName, LMESH_DATA* pLMeshData)
+HRESULT L3DMesh::LoadMeshData(LPCWSTR cszFileName, LMESH_DATA* pLMeshData)
 {
 	HRESULT hResult = E_FAIL;
-	BYTE* pbyMesh = new BYTE[1000000];
+	BYTE* pbyMesh = NULL;
 	BYTE* pbyBufferHead = NULL;
 	_MeshFileHead* pMeshFileHead = NULL;
 	_MeshHead* pMeshHead = NULL;
@@ -163,7 +130,7 @@ HRESULT L3DMesh::LoadLMeshBuffer(LPCWSTR cszFileName, LMESH_DATA* pLMeshData)
 	{
 		ZeroMemory(pLMeshData, sizeof(LMESH_DATA));
 
-		LFileReader::Reader(cszFileName, pbyMesh, 1000000, &uMeshLen);
+		LFileReader::Reader(cszFileName, &pbyMesh, &uMeshLen);
 		pbyBufferHead = pbyMesh;
 
 		pbyMesh = LFileReader::Convert(pbyMesh, pMeshFileHead);
@@ -262,6 +229,82 @@ HRESULT L3DMesh::LoadLMeshBuffer(LPCWSTR cszFileName, LMESH_DATA* pLMeshData)
 		}
 
 		pLMeshData->pbyFileBuffer = pbyBufferHead;
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+HRESULT L3DMesh::CreateMesh(LPDIRECT3DDEVICE9 p3DDevice, const LMESH_DATA* pLMeshData)
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+	ID3DXMesh* pMesh = NULL;
+	BYTE* pbyVertices = NULL;
+	WORD* pwIndices = NULL;
+	DWORD *pwAttributes = NULL;
+	DWORD dwVertexStride = 0;
+	DWORD dwDestVertexStride = 0;
+	const VertexFromatOffsetItem *pVertexFormat = NULL;
+
+	do
+	{
+		if (pLMeshData->dwNumVertices <= 65535 && pLMeshData->dwNumFaces <= 65535)
+		{
+			hr = D3DXCreateMeshFVF(pLMeshData->dwNumFaces, pLMeshData->dwNumVertices,  D3DXMESH_SYSTEMMEM, pLMeshData->dwMeshFVF, p3DDevice, &pMesh);
+			HRESULT_ERROR_BREAK(hr);
+		}
+		else
+		{
+			hr = D3DXCreateMeshFVF(pLMeshData->dwNumFaces, pLMeshData->dwNumVertices,  D3DXMESH_SYSTEMMEM | D3DXMESH_32BIT,  pLMeshData->dwMeshFVF, p3DDevice, &pMesh);
+			HRESULT_ERROR_BREAK(hr);
+		}
+
+		dwDestVertexStride = pMesh->GetNumBytesPerVertex();
+		BOOL_ERROR_BREAK(dwDestVertexStride);
+
+		hr = pMesh->LockVertexBuffer(0, (void**)(&pbyVertices));
+		HRESULT_ERROR_BREAK(hr);
+
+		pVertexFormat = GetVertexFormat(pLMeshData->dwMeshFVF);
+		BOOL_ERROR_BREAK(pVertexFormat);
+
+		dwVertexStride = GetVertexStride(pLMeshData->dwMeshFVF);
+
+		for (DWORD i = 0; i < pLMeshData->dwNumVertices; i++)
+		{
+			BYTE *pCurrentVertexData = pbyVertices + dwDestVertexStride * i;
+			for (DWORD j = 0; j < pVertexFormat->dwNumElement; j++)
+			{
+				const BYTE *pCurrentSrc = *(reinterpret_cast<BYTE* const*>(&pLMeshData->pPos) + pVertexFormat->dwSrcOffset[j]);
+				memcpy(pCurrentVertexData + pVertexFormat->dwDestOffset[j],
+					pCurrentSrc + pVertexFormat->dwSrcStride[j] * i,
+					pVertexFormat->dwDestStride[j]);
+			}
+		}
+
+		hr = pMesh->LockIndexBuffer(0, (void**)&pwIndices);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = pMesh->LockAttributeBuffer(0, &pwAttributes);
+		HRESULT_ERROR_BREAK(hr);
+
+
+		for(DWORD i = 0; i < pLMeshData->dwNumFaces; i++)
+		{
+			pwIndices[i * 3]     = static_cast<WORD>(pLMeshData->pFaceIndices[i * 3]);
+			pwIndices[i * 3 + 1] = static_cast<WORD>(pLMeshData->pFaceIndices[i * 3 + 1]);
+			pwIndices[i * 3 + 2] = static_cast<WORD>(pLMeshData->pFaceIndices[i * 3 + 2]);
+			pwAttributes[i] = pLMeshData->pSubsetIndices[i];
+		}
+
+		pMesh->UnlockVertexBuffer();
+		pMesh->UnlockIndexBuffer();
+		pMesh->UnlockAttributeBuffer();
+
+		m_pMeshBase = pMesh;
+		m_dwNumSubset = pLMeshData->dwNumSubset;
 
 		hResult = S_OK;
 	} while (0);

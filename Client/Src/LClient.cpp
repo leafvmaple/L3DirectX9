@@ -44,7 +44,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		//m_pObjectMgr->CreateModel<LCube>();
 		//m_pObjectMgr->CreateModel<LTeapot>();
 
-		pGirl = m_pObjectMgr->CreateModel<LCharacter>(TEXT("Res/Model/Mesh/M2_1035_body.mesh"));
+		pGirl = m_pObjectMgr->CreateModel<LCharacter>(TEXT("Res/Model/M2_1035_body.mesh"));
 		BOOL_ERROR_BREAK(pGirl);
 
 		hr = pGirl->SetTranslation(D3DXVECTOR3(0, 0, 0));
@@ -53,7 +53,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		hr = pGirl->SetScale(0.01f);
 		HRESULT_ERROR_BREAK(hr);
 
-		pMiki = m_pObjectMgr->CreateModel<LCharacter>(TEXT("Res/Model/Mesh/M2_1035_body.mesh"));
+		pMiki = m_pObjectMgr->CreateModel<LCharacter>(TEXT("Res/Model/M2_1035_body.mesh"));
 		BOOL_ERROR_BREAK(pMiki);
 
 		pCurScene = m_pObjectMgr->CreateScene(TEXT("Res/Scene/µ¾Ïã´å/µ¾Ïã´å.map"));

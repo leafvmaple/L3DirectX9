@@ -12,7 +12,8 @@
 
 #define  ELEMENT_FVF_END  0xffffffff
 
-class  KG3DBsp;
+class KG3DBsp;
+class L3DMaterial;
 
 struct VertexFromatOffsetItem
 {
@@ -274,17 +275,20 @@ private:
 	ID3DXBaseMesh* m_pMeshBase;
 	DWORD m_dwNumSubset;
 
+	L3DMaterial* m_pLMaterial;
+
 public:
 	L3DMesh();
 	~L3DMesh();
 
-	HRESULT LoadXMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName);
-	HRESULT LoadLMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadXMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadLMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
 
 	HRESULT UpdateMesh(DWORD dwSubMesh);
 
 	DWORD GetSubsetCount() const;
 
 private:
-	HRESULT LoadLMeshBuffer(LPCWSTR cszFileName, LMESH_DATA* pLMeshData);
+	HRESULT LoadMeshData(LPCWSTR cszFileName, LMESH_DATA* pLMeshData);
+	HRESULT CreateMesh(LPDIRECT3DDEVICE9 p3DDevice, const LMESH_DATA* pLMeshData);
 };

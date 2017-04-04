@@ -5,11 +5,11 @@
 #include "L3DInterface.h"
 
 L3DTexture::L3DTexture()
-: m_dwTextureCount(0)
-, m_p3DDevice(NULL)
+: m_p3DDevice(NULL)
+, m_pTextures(NULL)
+, m_dwNumUsedTexture(0)
 {
-	m_arrSubTextureCount.clear();
-	m_arrTexture.clear();
+
 }
 
 L3DTexture::~L3DTexture()
@@ -24,48 +24,103 @@ HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileNam
 	return S_OK;
 }
 
-HRESULT L3DTexture::LoadLTextureByParam(LPDIRECT3DDEVICE9 p3DDevice, const LTextureParam* pTextureParam, size_t nCount)
+HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirectory, BYTE*& pbyTexture)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	_TEXTURE* pTextureInfo = NULL;
+	_MtlOption* pOption = NULL;
+	TCHAR wcszTextureName[MAX_PATH];
 
-	do 
+	do
 	{
-		m_arrTexture.resize(nCount);
-		m_arrSubTextureCount.resize(nCount);
-		m_dwTextureCount = nCount;
-		for (DWORD i = 0; i < nCount; i++)
+		pbyTexture = LFileReader::Convert(pbyTexture, m_dwNumUsedTexture);
+		m_pTextures = new _TextureBase[m_dwNumUsedTexture];
+
+		ZeroMemory(m_pTextures, sizeof(_TextureBase) * m_dwNumUsedTexture);
+
+		for (DWORD dwTextIndex = 0; dwTextIndex < m_dwNumUsedTexture; dwTextIndex++)
 		{
-			m_arrTexture[i].resize(pTextureParam[i].pSubTextureCount);
-			m_arrSubTextureCount[i] = pTextureParam[i].pSubTextureCount;
-			for (DWORD j = 0;j < pTextureParam[i].pSubTextureCount; j ++)
+			pbyTexture = LFileReader::Convert(pbyTexture, pTextureInfo);
+
+			USES_CONVERSION;
+
+			swprintf_s(wcszTextureName, TEXT("%s%s"), pcszDirectory, A2CW(pTextureInfo->szTextureFileName));
+
+			hr = D3DXCreateTextureFromFile(p3DDevice, wcszTextureName, &m_pTextures[dwTextIndex].pTexture);
+			HRESULT_ERROR_BREAK(hr);
+
+			m_pTextures[dwTextIndex].m_arrTextureOptions.clear();
+
+			pOption = new _MtlOption;
+			BOOL_ERROR_BREAK(pOption);
+
+			for (DWORD j = 0; j < pTextureInfo->dwTextureOptionCount; j++)
 			{
-				hr = D3DXCreateTextureFromFile(p3DDevice, pTextureParam[i].pSubTexture[j].wszTextureFileName, &m_arrTexture[i][j]);
-				HRESULT_ERROR_BREAK(hr);
+				pbyTexture = LFileReader::Convert(pbyTexture, pOption->Type);
+
+				switch(pOption->Type)
+				{
+				case OPTION_TEXTURE_OPERATION:
+					{
+						_MtlTextureOp* pDataReadIn = new _MtlTextureOp;
+						pbyTexture = LFileReader::Copy(pbyTexture, pDataReadIn);
+
+						pOption->pData = pDataReadIn;
+						break;
+					}
+				case OPTION_TEXTURE_OPERATIONEX:
+					{
+						_TextureOpEx* pDataReadIn = new _TextureOpEx;
+						pbyTexture = LFileReader::Copy(pbyTexture, pDataReadIn);
+
+						pOption->pData = pDataReadIn;
+						break;
+					}
+				case OPTION_TEXTURE_MAPMETHOD:
+					{
+						_TextureMap* pDataReadIn = new _TextureMap;
+						pbyTexture = LFileReader::Copy(pbyTexture, pDataReadIn);
+
+						pOption->pData = pDataReadIn;
+						break;
+					}
+				case OPTION_TEXTURE_TRANSFROM:
+					{
+						_TextureTf* pDataReadIn = new _TextureTf;
+						pbyTexture = LFileReader::Copy(pbyTexture, pDataReadIn);
+
+						pOption->pData = pDataReadIn;
+						break;
+					}
+				}
+				m_pTextures[dwTextIndex].m_arrTextureOptions.push_back(pOption);
 			}
 		}
+
 		m_p3DDevice = p3DDevice;
 
 		hResult = S_OK;
+
 	} while (0);
 
 	return hResult;
 }
 
-HRESULT L3DTexture::UpdateTexture(DWORD dwSubTexture)
+HRESULT L3DTexture::UpdateTexture()
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 
 	do
 	{
-		for (DWORD i = 0; i < m_arrSubTextureCount[dwSubTexture]; i++)
+		for (DWORD i = 0; i < m_dwNumUsedTexture; i++)
 		{
-			hr = m_p3DDevice->SetTexture(i, m_arrTexture[dwSubTexture][i]);
+			hr = m_p3DDevice->SetTexture(i, m_pTextures[i].pTexture);
 			HRESULT_ERROR_BREAK(hr);
-
-			hResult = S_OK;
 		}
+
+		hResult = S_OK;
 
 	} while (0);
 

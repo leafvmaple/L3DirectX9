@@ -17,7 +17,15 @@ enum OPTION_TEXTURE
 
 class L3DTexture
 {
-public:
+private:
+	struct _TEXTURE
+	{
+		float fAmount;
+		char  szTextureType[MAT_TEXTURETYPE_LENGTH];
+		char  szTextureFileName[MAT_TEXTUREFILENAME_LENGTH];
+		DWORD dwTextureOptionCount;
+	};
+
 	struct LTextureParam
 	{
 		struct SubTextureParam
@@ -98,18 +106,24 @@ public:
 		D3DXVECTOR3 Speed_Position;
 	};
 
+	struct _TextureBase
+	{
+		LPDIRECT3DTEXTURE9 pTexture;
+		std::vector<_MtlOption*> m_arrTextureOptions;
+	};
+
 public:
 	L3DTexture();
 	~L3DTexture();
 
 	HRESULT LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
-	HRESULT LoadLTextureByParam(LPDIRECT3DDEVICE9 p3DDevice, const LTextureParam* pTextureParam, size_t nCount);
+	HRESULT LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirectory, BYTE*& pbyTexture);
 
-	HRESULT UpdateTexture(DWORD dwSubTexture);
+	HRESULT UpdateTexture();
 
 private:
-	DWORD m_dwTextureCount;
-	std::vector<DWORD> m_arrSubTextureCount;
-	std::vector<std::vector<LPDIRECT3DTEXTURE9>> m_arrTexture;
 	LPDIRECT3DDEVICE9 m_p3DDevice;
+	_TextureBase* m_pTextures;
+	DWORD m_dwNumUsedTexture;
+	
 };
