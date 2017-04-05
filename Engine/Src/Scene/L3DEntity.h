@@ -7,8 +7,5 @@ public:
 	L3DEntity();
 	~L3DEntity();
 
-	HRESULT LoadEntityFile(LPCWSTR pcszFileName);
-	
-private:
-	HRESULT LoadEntityInfoFromFile(LPCWSTR pcszDirectory);
+	HRESULT LoadEntity(LPCWSTR pcszFileName);
 };

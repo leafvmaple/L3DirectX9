@@ -13,7 +13,7 @@ L3DEntity::~L3DEntity()
 
 }
 
-HRESULT L3DEntity::LoadEntityFile(LPCWSTR pcszFileName)
+HRESULT L3DEntity::LoadEntity(LPCWSTR pcszFileName)
 {
 	TCHAR szDrive[MAX_PATH];
 	TCHAR szExt[MAX_PATH];

@@ -1,4 +1,3 @@
-#include <atlconv.h>
 #include "L3DTexture.h"
 #include "LAssert.h"
 #include "IO/LFileReader.h"
@@ -6,10 +5,8 @@
 
 L3DTexture::L3DTexture()
 : m_p3DDevice(NULL)
-, m_pTextures(NULL)
-, m_dwNumUsedTexture(0)
 {
-
+	m_vecTextures.clear();
 }
 
 L3DTexture::~L3DTexture()
@@ -20,7 +17,18 @@ L3DTexture::~L3DTexture()
 
 HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
 {
-	m_p3DDevice = p3DDevice;
+	do 
+	{
+		_TextureBase* pTextureBase = new _TextureBase;
+
+		D3DXCreateTextureFromFile(p3DDevice, cszFileName, &pTextureBase->pTexture);
+		m_vecTextures.push_back(pTextureBase);
+
+		m_p3DDevice = p3DDevice;
+
+	} while (0);
+
+	
 	return S_OK;
 }
 
@@ -31,26 +39,26 @@ HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirect
 	_TEXTURE* pTextureInfo = NULL;
 	_MtlOption* pOption = NULL;
 	TCHAR wcszTextureName[MAX_PATH];
+	DWORD dwNumUsedTexture = 0;
 
 	do
 	{
-		pbyTexture = LFileReader::Convert(pbyTexture, m_dwNumUsedTexture);
-		m_pTextures = new _TextureBase[m_dwNumUsedTexture];
+		pbyTexture = LFileReader::Convert(pbyTexture, dwNumUsedTexture);
 
-		ZeroMemory(m_pTextures, sizeof(_TextureBase) * m_dwNumUsedTexture);
-
-		for (DWORD dwTextIndex = 0; dwTextIndex < m_dwNumUsedTexture; dwTextIndex++)
+		for (DWORD dwTextIndex = 0; dwTextIndex < dwNumUsedTexture; dwTextIndex++)
 		{
+			_TextureBase* pTextureBase = new _TextureBase;
+
 			pbyTexture = LFileReader::Convert(pbyTexture, pTextureInfo);
 
 			USES_CONVERSION;
 
 			swprintf_s(wcszTextureName, TEXT("%s%s"), pcszDirectory, A2CW(pTextureInfo->szTextureFileName));
 
-			hr = D3DXCreateTextureFromFile(p3DDevice, wcszTextureName, &m_pTextures[dwTextIndex].pTexture);
+			hr = D3DXCreateTextureFromFile(p3DDevice, wcszTextureName, &pTextureBase->pTexture);
 			HRESULT_ERROR_BREAK(hr);
 
-			m_pTextures[dwTextIndex].m_arrTextureOptions.clear();
+			pTextureBase->m_vecTextureOptions.clear();
 
 			pOption = new _MtlOption;
 			BOOL_ERROR_BREAK(pOption);
@@ -94,7 +102,8 @@ HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirect
 						break;
 					}
 				}
-				m_pTextures[dwTextIndex].m_arrTextureOptions.push_back(pOption);
+				pTextureBase->m_vecTextureOptions.push_back(pOption);
+				m_vecTextures.push_back(pTextureBase);
 			}
 		}
 
@@ -114,9 +123,9 @@ HRESULT L3DTexture::UpdateTexture()
 
 	do
 	{
-		for (DWORD i = 0; i < m_dwNumUsedTexture; i++)
+		for (DWORD i = 0; i < m_vecTextures.size(); i++)
 		{
-			hr = m_p3DDevice->SetTexture(i, m_pTextures[i].pTexture);
+			hr = m_p3DDevice->SetTexture(i, m_vecTextures[i]->pTexture);
 			HRESULT_ERROR_BREAK(hr);
 		}
 

@@ -109,7 +109,7 @@ private:
 	struct _TextureBase
 	{
 		LPDIRECT3DTEXTURE9 pTexture;
-		std::vector<_MtlOption*> m_arrTextureOptions;
+		std::vector<_MtlOption*> m_vecTextureOptions;
 	};
 
 public:
@@ -123,7 +123,5 @@ public:
 
 private:
 	LPDIRECT3DDEVICE9 m_p3DDevice;
-	_TextureBase* m_pTextures;
-	DWORD m_dwNumUsedTexture;
-	
+	std::vector<_TextureBase*> m_vecTextures;
 };

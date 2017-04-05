@@ -19,7 +19,6 @@ struct LBlockDataChildData
 
 struct LBlockData
 {
-	int nLevel;
 	int nIndexX;
 	int nIndexZ;
 
@@ -53,8 +52,8 @@ private:
 	};
 	
 
-	std::map<POINT, LBlockData*, POINT_OPERATOR> m_mapBlockData[4];
+	std::map<POINT, LBlockData*, POINT_OPERATOR> m_mapBlockNode;
 
-	HRESULT CreateBlock(int nLevel, POINT Index);
-	LBlockData* GetBlock(int nLevel, POINT Index);
+	HRESULT AddBlockNode(POINT Index);
+	LBlockData* GetBlock(POINT Index);
 };

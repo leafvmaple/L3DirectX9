@@ -37,7 +37,7 @@ HRESULT L3DScene::Init(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszFileName)
 		m_pLEntity = new L3DEntity;
 		BOOL_ERROR_BREAK(m_pLEntity);
 
-		hr = m_pLEntity->LoadEntityFile(pcszFileName);
+		hr = m_pLEntity->LoadEntity(pcszFileName);
 		HRESULT_ERROR_BREAK(hr);
 
 		m_pLTerrain = new L3DTerrain;

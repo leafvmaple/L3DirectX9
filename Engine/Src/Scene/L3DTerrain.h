@@ -4,6 +4,22 @@
 
 #define MAP_FILE_VERSION_PACKREGION 2
 
+class L3DTexture;
+
+enum L3D_TERRAIN_INFO_TYPE
+{
+	Terrain_Info_Invalid = 0,
+
+	Terrain_Info_Convermap,
+	Terrain_Info_DetailMtlMgr,
+	Terrain_Info_GrassSet,
+	Terrain_Info_StoneSet,
+	Terrain_Info_FrutexSet,
+	Terrain_Info_RoadMgr,
+	Terrain_Info_RiverMgr,
+	Terrain_Info_Total
+};
+
 enum L3D_TERRAIN_BLOCK_TYPE
 {
 	Terrain_Block_Invalid = 0,
@@ -27,10 +43,27 @@ enum L3D_TERRAIN_BLOCK_TYPE
 	Terrain_Block_Total
 };
 
+class LTerrainConverMap
+{
+public:
+	HRESULT LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen);
+
+private:
+	TCHAR m_szTextureFileName[MAX_PATH];
+	TCHAR m_szHeightColorFileName[MAX_PATH];
+
+	D3DXVECTOR4 m_vRect;
+
+	float m_fLowest;
+	float m_fHeightTotal;
+
+	L3DTexture* m_pTexture;
+};
+
 class L3DTerrain
 {
 public:
-	struct LSceneDataClip
+	struct LTerrainClip
 	{
 		DWORD dwType;
 		DWORD dwLength;
@@ -54,8 +87,11 @@ public:
 private:
 	LPDIRECT3DDEVICE9 m_p3DDevice;
 	BOOL m_bEnableTerrainConverMap;
-	std::map<UINT, LSceneDataClip*>  m_TerrainInformations;
+	std::map<UINT, LTerrainClip*>  m_TerrainInformations;
+
+	LTerrainConverMap* m_pTerrainCoverMap;
 
 	HRESULT LoadTerrainInfo(LPCWSTR cszDirectory);
-	HRESULT LoadClipFromMemory(LSceneDataClip* pLSceneDataClip, BYTE* pbyTerrain);
+	HRESULT LoadClipBuffer(LTerrainClip* pLSceneDataClip, BYTE* pbyTerrain);
+
 };
