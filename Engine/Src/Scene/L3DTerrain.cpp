@@ -33,8 +33,10 @@ HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen)
 		m_vRect.z = abs(m_vRect.z);
 		m_vRect.w = abs(m_vRect.w);
 
+		USES_CONVERSION;
+
 		m_pTexture = new L3DTexture;
-		m_pTexture->LoadLTexture(L3DEngine::Instance()->GetDevice(), m_szTextureFileName);
+		m_pTexture->LoadLTexture(L3DEngine::Instance()->GetDevice(), A2CW(m_szTextureFileName));
 
 		/*
 		if(!m_lpTextureLight)
@@ -58,7 +60,6 @@ HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen)
 
 	} while (0);
 
-	//pFile->Reset();
 	return S_OK;
 }
 
@@ -156,8 +157,8 @@ HRESULT L3DTerrain::LoadClipBuffer(LTerrainClip* pLSceneDataClip, BYTE* pbyTerra
 		pbyTerrain = LFileReader::Convert(pbyTerrain, pLSceneDataClip->dwType);
 		pbyTerrain = LFileReader::Convert(pbyTerrain, pLSceneDataClip->dwLength);
 
-		pLSceneDataClip->pbyBuffer = new BYTE[pLSceneDataClip->dwLength];
-		BOOL_ERROR_BREAK(pLSceneDataClip->pbyBuffer);
+		//pLSceneDataClip->pbyBuffer = new BYTE[pLSceneDataClip->dwLength];
+		//BOOL_ERROR_BREAK(pLSceneDataClip->pbyBuffer);
 
 		LFileReader::Convert(pbyTerrain, pLSceneDataClip->pbyBuffer, pLSceneDataClip->dwLength);
 

@@ -27,7 +27,6 @@ HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileNam
 		m_p3DDevice = p3DDevice;
 
 	} while (0);
-
 	
 	return S_OK;
 }

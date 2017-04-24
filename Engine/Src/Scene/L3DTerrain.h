@@ -49,8 +49,8 @@ public:
 	HRESULT LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen);
 
 private:
-	TCHAR m_szTextureFileName[MAX_PATH];
-	TCHAR m_szHeightColorFileName[MAX_PATH];
+	CHAR m_szTextureFileName[MAX_PATH];
+	CHAR m_szHeightColorFileName[MAX_PATH];
 
 	D3DXVECTOR4 m_vRect;
 
