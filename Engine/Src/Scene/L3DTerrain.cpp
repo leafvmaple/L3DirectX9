@@ -22,6 +22,9 @@ L3DTerrain::~L3DTerrain()
 
 HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen)
 {
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+
 	do
 	{
 		pbyConverMap = LFileReader::Copy(pbyConverMap, m_szTextureFileName, MAX_PATH);
@@ -34,7 +37,10 @@ HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen)
 		m_vRect.w = abs(m_vRect.w);
 
 		m_pTexture = new L3DTexture;
-		m_pTexture->LoadLTexture(L3DEngine::Instance()->GetDevice(), m_szTextureFileName);
+		BOOL_ERROR_BREAK(m_pTexture);
+
+		hr = m_pTexture->LoadLTexture(L3DEngine::Instance()->GetDevice(), m_szTextureFileName);
+		HRESULT_ERROR_BREAK(hr);
 
 		/*
 		if(!m_lpTextureLight)
@@ -56,10 +62,11 @@ HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen)
 		ComputeHeightMapSize();
 		*/
 
+		hResult = S_OK;
 	} while (0);
 
 	//pFile->Reset();
-	return S_OK;
+	return hResult;
 }
 
 HRESULT L3DTerrain::LoadTerrain(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)

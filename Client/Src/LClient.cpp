@@ -56,7 +56,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		pMiki = m_pObjectMgr->CreateModel<LCharacter>(TEXT("Res/Model/M2_1035_body.mesh"));
 		BOOL_ERROR_BREAK(pMiki);
 
-		pCurScene = m_pObjectMgr->CreateScene(TEXT("Res/Scene/µ¾Ïã´å/µ¾Ïã´å.map"));
+		pCurScene = m_pObjectMgr->CreateScene(TEXT("Data/Source/Maps/µ¾Ïã´å/µ¾Ïã´å.map"));
 		BOOL_ERROR_BREAK(pCurScene);
 
 		hr = pMiki->SetTranslation(D3DXVECTOR3(1, 1, 0));

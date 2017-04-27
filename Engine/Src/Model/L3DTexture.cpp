@@ -20,6 +20,7 @@ HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileNam
 	do 
 	{
 		_TextureBase* pTextureBase = new _TextureBase;
+		ZeroMemory(pTextureBase, sizeof(_TextureBase));
 
 		D3DXCreateTextureFromFile(p3DDevice, cszFileName, &pTextureBase->pTexture);
 		m_vecTextures.push_back(pTextureBase);
