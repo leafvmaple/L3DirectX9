@@ -2,9 +2,8 @@
 #include <d3dx9.h>
 #include <map>
 
-#define MAP_FILE_VERSION_PACKREGION 2
-
 class L3DTexture;
+struct LSceneDataClip;
 
 enum L3D_TERRAIN_INFO_TYPE
 {
@@ -63,22 +62,6 @@ private:
 class L3DTerrain
 {
 public:
-	struct LTerrainClip
-	{
-		DWORD dwType;
-		DWORD dwLength;
-		BYTE* pbyBuffer;
-		int   nRefrence;
-	};
-
-private:
-	struct InfoFileData
-	{
-		UINT uHandle;
-		DWORD dwFilePos;
-	};
-
-public:
 	L3DTerrain();
 	~L3DTerrain();
 
@@ -87,11 +70,10 @@ public:
 private:
 	LPDIRECT3DDEVICE9 m_p3DDevice;
 	BOOL m_bEnableTerrainConverMap;
-	std::map<UINT, LTerrainClip*>  m_TerrainInformations;
+	std::map<UINT, LSceneDataClip*>  m_TerrainInformations;
 
 	LTerrainConverMap* m_pTerrainCoverMap;
 
 	HRESULT LoadTerrainInfo(LPCWSTR cszDirectory);
-	HRESULT LoadClipBuffer(LTerrainClip* pLSceneDataClip, BYTE* pbyTerrain);
-
+	HRESULT LoadTerrainClipBuffer(LSceneDataClip* pLSceneDataClip, BYTE* pbyTerrain);
 };

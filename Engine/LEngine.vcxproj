@@ -120,6 +120,7 @@ copy "$(TargetDir)$(TargetName).lib" "$(SolutionDir)Lib"</Command>
     <ClInclude Include="Src\Scene\L3DBlock.h" />
     <ClInclude Include="Src\Scene\L3DEntity.h" />
     <ClInclude Include="Src\Scene\L3DScene.h" />
+    <ClInclude Include="Src\Scene\L3DSceneDef.h" />
     <ClInclude Include="Src\Scene\L3DTerrain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

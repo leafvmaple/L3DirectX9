@@ -3,6 +3,7 @@
 #define defFILE_DESCLEN			64
 
 #define MESH_SAVE_BONEBBOX  1
+#define MAP_FILE_VERSION_PACKREGION 2
 
 struct TFileHeader
 {

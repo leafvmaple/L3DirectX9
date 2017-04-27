@@ -167,5 +167,8 @@
     <ClInclude Include="Src\Model\L3DParticle.h">
       <Filter>Header Files\Engine\Model</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Scene\L3DSceneDef.h">
+      <Filter>Header Files\Engine\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

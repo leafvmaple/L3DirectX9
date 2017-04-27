@@ -5,6 +5,7 @@
 #include "IO/LFileReader.h"
 #include "Model/L3DTexture.h"
 #include "L3DEngine.h"
+#include "L3DSceneDef.h"
 
 L3DTerrain::L3DTerrain()
 : m_p3DDevice(NULL)
@@ -117,7 +118,7 @@ HRESULT L3DTerrain::LoadTerrainInfo(LPCWSTR cszDirectory)
 	DWORD dwVersion = 0;
 	DWORD dwNum = 0;
 	InfoFileData* pInfoData = NULL;
-	LTerrainClip* pSceneDataClip = NULL;
+	LSceneDataClip* pTerrainClip = NULL;
 
 	do
 	{
@@ -136,33 +137,33 @@ HRESULT L3DTerrain::LoadTerrainInfo(LPCWSTR cszDirectory)
 		pbyTerrainInfo = LFileReader::Convert(pbyTerrainInfo, pInfoData, dwNum);
 		for (DWORD i = 0; i < dwNum; i++)
 		{
-			pSceneDataClip = new LTerrainClip;
-			BOOL_ERROR_BREAK(pSceneDataClip);
+			pTerrainClip = new LSceneDataClip;
+			BOOL_ERROR_BREAK(pTerrainClip);
 
-			hr = LoadClipBuffer(pSceneDataClip, pbyBufferHead + pInfoData[i].dwFilePos);
+			hr = pTerrainClip->LoadDataFromFile(pbyBufferHead + pInfoData[i].dwFilePos);
 			HRESULT_ERROR_BREAK(hr);
 
-			m_TerrainInformations.insert(std::pair<UINT, LTerrainClip*>(pInfoData[i].uHandle, pSceneDataClip));
+			hr = LoadTerrainClipBuffer(pTerrainClip, pbyBufferHead + pInfoData[i].dwFilePos);
+			HRESULT_ERROR_BREAK(hr);
+
+			m_TerrainInformations.insert(std::pair<UINT, LSceneDataClip*>(pInfoData[i].uHandle, pTerrainClip));
 		}
 
 		hResult = S_OK;
 	} while (0);
 
-	if (!SUCCEEDED(hr) && pSceneDataClip)
-		SAFE_DELETE(pSceneDataClip);
+	if (!SUCCEEDED(hr) && pTerrainClip)
+		SAFE_DELETE(pTerrainClip);
 
 	return S_OK;
 }
 
-HRESULT L3DTerrain::LoadClipBuffer(LTerrainClip* pLSceneDataClip, BYTE* pbyTerrain)
+HRESULT L3DTerrain::LoadTerrainClipBuffer(LSceneDataClip* pLSceneDataClip, BYTE* pbyTerrain)
 {
 	HRESULT hr = E_FAIL;
 
 	do
 	{
-		pbyTerrain = LFileReader::Convert(pbyTerrain, pLSceneDataClip->dwType);
-		pbyTerrain = LFileReader::Convert(pbyTerrain, pLSceneDataClip->dwLength);
-
 		//pLSceneDataClip->pbyBuffer = new BYTE[pLSceneDataClip->dwLength];
 		//BOOL_ERROR_BREAK(pLSceneDataClip->pbyBuffer);
 
