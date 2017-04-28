@@ -7,21 +7,9 @@
 #include "L3DEngine.h"
 #include "L3DSceneDef.h"
 
-L3DTerrain::L3DTerrain()
-: m_p3DDevice(NULL)
-, m_bEnableTerrainConverMap(0)
-, m_pTerrainCoverMap(NULL)
-{
+#define FVFWATER (D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_DIFFUSE|D3DFVF_TEX1)
 
-}
-
-L3DTerrain::~L3DTerrain()
-{
-
-}
-
-
-HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen)
+HRESULT LTerrainConverMap::LoadConverMapBuffer(LPDIRECT3DDEVICE9 p3DDevice, BYTE* pbyConverMap, DWORD dwLen)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -40,7 +28,9 @@ HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen)
 		USES_CONVERSION;
 
 		m_pTexture = new L3DTexture;
-		m_pTexture->LoadLTexture(L3DEngine::Instance()->GetDevice(), A2CW(m_szTextureFileName));
+		BOOL_ERROR_BREAK(m_pTexture);
+
+		hr = m_pTexture->LoadLTexture(L3DEngine::Instance()->GetDevice(), A2CW(m_szTextureFileName));
 		HRESULT_ERROR_BREAK(hr);
 
 		/*
@@ -63,12 +53,91 @@ HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen)
 		ComputeHeightMapSize();
 		*/
 
+		hr = p3DDevice->CreateVertexBuffer(4 * sizeof(VERTEXWATER), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, FVFWATER, D3DPOOL_DEFAULT, &m_pConverVertex, NULL );
+		HRESULT_ERROR_BREAK(hr);
+
+		m_p3DDevice = p3DDevice;
+
 		hResult = S_OK;
 	} while (0);
 
 	//pFile->Reset();
 	return hResult;
 }
+
+HRESULT LTerrainConverMap::UpdateTerrainConverMap()
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+	VERTEXWATER* pVer = NULL;
+
+	do 
+	{
+		hr = m_pTexture->UpdateTexture();
+		HRESULT_ERROR_BREAK(hr);
+
+		D3DXVECTOR3 A = D3DXVECTOR3(m_vRect.x, 0, m_vRect.y);
+		D3DXVECTOR3 B = A + D3DXVECTOR3(m_vRect.z, 0, 0);
+		D3DXVECTOR3 D = A + D3DXVECTOR3(0, 0, -m_vRect.w);
+		D3DXVECTOR3 C = B + D - A;
+		D3DXVECTOR4 Value = D3DXVECTOR4(1, 1, 1, 1);
+
+		hr = m_pConverVertex->Lock(0, 4 * sizeof(VERTEXWATER), (void**)&pVer, D3DLOCK_DISCARD);
+		HRESULT_ERROR_BREAK(hr);
+
+		D3DXVECTOR2 uv0 = D3DXVECTOR2(static_cast<float>(0), static_cast<float>(0));
+		D3DXVECTOR2 uv1 = D3DXVECTOR2(static_cast<float>(1), static_cast<float>(0));
+		D3DXVECTOR2 uv2 = D3DXVECTOR2(static_cast<float>(0), static_cast<float>(1));
+		D3DXVECTOR2 uv3 = D3DXVECTOR2(static_cast<float>(1), static_cast<float>(1));
+		D3DCOLOR Diffuse = D3DCOLOR_RGBA((int)(Value.y*255),(int)(Value.z*255),(int)(Value.w*255),255);
+		D3DXVECTOR3 Normal(0, 1, 0);
+
+		pVer[0].p = A;
+		pVer[0].c = Diffuse;
+		pVer[0].n = Normal;
+		pVer[0].tu = uv0.x;
+		pVer[0].tv = uv0.y;
+
+		pVer[1].p = B;
+		pVer[1].c = Diffuse;
+		pVer[1].n = Normal;
+		pVer[1].tu = uv1.x;
+		pVer[1].tv = uv1.y;
+		pVer[2].p = D;
+		pVer[2].c = Diffuse;
+		pVer[2].n = Normal;
+		pVer[2].tu = uv2.x;
+		pVer[2].tv = uv2.y;
+
+		pVer[3].p = C;
+		pVer[3].c = Diffuse;
+		pVer[3].n = Normal;
+		pVer[3].tu = uv3.x;
+		pVer[3].tv = uv3.y;
+
+		m_p3DDevice->SetStreamSource(0, m_pConverVertex, 0, sizeof(VERTEXWATER));
+		m_p3DDevice->SetFVF(FVFWATER);
+		m_p3DDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
+}
+
+L3DTerrain::L3DTerrain()
+	: m_p3DDevice(NULL)
+	, m_bEnableTerrainConverMap(0)
+	, m_pTerrainCoverMap(NULL)
+{
+
+}
+
+L3DTerrain::~L3DTerrain()
+{
+
+}
+
 
 HRESULT L3DTerrain::LoadTerrain(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
 {
@@ -86,6 +155,7 @@ HRESULT L3DTerrain::LoadTerrain(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName
 	do
 	{
 		ZeroMemory(szFileName, sizeof(szFileName));
+		m_p3DDevice = p3DDevice;
 
 		_wsplitpath_s(cszFileName, szDrive, MAX_PATH, szDir, MAX_PATH, szOnlyFileName, MAX_PATH, szExt, MAX_PATH);
 		swprintf_s(wszFileDir, TEXT("%s%s%sFile/"), szDrive, szDir, szOnlyFileName);
@@ -98,11 +168,29 @@ HRESULT L3DTerrain::LoadTerrain(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName
 		m_bEnableTerrainConverMap = GetPrivateProfileInt(TEXT("ConverMap"), TEXT("bTerrainAlphaConverEnable"), 0, szMapIniFileName);
 		GetPrivateProfileString(TEXT("ConverMap"), TEXT("TerrainAlphaConverMapFile"), TEXT("AA"), szFileName, MAX_PATH, szMapIniFileName);
 
-		m_p3DDevice = p3DDevice;
-
 	} while (0);
 
-	return S_OK;
+	return hResult;
+}
+
+
+HRESULT L3DTerrain::UpdateTerrain()
+{
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		if (m_pTerrainCoverMap)
+		{
+			hr = m_pTerrainCoverMap->UpdateTerrainConverMap();
+			HRESULT_ERROR_BREAK(hr);
+		}
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
 }
 
 HRESULT L3DTerrain::LoadTerrainInfo(LPCWSTR cszDirectory)
@@ -140,10 +228,9 @@ HRESULT L3DTerrain::LoadTerrainInfo(LPCWSTR cszDirectory)
 			pTerrainClip = new LSceneDataClip;
 			BOOL_ERROR_BREAK(pTerrainClip);
 
-			hr = pTerrainClip->LoadDataFromFile(pbyBufferHead + pInfoData[i].dwFilePos);
-			HRESULT_ERROR_BREAK(hr);
+			pbyTerrainInfo = pTerrainClip->LoadDataFromFile(pbyBufferHead + pInfoData[i].dwFilePos);
 
-			hr = LoadTerrainClipBuffer(pTerrainClip, pbyBufferHead + pInfoData[i].dwFilePos);
+			hr = LoadTerrainClipBuffer(pTerrainClip, pbyTerrainInfo);
 			HRESULT_ERROR_BREAK(hr);
 
 			m_TerrainInformations.insert(std::pair<UINT, LSceneDataClip*>(pInfoData[i].uHandle, pTerrainClip));
@@ -155,7 +242,7 @@ HRESULT L3DTerrain::LoadTerrainInfo(LPCWSTR cszDirectory)
 	if (!SUCCEEDED(hr) && pTerrainClip)
 		SAFE_DELETE(pTerrainClip);
 
-	return S_OK;
+	return hResult;
 }
 
 HRESULT L3DTerrain::LoadTerrainClipBuffer(LSceneDataClip* pLSceneDataClip, BYTE* pbyTerrain)
@@ -181,7 +268,7 @@ HRESULT L3DTerrain::LoadTerrainClipBuffer(LSceneDataClip* pLSceneDataClip, BYTE*
 				if (!m_pTerrainCoverMap)
 					m_pTerrainCoverMap = new LTerrainConverMap;
 
-				hr = m_pTerrainCoverMap->LoadConverMapBuffer(pLSceneDataClip->pbyBuffer, pLSceneDataClip->dwLength);
+				hr = m_pTerrainCoverMap->LoadConverMapBuffer(m_p3DDevice, pLSceneDataClip->pbyBuffer, pLSceneDataClip->dwLength);
 				break;
 			}
 			/*
@@ -291,4 +378,3 @@ HRESULT L3DTerrain::LoadTerrainClipBuffer(LSceneDataClip* pLSceneDataClip, BYTE*
 
 	return S_OK;
 }
-

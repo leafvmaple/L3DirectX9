@@ -3,6 +3,7 @@
 #include <strsafe.h>
 #include "LAssert.h"
 #include "L3DEngine.h"
+#include "Scene/L3DScene.h"
 #include "Model/L3DModel.h"
 #include "Input/L3DInput.h"
 #include "Camera/L3DCamera.h"
@@ -33,8 +34,11 @@ L3DEngine::L3DEngine()
 	memset(&m_WindowParam, 0, sizeof(m_WindowParam));
 	memset(&m_PresentParam, 0, sizeof(m_PresentParam));
 	
-	m_AdapterModes.clear();
+	m_SceneList.clear();
 	m_ModelList.clear();
+	m_FontList.clear();
+
+	m_AdapterModes.clear();
 }
 
 L3DEngine::~L3DEngine()
@@ -93,8 +97,10 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	L3DScene* pScene = NULL;
 	L3DModel* pObject = NULL;
 	L3DFont* pFont = NULL;
+	std::list<ILScene*>::iterator itScene;
 	std::list<ILModel*>::iterator itModel;
 	std::list<ILFont*>::iterator itFont;
 
@@ -114,6 +120,14 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 		HRESULT_ERROR_BREAK(hr);
 
 		m_p3DDevice->BeginScene();
+
+		for (itScene = m_SceneList.begin(); itScene != m_SceneList.end(); itScene++)
+		{
+			pScene = dynamic_cast<L3DScene*>(*itScene);
+			BOOL_ERROR_BREAK(pScene);
+
+			pScene->UpdateDisplay();
+		}
 
 		for (itModel = m_ModelList.begin(); itModel != m_ModelList.end(); itModel++)
 		{
@@ -173,6 +187,21 @@ HRESULT L3DEngine::Uninit()
 	}
 
 	return S_OK;
+}
+
+HRESULT L3DEngine::AttachScene(ILScene* pScene)
+{
+	HRESULT hResult = E_FAIL;
+
+	do 
+	{
+		BOOL_ERROR_BREAK(pScene);
+		m_SceneList.push_back(pScene);
+
+		hResult = S_OK;
+	} while (0);
+
+	return hResult;
 }
 
 HRESULT L3DEngine::AttachObject(ILModel* pAction)

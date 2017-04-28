@@ -2,6 +2,9 @@
 #include <d3dx9.h>
 #include <map>
 
+#define CHILD_NODE_COUNT 4
+#define MAX_RENDER 6
+
 class L3DTexture;
 struct LSceneDataClip;
 
@@ -42,10 +45,42 @@ enum L3D_TERRAIN_BLOCK_TYPE
 	Terrain_Block_Total
 };
 
+class LTerrainNode
+{
+	ULONG m_ulRefCount;
+	LTerrainNode* m_pParentNode;
+	LTerrainNode* m_ChlidrenNode[CHILD_NODE_COUNT];
+	int m_nIndexX;
+	int m_nIndexZ;
+	//EM_TERRAIN_NODE_TYPE m_eLevel;
+	//KGMtlData *m_pMtlData;
+	unsigned long long m_ullMaterialKey;
+
+	int m_nIndexDiffuseMap;
+	BOOL m_bHasChildren;
+
+	//AABBOX m_BBox;
+	D3DXVECTOR3 m_vCenter;
+
+	float m_fHeightMin;
+	float m_fHeightMax;
+
+
+	float m_fViewDistance;
+
+	float m_fLODDiffHeight[5];
+	int   m_nLodLevel;
+	DWORD m_dwNeighbourLevel;
+	BOOL m_bLodProcessed;
+
+	bool m_bInRenderList[MAX_RENDER];
+};
+
 class LTerrainConverMap
 {
 public:
-	HRESULT LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen);
+	HRESULT LoadConverMapBuffer(LPDIRECT3DDEVICE9 p3DDevice, BYTE* pbyConverMap, DWORD dwLen);
+	HRESULT UpdateTerrainConverMap();
 
 private:
 	CHAR m_szTextureFileName[MAX_PATH];
@@ -57,6 +92,8 @@ private:
 	float m_fHeightTotal;
 
 	L3DTexture* m_pTexture;
+	LPDIRECT3DDEVICE9 m_p3DDevice;
+	LPDIRECT3DVERTEXBUFFER9 m_pConverVertex;
 };
 
 class L3DTerrain
@@ -66,6 +103,8 @@ public:
 	~L3DTerrain();
 
 	HRESULT LoadTerrain(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
+
+	HRESULT UpdateTerrain();
 
 private:
 	LPDIRECT3DDEVICE9 m_p3DDevice;

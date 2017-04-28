@@ -26,6 +26,7 @@ public:
 	virtual LPDIRECT3DDEVICE9 GetDevice() const;
 
 public:
+	HRESULT AttachScene(ILScene* pScene);
 	HRESULT AttachObject(ILModel* pAction);
 	HRESULT AttachFont(ILFont* pFont);
 
@@ -51,8 +52,9 @@ private:
 	D3DCAPS9 m_Caps9;
 	D3DPRESENT_PARAMETERS m_PresentParam;
 	std::vector<ADAPTERMODE> m_AdapterModes;
+	std::list<ILScene*> m_SceneList;
 	std::list<ILModel*> m_ModelList;
-	std::list<ILFont*> m_FontList;
+	std::list<ILFont*>  m_FontList;
 
 private:
 	LRESULT	MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

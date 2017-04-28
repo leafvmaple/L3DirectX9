@@ -56,7 +56,7 @@ HRESULT L3DEntity::LoadEntityInfo(LPCWSTR cszDirectory)
 
 	DWORD dwVersion = 0;
 	DWORD dwNum = 0;
-	InfoFileData* pInfoData = NULL;
+	InfoFileData*   pInfoData = NULL;
 	LSceneDataClip* pEntityClip = NULL;
 
 	do
@@ -79,8 +79,7 @@ HRESULT L3DEntity::LoadEntityInfo(LPCWSTR cszDirectory)
 			pEntityClip = new LSceneDataClip;
 			BOOL_ERROR_BREAK(pEntityClip);
 
-			hr = pEntityClip->LoadDataFromFile(pbyBufferHead + pInfoData[i].dwFilePos);
-			HRESULT_ERROR_BREAK(hr);
+			pbyEntityInfo = pEntityClip->LoadDataFromFile(pbyBufferHead + pInfoData[i].dwFilePos);
 
 			m_EntityInformations.insert(std::pair<UINT, LSceneDataClip*>(pInfoData[i].uHandle, pEntityClip));
 		}

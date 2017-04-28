@@ -58,3 +58,11 @@ HRESULT L3DScene::Init(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszFileName)
 
 	return S_OK;
 }
+
+HRESULT L3DScene::UpdateDisplay()
+{
+	if (m_pLTerrain)
+		m_pLTerrain->UpdateTerrain();
+
+	return S_OK;
+}

@@ -202,6 +202,9 @@ HRESULT ILScene::Create(IL3DEngine* pL3DEngie, LPCWSTR pcszFileName,  ILScene** 
 		hr = pLScene->Init(p3DDevice, pcszFileName);
 		HRESULT_ERROR_BREAK(hr);
 
+		pEngine->AttachScene(pLScene);
+		*ppScene = pLScene;
+
 		hResult = S_OK;
 	} while (0);
 
