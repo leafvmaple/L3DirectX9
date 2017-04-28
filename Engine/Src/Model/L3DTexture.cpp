@@ -17,19 +17,25 @@ L3DTexture::~L3DTexture()
 
 HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
 {
+	HRESULT hr = E_FAIL;
+	HRESULT hResult = E_FAIL;
+
 	do 
 	{
 		_TextureBase* pTextureBase = new _TextureBase;
 		ZeroMemory(pTextureBase, sizeof(_TextureBase));
 
 		D3DXCreateTextureFromFile(p3DDevice, cszFileName, &pTextureBase->pTexture);
+		BOOL_ERROR_BREAK(pTextureBase->pTexture)
+
 		m_vecTextures.push_back(pTextureBase);
 
 		m_p3DDevice = p3DDevice;
 
+		hResult = S_OK;
 	} while (0);
 	
-	return S_OK;
+	return hResult;
 }
 
 HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirectory, BYTE*& pbyTexture)

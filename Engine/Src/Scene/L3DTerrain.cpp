@@ -13,6 +13,8 @@ HRESULT LTerrainConverMap::LoadConverMapBuffer(LPDIRECT3DDEVICE9 p3DDevice, BYTE
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
+	TCHAR m_wcsTextureFileName[MAX_PATH];
+	size_t uLen = 0;
 
 	do
 	{
@@ -25,12 +27,13 @@ HRESULT LTerrainConverMap::LoadConverMapBuffer(LPDIRECT3DDEVICE9 p3DDevice, BYTE
 		m_vRect.z = abs(m_vRect.z);
 		m_vRect.w = abs(m_vRect.w);
 
-		USES_CONVERSION;
-
 		m_pTexture = new L3DTexture;
 		BOOL_ERROR_BREAK(m_pTexture);
 
-		hr = m_pTexture->LoadLTexture(L3DEngine::Instance()->GetDevice(), A2CW(m_szTextureFileName));
+		ZeroMemory(m_wcsTextureFileName, sizeof(m_wcsTextureFileName));
+		uLen = MultiByteToWideChar(CP_ACP, NULL, m_szTextureFileName, -1, m_wcsTextureFileName, MAX_PATH);
+
+		hr = m_pTexture->LoadLTexture(L3DEngine::Instance()->GetDevice(), m_wcsTextureFileName);
 		HRESULT_ERROR_BREAK(hr);
 
 		/*
@@ -210,7 +213,7 @@ HRESULT L3DTerrain::LoadTerrainInfo(LPCWSTR cszDirectory)
 
 	do
 	{
-		swprintf_s(wszTerrainInfoName, TEXT("%s\\map.TerrainInfo"),cszDirectory);
+		swprintf_s(wszTerrainInfoName, TEXT("%s\\map.TerrainInfo"), cszDirectory);
 
 		LFileReader::Reader(wszTerrainInfoName, &pbyTerrainInfo, &uTerrainLen);
 		BOOL_ERROR_BREAK(pbyTerrainInfo);
