@@ -9,6 +9,23 @@
 
 #define FVFWATER (D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_DIFFUSE|D3DFVF_TEX1)
 
+LTerrainConverMap::LTerrainConverMap()
+: m_pTexture(NULL)
+, m_p3DDevice(NULL)
+, m_pConverVertex(NULL)
+, m_fLowest(0.f)
+, m_fHeightTotal(0.f)
+{
+	ZeroMemory(m_szTextureFileName, sizeof(m_szTextureFileName));
+	ZeroMemory(m_szHeightColorFileName, sizeof(m_szHeightColorFileName));
+	ZeroMemory(m_vRect, sizeof(m_vRect));
+}
+
+LTerrainConverMap::~LTerrainConverMap()
+{
+
+}
+
 HRESULT LTerrainConverMap::LoadConverMapBuffer(LPDIRECT3DDEVICE9 p3DDevice, BYTE* pbyConverMap, DWORD dwLen)
 {
 	HRESULT hr = E_FAIL;

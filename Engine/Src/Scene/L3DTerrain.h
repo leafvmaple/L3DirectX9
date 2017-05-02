@@ -79,6 +79,9 @@ class LTerrainNode
 class LTerrainConverMap
 {
 public:
+	LTerrainConverMap();
+	~LTerrainConverMap();
+
 	HRESULT LoadConverMapBuffer(LPDIRECT3DDEVICE9 p3DDevice, BYTE* pbyConverMap, DWORD dwLen);
 	HRESULT UpdateTerrainConverMap();
 
@@ -88,12 +91,12 @@ private:
 
 	D3DXVECTOR4 m_vRect;
 
-	float m_fLowest;
-	float m_fHeightTotal;
-
 	L3DTexture* m_pTexture;
 	LPDIRECT3DDEVICE9 m_p3DDevice;
 	LPDIRECT3DVERTEXBUFFER9 m_pConverVertex;
+
+	float m_fLowest;
+	float m_fHeightTotal;
 };
 
 class L3DTerrain
