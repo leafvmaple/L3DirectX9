@@ -116,12 +116,11 @@ public:
 	L3DTexture();
 	~L3DTexture();
 
-	HRESULT LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
-	HRESULT LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirectory, BYTE*& pbyTexture);
+	HRESULT LoadLTexture(LPCWSTR cszFileName);
+	HRESULT LoadLTexture(LPCWSTR pcszDirectory, BYTE*& pbyTexture);
 
 	HRESULT UpdateTexture();
 
 private:
-	LPDIRECT3DDEVICE9 m_p3DDevice;
 	std::vector<_TextureBase*> m_vecTextures;
 };

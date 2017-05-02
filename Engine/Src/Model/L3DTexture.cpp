@@ -3,8 +3,9 @@
 #include "IO/LFileReader.h"
 #include "L3DInterface.h"
 
+extern LPDIRECT3DDEVICE9 g_p3DDevice;
+
 L3DTexture::L3DTexture()
-: m_p3DDevice(NULL)
 {
 	m_vecTextures.clear();
 }
@@ -15,24 +16,22 @@ L3DTexture::~L3DTexture()
 }
 
 
-HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
+HRESULT L3DTexture::LoadLTexture(LPCWSTR cszFileName)
 {
 	do 
 	{
 		_TextureBase* pTextureBase = new _TextureBase;
 		ZeroMemory(pTextureBase, sizeof(_TextureBase));
 
-		D3DXCreateTextureFromFile(p3DDevice, cszFileName, &pTextureBase->pTexture);
+		D3DXCreateTextureFromFile(g_p3DDevice, cszFileName, &pTextureBase->pTexture);
 		m_vecTextures.push_back(pTextureBase);
-
-		m_p3DDevice = p3DDevice;
 
 	} while (0);
 	
 	return S_OK;
 }
 
-HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirectory, BYTE*& pbyTexture)
+HRESULT L3DTexture::LoadLTexture(LPCWSTR pcszDirectory, BYTE*& pbyTexture)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -55,7 +54,7 @@ HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirect
 
 			swprintf_s(wcszTextureName, TEXT("%s%s"), pcszDirectory, A2CW(pTextureInfo->szTextureFileName));
 
-			hr = D3DXCreateTextureFromFile(p3DDevice, wcszTextureName, &pTextureBase->pTexture);
+			hr = D3DXCreateTextureFromFile(g_p3DDevice, wcszTextureName, &pTextureBase->pTexture);
 			HRESULT_ERROR_BREAK(hr);
 
 			pTextureBase->m_vecTextureOptions.clear();
@@ -103,11 +102,9 @@ HRESULT L3DTexture::LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirect
 					}
 				}
 				pTextureBase->m_vecTextureOptions.push_back(pOption);
-				m_vecTextures.push_back(pTextureBase);
 			}
+			m_vecTextures.push_back(pTextureBase);
 		}
-
-		m_p3DDevice = p3DDevice;
 
 		hResult = S_OK;
 
@@ -125,7 +122,7 @@ HRESULT L3DTexture::UpdateTexture()
 	{
 		for (DWORD i = 0; i < m_vecTextures.size(); i++)
 		{
-			hr = m_p3DDevice->SetTexture(i, m_vecTextures[i]->pTexture);
+			hr = g_p3DDevice->SetTexture(i, m_vecTextures[i]->pTexture);
 			HRESULT_ERROR_BREAK(hr);
 		}
 

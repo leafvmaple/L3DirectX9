@@ -79,7 +79,7 @@ class LTerrainNode
 class LTerrainConverMap
 {
 public:
-	HRESULT LoadConverMapBuffer(LPDIRECT3DDEVICE9 p3DDevice, BYTE* pbyConverMap, DWORD dwLen);
+	HRESULT LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen);
 	HRESULT UpdateTerrainConverMap();
 
 private:
@@ -92,7 +92,6 @@ private:
 	float m_fHeightTotal;
 
 	L3DTexture* m_pTexture;
-	LPDIRECT3DDEVICE9 m_p3DDevice;
 	LPDIRECT3DVERTEXBUFFER9 m_pConverVertex;
 };
 
@@ -102,12 +101,11 @@ public:
 	L3DTerrain();
 	~L3DTerrain();
 
-	HRESULT LoadTerrain(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadTerrain(LPCWSTR cszFileName);
 
 	HRESULT UpdateTerrain();
 
 private:
-	LPDIRECT3DDEVICE9 m_p3DDevice;
 	BOOL m_bEnableTerrainConverMap;
 	std::map<UINT, LSceneDataClip*>  m_TerrainInformations;
 

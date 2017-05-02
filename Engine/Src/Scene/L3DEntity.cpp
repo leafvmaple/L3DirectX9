@@ -6,7 +6,6 @@
 #include "L3DSceneDef.h"
 
 L3DEntity::L3DEntity()
-: m_p3DDevice(NULL)
 {
 
 }
@@ -16,7 +15,7 @@ L3DEntity::~L3DEntity()
 
 }
 
-HRESULT L3DEntity::LoadEntity(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszFileName)
+HRESULT L3DEntity::LoadEntity(LPCWSTR pcszFileName)
 {
 	HRESULT hr = E_FAIL;
 	TCHAR szDrive[MAX_PATH];
@@ -36,8 +35,6 @@ HRESULT L3DEntity::LoadEntity(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszFileName)
 
 		hr = LoadEntityInfo(wszFileDir);
 		HRESULT_ERROR_BREAK(hr);
-
-		m_p3DDevice = p3DDevice;
 
 	} while (0);
 

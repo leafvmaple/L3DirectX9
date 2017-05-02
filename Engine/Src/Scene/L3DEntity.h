@@ -10,10 +10,9 @@ public:
 	L3DEntity();
 	~L3DEntity();
 
-	HRESULT LoadEntity(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszFileName);
+	HRESULT LoadEntity(LPCWSTR pcszFileName);
 
 private:
-	LPDIRECT3DDEVICE9 m_p3DDevice;
 	std::map<UINT, LSceneDataClip*>  m_EntityInformations;
 
 	HRESULT LoadEntityInfo(LPCWSTR cszDirectory);

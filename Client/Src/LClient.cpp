@@ -50,9 +50,6 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		hr = pGirl->SetTranslation(D3DXVECTOR3(0, 0, 0));
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = pGirl->SetScale(0.01f);
-		HRESULT_ERROR_BREAK(hr);
-
 		pMiki = m_pObjectMgr->CreateModel<LCharacter>(TEXT("Res/Model/M2_1035_body.mesh"));
 		BOOL_ERROR_BREAK(pMiki);
 
@@ -60,9 +57,6 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		BOOL_ERROR_BREAK(pCurScene);
 
 		hr = pMiki->SetTranslation(D3DXVECTOR3(1, 1, 0));
-		HRESULT_ERROR_BREAK(hr);
-
-		hr = pMiki->SetScale(0.01f);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = ILFont::Create(IL3DEngine::Instance(), &m_pFont, 12);

@@ -136,10 +136,8 @@ private:
 	float            fSpecPower;
 	float            fEmssPower;
 
-	LPDIRECT3DDEVICE9 m_p3DDevice;
-
 public:
-	HRESULT LoadLSubsetMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirectory, BYTE*& pbyMaterial);
+	HRESULT LoadLSubsetMaterial(LPCWSTR pcszDirectory, BYTE*& pbyMaterial);
 	HRESULT LoadOption(BYTE*& pbyMaterial);
 
 	HRESULT UpdateSubsetMaterial();
@@ -156,10 +154,7 @@ public:
 	L3DMaterial();
 	~L3DMaterial();
 
-	HRESULT LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadLMaterial(LPCWSTR cszFileName);
 
 	HRESULT UpdateMaterial(DWORD dwSubMaterial);
-
-private:
-	LPDIRECT3DDEVICE9 m_p3DDevice;
 };

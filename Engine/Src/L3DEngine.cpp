@@ -15,6 +15,8 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
+extern LPDIRECT3DDEVICE9 g_p3DDevice = NULL;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	L3DEngine* pEngine = dynamic_cast<L3DEngine*>(L3DEngine::Instance());
@@ -24,7 +26,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 L3DEngine::L3DEngine()
 : m_bActive(FALSE)
 , m_p3D9(NULL)
-, m_p3DDevice(NULL)
 , m_pLInput(NULL)
 , m_pLCamera(NULL)
 , m_CurSampFilter(m_SampFilter[GRAPHICS_LEVEL_MAX])
@@ -82,7 +83,7 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 		hr = InitInput(hWnd, hInstance);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = InitCamera(m_p3DDevice, m_WindowParam.Width, m_WindowParam.Height);
+		hr = InitCamera(m_WindowParam.Width, m_WindowParam.Height);
 		HRESULT_ERROR_BREAK(hr);
 
 		m_bActive = TRUE;
@@ -115,11 +116,11 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 		hr = UpdateCamera(fDeltaTime);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
+		hr = g_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
 		//hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00000000, 1.0f, 0);
 		HRESULT_ERROR_BREAK(hr);
 
-		m_p3DDevice->BeginScene();
+		g_p3DDevice->BeginScene();
 
 		for (itScene = m_SceneList.begin(); itScene != m_SceneList.end(); itScene++)
 		{
@@ -145,9 +146,9 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 			pFont->UpdateDisplay();
 		}
 
-		m_p3DDevice->EndScene();
+		g_p3DDevice->EndScene();
 
-		hr = m_p3DDevice->Present(0, 0, 0, 0);
+		hr = g_p3DDevice->Present(0, 0, 0, 0);
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
@@ -163,7 +164,7 @@ BOOL L3DEngine::IsActive()
 
 LPDIRECT3DDEVICE9 L3DEngine::GetDevice() const
 {
-	return m_p3DDevice;
+	return g_p3DDevice;
 }
 
 HRESULT L3DEngine::Uninit()
@@ -243,7 +244,7 @@ LRESULT L3DEngine::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEWHEEL:
 		if (m_pLCamera)
-			m_pLCamera->UpdateSightDistance(GET_WHEEL_DELTA_WPARAM(wParam) * -0.005f);
+			m_pLCamera->UpdateSightDistance(GET_WHEEL_DELTA_WPARAM(wParam) * -0.1f);
 		break;
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE)
@@ -414,7 +415,7 @@ HRESULT L3DEngine::InitInput(HWND hWnd, HINSTANCE hInstance)
 	return hResult;
 }
 
-HRESULT L3DEngine::InitCamera(IDirect3DDevice9* p3DDevice, float fWidth, float fHeight)
+HRESULT L3DEngine::InitCamera(float fWidth, float fHeight)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -424,7 +425,7 @@ HRESULT L3DEngine::InitCamera(IDirect3DDevice9* p3DDevice, float fWidth, float f
 		m_pLCamera = new L3DCamera;
 		BOOL_ERROR_BREAK(m_pLCamera);
 
-		hr = m_pLCamera->Init(p3DDevice, fWidth, fHeight);
+		hr = m_pLCamera->Init(fWidth, fHeight);
 		HRESULT_ERROR_BREAK(hr);
 
 		hResult = S_OK;
@@ -485,17 +486,17 @@ HRESULT L3DEngine::CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND h
 
 		nVertexProcessing = (m_Caps9.DevCaps && D3DDEVCAPS_HWTRANSFORMANDLIGHT) ? D3DCREATE_MIXED_VERTEXPROCESSING : D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
-		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, nVertexProcessing, &m_PresentParam, &m_p3DDevice);
+		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, nVertexProcessing, &m_PresentParam, &g_p3DDevice);
 		HRESULT_ERROR_BREAK(hr);
 
-		m_p3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, m_CurSampFilter.nMipFilter);
-		m_p3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, m_CurSampFilter.nMinFilter);
-		m_p3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, m_CurSampFilter.nMagFilter);
+		g_p3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, m_CurSampFilter.nMipFilter);
+		g_p3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, m_CurSampFilter.nMinFilter);
+		g_p3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, m_CurSampFilter.nMagFilter);
 
-		m_p3DDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, m_CurSampFilter.dwAnisotropy);
+		g_p3DDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, m_CurSampFilter.dwAnisotropy);
 
-		m_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-		m_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+		g_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+		g_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
 		hResult = S_OK;
 	}

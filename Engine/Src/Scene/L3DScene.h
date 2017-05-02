@@ -29,11 +29,10 @@ public:
 	L3DScene();
 	virtual ~L3DScene();
 
-	virtual HRESULT Init(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszFileName);
+	virtual HRESULT Init(LPCWSTR pcszFileName);
 	HRESULT UpdateDisplay();
 
 private:
-	LPDIRECT3DDEVICE9 m_p3DDevice;
 	L3DTerrain* m_pLTerrain;
 	L3DEntity* m_pLEntity;
 	L3DBlock* m_pLBlock;

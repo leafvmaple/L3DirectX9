@@ -6,8 +6,7 @@
 #include "IO/LFileReader.h"
 
 L3DScene::L3DScene()
-: m_p3DDevice(NULL)
-, m_pLTerrain(NULL)
+: m_pLTerrain(NULL)
 , m_pLEntity(NULL)
 , m_pLBlock(NULL)
 {
@@ -19,7 +18,7 @@ L3DScene::~L3DScene()
 
 }
 
-HRESULT L3DScene::Init(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszFileName)
+HRESULT L3DScene::Init(LPCWSTR pcszFileName)
 {
 	HRESULT hr = E_FAIL;
 	BYTE* pbyMapFile = NULL;
@@ -37,13 +36,13 @@ HRESULT L3DScene::Init(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszFileName)
 		m_pLEntity = new L3DEntity;
 		BOOL_ERROR_BREAK(m_pLEntity);
 
-		hr = m_pLEntity->LoadEntity(p3DDevice, pcszFileName);
+		hr = m_pLEntity->LoadEntity(pcszFileName);
 		HRESULT_ERROR_BREAK(hr);
 
 		m_pLTerrain = new L3DTerrain;
 		BOOL_ERROR_BREAK(m_pLTerrain);
 
-		hr = m_pLTerrain->LoadTerrain(p3DDevice, pcszFileName);
+		hr = m_pLTerrain->LoadTerrain(pcszFileName);
 		HRESULT_ERROR_BREAK(hr);
 
 		m_pLBlock = new L3DBlock;
@@ -51,8 +50,6 @@ HRESULT L3DScene::Init(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszFileName)
 
 		hr = m_pLBlock->LoadBlock(pbyMapFile);
 		HRESULT_ERROR_BREAK(hr);
-
-		m_p3DDevice = p3DDevice;
 
 	} while (0);
 

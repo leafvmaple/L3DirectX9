@@ -12,7 +12,7 @@ L3DParticle::~L3DParticle()
 
 }
 
-HRESULT L3DParticle::LoadParticle(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
+HRESULT L3DParticle::LoadParticle(LPCWSTR cszFileName)
 {
 	BYTE *pbyParticle = NULL;
 	SFX_FILE_HEADER* pHeader = NULL;
