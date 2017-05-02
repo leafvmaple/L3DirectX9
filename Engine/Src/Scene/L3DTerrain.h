@@ -81,7 +81,8 @@ class LTerrainConverMap
 public:
 	HRESULT LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen);
 	LTerrainConverMap();
-	~LTerrainConverMap();	HRESULT UpdateTerrainConverMap();
+	~LTerrainConverMap();
+	HRESULT UpdateTerrainConverMap();
 
 private:
 	CHAR m_szTextureFileName[MAX_PATH];

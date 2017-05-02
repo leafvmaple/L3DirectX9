@@ -11,6 +11,22 @@ extern LPDIRECT3DDEVICE9 g_p3DDevice;
 
 #define FVFWATER (D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_DIFFUSE|D3DFVF_TEX1)
 
+LTerrainConverMap::LTerrainConverMap()
+: m_pTexture(NULL)
+, m_pConverVertex(NULL)
+, m_fLowest(0.f)
+, m_fHeightTotal(0.f)
+{
+	ZeroMemory(m_szTextureFileName, sizeof(m_szTextureFileName));
+	ZeroMemory(m_szHeightColorFileName, sizeof(m_szHeightColorFileName));
+	ZeroMemory(m_vRect, sizeof(m_vRect));
+}
+
+LTerrainConverMap::~LTerrainConverMap()
+{
+
+}
+
 HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen){
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -34,7 +50,7 @@ HRESULT LTerrainConverMap::LoadConverMapBuffer(BYTE* pbyConverMap, DWORD dwLen){
 		ZeroMemory(m_wcsTextureFileName, sizeof(m_wcsTextureFileName));
 		uLen = MultiByteToWideChar(CP_ACP, NULL, m_szTextureFileName, -1, m_wcsTextureFileName, MAX_PATH);
 
-		hr = m_pTexture->LoadLTexture(L3DEngine::Instance()->GetDevice(), m_wcsTextureFileName);
+		hr = m_pTexture->LoadLTexture(m_wcsTextureFileName);
 		HRESULT_ERROR_BREAK(hr);
 
 		/*
