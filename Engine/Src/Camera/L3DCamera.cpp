@@ -1,9 +1,11 @@
 #include "L3DCamera.h"
 #include "LAssert.h"
+#include "L3DInterface.h"
+
+extern LPDIRECT3DDEVICE9 g_p3DDevice;
 
 L3DCamera::L3DCamera()
-: m_p3DDevice(NULL)
-, m_fSightDis(0.f)
+: m_fSightDis(0.f)
 , m_fYaw(0.f)
 , m_fPitch(0.f)
 , m_fRoll(0.f)
@@ -23,10 +25,9 @@ L3DCamera::~L3DCamera()
 
 }
 
-HRESULT L3DCamera::Init(IDirect3DDevice9* p3DDevice, float fWidth, float fHeight)
+HRESULT L3DCamera::Init(float fWidth, float fHeight)
 {
-	m_p3DDevice  = p3DDevice;
-	m_fSightDis  = 5.f;
+	m_fSightDis  = 500.f;
 	m_vUp        = D3DXVECTOR3(0.f, 1.f, 0.f);
 	m_fWidth     = fWidth;
 	m_fHeight    = fHeight;
@@ -74,8 +75,8 @@ HRESULT L3DCamera::UpdateCamera()
 
 	do 
 	{
-		m_p3DDevice->SetTransform(D3DTS_VIEW, &m_MatrixView);
-		m_p3DDevice->SetTransform(D3DTS_PROJECTION, &m_MatrixProject);
+		g_p3DDevice->SetTransform(D3DTS_VIEW, &m_MatrixView);
+		g_p3DDevice->SetTransform(D3DTS_PROJECTION, &m_MatrixProject);
 
 	} while (0);
 
@@ -97,6 +98,6 @@ HRESULT L3DCamera::ComputeViewMatrix()
 
 HRESULT L3DCamera::ComputePerspectiveMatrix()
 {
-	D3DXMatrixPerspectiveFovLH(&m_MatrixProject, D3DX_PI * 0.5f, m_fWidth / m_fHeight, 1.0f, 1000.0f);
+	D3DXMatrixPerspectiveFovLH(&m_MatrixProject, D3DX_PI * 0.5f, m_fWidth / m_fHeight, 1.0f, 100000.0f);
 	return S_OK;
 }

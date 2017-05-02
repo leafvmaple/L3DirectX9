@@ -79,13 +79,17 @@ IL3DEngine* IL3DEngine::Instance()
 	return m_pInstance;
 }
 
+LPDIRECT3DDEVICE9 IL3DEngine::Device()
+{
+	return Instance()->GetDevice();
+}
+
 HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 	L3DEngine* pEngine = NULL;
 	L3DModel* pEModel = NULL;
-	LPDIRECT3DDEVICE9 p3DDevice = NULL;
 
 	do 
 	{
@@ -97,10 +101,7 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT 
 		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
 		BOOL_ERROR_BREAK(pEngine);
 
-		p3DDevice = pEngine->GetDevice();
-		BOOL_ERROR_BREAK(p3DDevice);
-
-		hr = pEModel->Init(p3DDevice, pModelVerteices, nVerteicesCount, pwModelIndices, nIndicesCount);
+		hr = pEModel->Init(pModelVerteices, nVerteicesCount, pwModelIndices, nIndicesCount);
 		HRESULT_ERROR_BREAK(hr);
 
 		pEngine->AttachObject(pEModel);
@@ -118,7 +119,6 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPC
 	HRESULT hResult = E_FAIL;
 	L3DEngine* pEngine = NULL;
 	L3DModel* pEModel = NULL;
-	LPDIRECT3DDEVICE9 p3DDevice = NULL;
 
 	do 
 	{
@@ -130,10 +130,7 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPC
 		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
 		BOOL_ERROR_BREAK(pEngine);
 
-		p3DDevice = pEngine->GetDevice();
-		BOOL_ERROR_BREAK(p3DDevice);
-
-		hr = pEModel->Init(p3DDevice, eModelType, pcszFileName);
+		hr = pEModel->Init(eModelType, pcszFileName);
 		HRESULT_ERROR_BREAK(hr);
 
 		pEngine->AttachObject(pEModel);
@@ -166,7 +163,7 @@ HRESULT ILFont::Create(IL3DEngine* pL3DEngie, ILFont** ppFont, int nSize/* = 9 *
 		p3DDevice = pEngine->GetDevice();
 		BOOL_ERROR_BREAK(p3DDevice);
 
-		hr = pLFont->Init(p3DDevice, nSize);
+		hr = pLFont->Init(nSize);
 		HRESULT_ERROR_BREAK(hr);
 
 		pEngine->AttachFont(pLFont);
@@ -199,7 +196,7 @@ HRESULT ILScene::Create(IL3DEngine* pL3DEngie, LPCWSTR pcszFileName,  ILScene** 
 		p3DDevice = pEngine->GetDevice();
 		BOOL_ERROR_BREAK(p3DDevice);
 
-		hr = pLScene->Init(p3DDevice, pcszFileName);
+		hr = pLScene->Init(pcszFileName);
 		HRESULT_ERROR_BREAK(hr);
 
 		pEngine->AttachScene(pLScene);

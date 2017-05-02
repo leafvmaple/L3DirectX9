@@ -1,11 +1,13 @@
 #include "L3DMaterial.h"
 #include "IO/LFileReader.h"
 #include "LAssert.h"
+#include "L3DInterface.h"
+
+extern LPDIRECT3DDEVICE9 g_p3DDevice;
 
 L3DMaterial::L3DMaterial()
 : m_dwNumMaterials(0)
 , m_pMaterialSubset(NULL)
-, m_p3DDevice(NULL)
 {
 
 }
@@ -15,7 +17,7 @@ L3DMaterial::~L3DMaterial()
 
 }
 
-HRESULT L3DSubsetMaterial::LoadLSubsetMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR pcszDirectory, BYTE*& pbyMaterial)
+HRESULT L3DSubsetMaterial::LoadLSubsetMaterial(LPCWSTR pcszDirectory, BYTE*& pbyMaterial)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -41,7 +43,7 @@ HRESULT L3DSubsetMaterial::LoadLSubsetMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCW
 		pLTexture = new L3DTexture;
 		BOOL_ERROR_BREAK(pLTexture);
 
-		hr = pLTexture->LoadLTexture(p3DDevice, pcszDirectory, pbyMaterial);
+		hr = pLTexture->LoadLTexture(pcszDirectory, pbyMaterial);
 		HRESULT_ERROR_BREAK(hr);
 
 		if (dwOption & MATERIAL_OPTION_VERSION_2)
@@ -59,8 +61,6 @@ HRESULT L3DSubsetMaterial::LoadLSubsetMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCW
 			pbyMaterial = LFileReader::Convert(pbyMaterial, fSpecPower);
 			pbyMaterial = LFileReader::Convert(pbyMaterial, fEmssPower);
 		}
-
-		m_p3DDevice = p3DDevice;
 
 		hResult = S_OK;
 	} while (0);
@@ -165,7 +165,7 @@ HRESULT L3DSubsetMaterial::UpdateSubsetMaterial()
 
 	do
 	{
-		hr = m_p3DDevice->SetMaterial(&Material9);
+		hr = g_p3DDevice->SetMaterial(&Material9);
 		HRESULT_ERROR_BREAK(hr);
 
 		hr = pLTexture->UpdateTexture();
@@ -177,7 +177,7 @@ HRESULT L3DSubsetMaterial::UpdateSubsetMaterial()
 	return hResult;
 }
 
-HRESULT L3DMaterial::LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName)
+HRESULT L3DMaterial::LoadLMaterial(LPCWSTR cszFileName)
 {
 	HRESULT hResult = E_FAIL;
 	BYTE* pbyMaterial = NULL;
@@ -206,7 +206,7 @@ HRESULT L3DMaterial::LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileN
 
 		for (DWORD i = 0; i < m_dwNumMaterials; i++)
 		{
-			m_pMaterialSubset[i].LoadLSubsetMaterial(p3DDevice, wcszDir, pbyMaterial);
+			m_pMaterialSubset[i].LoadLSubsetMaterial(wcszDir, pbyMaterial);
 
 			//m_bHasDetail = nHasDetail || m_bHasDetail;
 			//m_bSortAsSFX = nIsSortAsSFX || m_bSortAsSFX;
@@ -221,8 +221,6 @@ HRESULT L3DMaterial::LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileN
 
 			LoadMaterialDetails(szName);
 		}*/
-
-		m_p3DDevice = p3DDevice;
 
 		hResult = S_OK;
 	} while (0);

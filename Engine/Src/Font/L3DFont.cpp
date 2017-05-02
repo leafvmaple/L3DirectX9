@@ -1,6 +1,8 @@
 #include "L3DFont.h"
 #include "LAssert.h"
 
+extern LPDIRECT3DDEVICE9 g_p3DDevice;
+
 L3DFont::L3DFont()
 : m_pFont(NULL)
 , m_nSize(0)
@@ -15,7 +17,7 @@ L3DFont::~L3DFont()
 
 }
 
-HRESULT L3DFont::Init(IDirect3DDevice9* p3DDevice, int nSize/* = 9*/)
+HRESULT L3DFont::Init(int nSize/* = 9*/)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -26,7 +28,7 @@ HRESULT L3DFont::Init(IDirect3DDevice9* p3DDevice, int nSize/* = 9*/)
 		hDC = GetDC(NULL);
 		m_nSize = (MulDiv(nSize, GetDeviceCaps(hDC, LOGPIXELSY), 72));
 
-		hr = D3DXCreateFont(p3DDevice, m_nSize, 0, FW_NORMAL, 0, FALSE, 
+		hr = D3DXCreateFont(g_p3DDevice, m_nSize, 0, FW_NORMAL, 0, FALSE, 
 			DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, 
 			DEFAULT_PITCH | FF_DONTCARE, TEXT("ËÎÌו"), 
 			&m_pFont);

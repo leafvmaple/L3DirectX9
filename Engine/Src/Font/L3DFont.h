@@ -11,7 +11,7 @@ public:
 	virtual HRESULT SetPosition(int nX, int nY);
 
 public:
-	HRESULT Init(IDirect3DDevice9* p3DDevice, int nSize = 9);
+	HRESULT Init(int nSize = 9);
 	HRESULT UpdateDisplay();
 
 private:

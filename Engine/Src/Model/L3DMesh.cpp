@@ -4,6 +4,8 @@
 #include "LAssert.h"
 #include "IO/LFileReader.h"
 
+extern LPDIRECT3DDEVICE9 g_p3DDevice;
+
 const VertexFromatOffsetItem* L3DMesh::GetVertexFormat(DWORD dwFVF)
 {
 	const VertexFromatOffsetItem *pReturn = NULL;
@@ -46,12 +48,12 @@ L3DMesh::~L3DMesh()
 
 }
 
-HRESULT L3DMesh::LoadXMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName)
+HRESULT L3DMesh::LoadXMesh(LPCWSTR cszFileName)
 {
 	return S_OK;
 }
 
-HRESULT L3DMesh::LoadLMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName)
+HRESULT L3DMesh::LoadLMesh(LPCWSTR cszFileName)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -66,7 +68,7 @@ HRESULT L3DMesh::LoadLMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName)
 		hr = LoadMeshData(cszFileName, &MeshData);
 		HRESULT_ERROR_BREAK(hr);
 
-		hr = CreateMesh(p3DDevice, &MeshData);
+		hr = CreateMesh(&MeshData);
 		HRESULT_ERROR_BREAK(hr);
 
 		_wsplitpath_s(cszFileName, NULL, 0, wcszDir, MAX_PATH, wcszFileRealName, MAX_PATH, wcszExt, MAX_PATH);
@@ -77,7 +79,7 @@ HRESULT L3DMesh::LoadLMesh(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName)
 			m_pLMaterial = new L3DMaterial;
 			BOOL_ERROR_BREAK(m_pLMaterial);
 
-			hr = m_pLMaterial->LoadLMaterial(p3DDevice, wcszFileName);
+			hr = m_pLMaterial->LoadLMaterial(wcszFileName);
 			HRESULT_ERROR_BREAK(hr);
 		}
 
@@ -236,7 +238,7 @@ HRESULT L3DMesh::LoadMeshData(LPCWSTR cszFileName, LMESH_DATA* pLMeshData)
 	return hResult;
 }
 
-HRESULT L3DMesh::CreateMesh(LPDIRECT3DDEVICE9 p3DDevice, const LMESH_DATA* pLMeshData)
+HRESULT L3DMesh::CreateMesh(const LMESH_DATA* pLMeshData)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -252,12 +254,12 @@ HRESULT L3DMesh::CreateMesh(LPDIRECT3DDEVICE9 p3DDevice, const LMESH_DATA* pLMes
 	{
 		if (pLMeshData->dwNumVertices <= 65535 && pLMeshData->dwNumFaces <= 65535)
 		{
-			hr = D3DXCreateMeshFVF(pLMeshData->dwNumFaces, pLMeshData->dwNumVertices,  D3DXMESH_SYSTEMMEM, pLMeshData->dwMeshFVF, p3DDevice, &pMesh);
+			hr = D3DXCreateMeshFVF(pLMeshData->dwNumFaces, pLMeshData->dwNumVertices,  D3DXMESH_SYSTEMMEM, pLMeshData->dwMeshFVF, g_p3DDevice, &pMesh);
 			HRESULT_ERROR_BREAK(hr);
 		}
 		else
 		{
-			hr = D3DXCreateMeshFVF(pLMeshData->dwNumFaces, pLMeshData->dwNumVertices,  D3DXMESH_SYSTEMMEM | D3DXMESH_32BIT,  pLMeshData->dwMeshFVF, p3DDevice, &pMesh);
+			hr = D3DXCreateMeshFVF(pLMeshData->dwNumFaces, pLMeshData->dwNumVertices,  D3DXMESH_SYSTEMMEM | D3DXMESH_32BIT,  pLMeshData->dwMeshFVF, g_p3DDevice, &pMesh);
 			HRESULT_ERROR_BREAK(hr);
 		}
 

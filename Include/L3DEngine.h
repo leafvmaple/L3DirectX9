@@ -23,9 +23,10 @@ public:
 	virtual HRESULT Update(float fDeltaTime);
 
 	virtual BOOL IsActive();
-	virtual LPDIRECT3DDEVICE9 GetDevice() const;
 
 public:
+	LPDIRECT3DDEVICE9 GetDevice() const;
+
 	HRESULT AttachScene(ILScene* pScene);
 	HRESULT AttachObject(ILModel* pAction);
 	HRESULT AttachFont(ILFont* pFont);
@@ -40,7 +41,6 @@ private:
 	};
 	
 	IDirect3D9* m_p3D9;
-	IDirect3DDevice9* m_p3DDevice;
 	L3DInput* m_pLInput;
 	L3DCamera* m_pLCamera;
 
@@ -61,7 +61,7 @@ private:
 	HRESULT InitPresentParam(HWND hWnd);
 	HRESULT InitSamplerFilter(UINT uAdapter, D3DDEVTYPE eDeviceType);
 	HRESULT InitInput(HWND hWnd, HINSTANCE hInstance);
-	HRESULT InitCamera(IDirect3DDevice9* p3DDevice, float fWidth, float fHeight);
+	HRESULT InitCamera(float fWidth, float fHeight);
 
 	HRESULT GetL3DAdapter(PUINT puAdapter, D3DDEVTYPE* pDeviceType);
 	HRESULT GetL3DAdapterMode(UINT uAdapter);

@@ -116,7 +116,7 @@ public:
 	typedef HRESULT (L3DParticle::*ParticleLoadFunc)(BYTE*, DWORD, PARSYS_FILE_DATA*);
 	//static ParticleLoadFunc ms_ParSysLoadFunction[PARSYS_FEID_SIZE];
 
-	HRESULT LoadParticle(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadParticle(LPCWSTR cszFileName);
 
 public:
 	//std::vector<IKG3DMaterial2Instance*> m_Material;

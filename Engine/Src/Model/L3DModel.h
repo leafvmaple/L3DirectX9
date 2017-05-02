@@ -33,7 +33,7 @@ public:
 	struct LoadModelFunc
 	{
 		LPCWSTR pwcsFileExt;
-		HRESULT (L3DModel::*fnLoadMesh)(IDirect3DDevice9* p3DDevice, LPCWSTR cszFileName);
+		HRESULT (L3DModel::*fnLoadMesh)(LPCWSTR cszFileName);
 	};
 
 
@@ -41,8 +41,8 @@ public:
 	L3DModel();
 	virtual ~L3DModel();
 
-	HRESULT Init(LPDIRECT3DDEVICE9 p3DDevice, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount);
-	HRESULT Init(LPDIRECT3DDEVICE9 p3DDevice, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName);
+	HRESULT Init(TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount);
+	HRESULT Init(LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName);
 
 	virtual HRESULT SetAlpha(float fAlpha);
 	virtual HRESULT SetScale(float fScale);
@@ -51,19 +51,18 @@ public:
 	virtual HRESULT SetTranslation(const D3DXVECTOR3& vTranslation);
 	virtual HRESULT SetRotation(const D3DXQUATERNION& qRotation);
 
-	HRESULT LoadModel(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadModel(LPCWSTR cszFileName);
 
-	HRESULT LoadXMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
-	HRESULT LoadLMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
-	HRESULT LoadLMaterial(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
-	HRESULT LoadLTexture(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
-	HRESULT LoadLParticle(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadXMesh(LPCWSTR cszFileName);
+	HRESULT LoadLMesh(LPCWSTR cszFileName);
+	HRESULT LoadLMaterial(LPCWSTR cszFileName);
+	HRESULT LoadLTexture(LPCWSTR cszFileName);
+	HRESULT LoadLParticle(LPCWSTR cszFileName);
 
 public:
 	HRESULT UpdateDisplay();
 
 private:
-	LPDIRECT3DDEVICE9 m_p3DDevice;
 	ID3DXBuffer* m_pAdjBuffer;
 	D3DMATERIAL9* m_pMaterial;
 	LPDIRECT3DTEXTURE9* m_ppTexture;

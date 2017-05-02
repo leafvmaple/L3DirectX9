@@ -59,8 +59,8 @@ HRESULT LCharacter::Display(IL3DEngine* p3DEngine, IDirect3DDevice9* p3DDevice, 
 
 	do 
 	{
-		D3DXQuaternionRotationYawPitchRoll(&qRotation, m_fAngleY, 0, 0);
-		m_pObject->SetRotation(qRotation);
+		//D3DXQuaternionRotationYawPitchRoll(&qRotation, m_fAngleY, 0, 0);
+		//m_pObject->SetRotation(qRotation);
 
 		m_fAngleY += fDeltaTime;
 

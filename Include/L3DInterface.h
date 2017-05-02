@@ -136,6 +136,7 @@ public:
 	virtual LPDIRECT3DDEVICE9 GetDevice() const = 0;
 
 	static IL3DEngine* Instance();
+	static LPDIRECT3DDEVICE9 Device();
 
 protected:
 	IL3DEngine() {};

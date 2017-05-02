@@ -14,5 +14,4 @@ public:
 
 protected:
 	ILScene* m_LpScene;
-	LPDIRECT3DDEVICE9 m_p3DDevice;
 };

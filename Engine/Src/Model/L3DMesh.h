@@ -281,8 +281,8 @@ public:
 	L3DMesh();
 	~L3DMesh();
 
-	HRESULT LoadXMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
-	HRESULT LoadLMesh(LPDIRECT3DDEVICE9 p3DDevice, LPCWSTR cszFileName);
+	HRESULT LoadXMesh(LPCWSTR cszFileName);
+	HRESULT LoadLMesh(LPCWSTR cszFileName);
 
 	HRESULT UpdateMesh(DWORD dwSubMesh);
 
@@ -290,5 +290,5 @@ public:
 
 private:
 	HRESULT LoadMeshData(LPCWSTR cszFileName, LMESH_DATA* pLMeshData);
-	HRESULT CreateMesh(LPDIRECT3DDEVICE9 p3DDevice, const LMESH_DATA* pLMeshData);
+	HRESULT CreateMesh(const LMESH_DATA* pLMeshData);
 };
