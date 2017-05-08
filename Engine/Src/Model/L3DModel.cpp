@@ -52,12 +52,12 @@ L3DModel::~L3DModel()
 
 HRESULT L3DModel::Init(TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount)
 {
-	HRESULT hr = E_FAIL;
+	HRESULT hr      = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	IDirect3DVertexBuffer9* pVertexBuffer = NULL;
-	IDirect3DIndexBuffer9* pIndexBuffer = NULL;
+	LPDIRECT3DVERTEXBUFFER9 pVertexBuffer = NULL;
+	LPDIRECT3DINDEXBUFFER9  pIndexBuffer  = NULL;
 	TexVertex* pVertices = NULL;
-	WORD* pwIndices = NULL;
+	WORD*      pwIndices = NULL;
 
 	do
 	{
@@ -101,15 +101,15 @@ HRESULT L3DModel::Init(TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* p
 
 HRESULT L3DModel::Init(LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName)
 {
-	HRESULT hr = E_FAIL;
+	HRESULT hr      = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	ID3DXBuffer* pMtlBuffer = NULL;
-	LPD3DXMATERIAL pMtls = NULL;
-	ID3DXPMesh* pProgressMesh = NULL;
-	ID3DXMesh* pCloneMesh = NULL;
-	ID3DXMesh* pMesh = NULL;
+	LPD3DXBUFFER   pMtlBuffer    = NULL;
+	LPD3DXMATERIAL pMtls         = NULL;
+	ID3DXPMesh*    pProgressMesh = NULL;
+	ID3DXMesh*     pCloneMesh    = NULL;
+	ID3DXMesh*     pMesh         = NULL;
 	size_t uDirLength = 0;
-	WCHAR wcszDir[LENGIEN_FILENAME_MAX];
+	WCHAR  wcszDir[LENGIEN_FILENAME_MAX];
 
 	do 
 	{
