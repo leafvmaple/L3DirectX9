@@ -192,6 +192,7 @@ HRESULT L3DTerrain::LoadTerrain(LPCWSTR cszFileName)
 		m_bEnableTerrainConverMap = GetPrivateProfileInt(TEXT("ConverMap"), TEXT("bTerrainAlphaConverEnable"), 0, szMapIniFileName);
 		GetPrivateProfileString(TEXT("ConverMap"), TEXT("TerrainAlphaConverMapFile"), TEXT("AA"), szFileName, MAX_PATH, szMapIniFileName);
 
+		hResult = S_OK;
 	} while (0);
 
 	return hResult;

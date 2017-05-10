@@ -25,7 +25,7 @@
 	}
 
 #define BOOL_SUCCESS_BREAK(Condition) \
-	if ((Condition)) {               \
+	if ((Condition)) {                \
 		hResult = S_OK;               \
 		break;                        \
 	}
