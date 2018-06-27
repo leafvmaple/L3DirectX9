@@ -155,7 +155,7 @@ public:
 	virtual HRESULT SetColor(const D3DXCOLOR& color) = 0;
 	virtual HRESULT SetPosition(int nX, int nY) = 0;
 
-	static HRESULT Create(IL3DEngine* pL3DEngie, ILFont** ppFont, int nSize = 9);
+	static HRESULT Create(IL3DEngine* pL3DEngine, ILFont** ppFont, int nSize = 9);
 };
 
 class L3DENGINE_CLASS ILModel
@@ -171,8 +171,8 @@ public:
 	virtual HRESULT SetTranslation(const D3DXVECTOR3& vTranslation) = 0;
 	virtual HRESULT SetRotation(const D3DXQUATERNION& qRotation) = 0;
 
-	static HRESULT Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel);
-	static HRESULT Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel);
+	static HRESULT Create(IL3DEngine* pL3DEngine, TexVertex* pModelVertices, UINT nVerticesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel);
+	static HRESULT Create(IL3DEngine* pL3DEngine, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel);
 };
 
 class L3DENGINE_CLASS ILScene
@@ -181,5 +181,5 @@ public:
 	ILScene() {};
 	virtual ~ILScene() {};
 
-	static HRESULT Create(IL3DEngine* pL3DEngie, LPCWSTR pcszFileName, ILScene** ppScene);
+	static HRESULT Create(IL3DEngine* pL3DEngine, LPCWSTR pcszFileName, ILScene** ppScene);
 };

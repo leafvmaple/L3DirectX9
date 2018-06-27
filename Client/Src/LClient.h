@@ -17,7 +17,7 @@ public:
 
 	HRESULT Init(HINSTANCE hInstance);
 	HRESULT Update();
-	HRESULT Uninit();
+	void Uninit();
 
 	BOOL IsActive();
 

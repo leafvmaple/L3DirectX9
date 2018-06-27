@@ -36,7 +36,7 @@ HRESULT LClient::Init(HINSTANCE hInstance)
 		WindowParam.lpszWindowName = TEXT("L3D DirectX9 Engine");
 
 		m_pObjectMgr = new LObjectMgr;
-		HRESULT_ERROR_BREAK(m_pObjectMgr);
+		BOOL_ERROR_BREAK(m_pObjectMgr);
 
 		hr = m_pObjectMgr->Init(hInstance, WindowParam);
 		HRESULT_ERROR_BREAK(hr);
@@ -103,19 +103,13 @@ HRESULT LClient::Update()
 	return hResult;
 }
 
-HRESULT LClient::Uninit()
+void LClient::Uninit()
 {
-	HRESULT hr = E_FAIL;
-	HRESULT hResult = E_FAIL;
-
-	do 
+	if (m_pObjectMgr)
 	{
-		hr = m_pObjectMgr->Uninit();
-		HRESULT_ERROR_RETURN(hr);
-
-	} while (0);
-
-	return S_OK;
+		m_pObjectMgr->Uninit();
+		SAFE_DELETE(m_pObjectMgr);
+	}
 }
 
 BOOL LClient::IsActive()

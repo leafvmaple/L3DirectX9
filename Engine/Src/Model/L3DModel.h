@@ -41,7 +41,7 @@ public:
 	L3DModel();
 	virtual ~L3DModel();
 
-	HRESULT Init(TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount);
+	HRESULT Init(TexVertex* pModelVertices, UINT nVerticesCount, WORD* pwModelIndices, UINT nIndicesCount);
 	HRESULT Init(LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName);
 
 	virtual HRESULT SetAlpha(float fAlpha);

@@ -84,7 +84,7 @@ LPDIRECT3DDEVICE9 IL3DEngine::Device()
 	return Instance()->GetDevice();
 }
 
-HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel)
+HRESULT ILModel::Create(IL3DEngine* pL3DEngine, TexVertex* pModelVertices, UINT nVerticesCount, WORD* pwModelIndices, UINT nIndicesCount, ILModel** ppModel)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -93,15 +93,15 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT 
 
 	do 
 	{
-		BOOL_ERROR_BREAK(pL3DEngie);
+		BOOL_ERROR_BREAK(pL3DEngine);
 
 		pEModel = new L3DModel;
 		BOOL_ERROR_BREAK(pEModel);
 
-		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
+		pEngine = dynamic_cast<L3DEngine*>(pL3DEngine);
 		BOOL_ERROR_BREAK(pEngine);
 
-		hr = pEModel->Init(pModelVerteices, nVerteicesCount, pwModelIndices, nIndicesCount);
+		hr = pEModel->Init(pModelVertices, nVerticesCount, pwModelIndices, nIndicesCount);
 		HRESULT_ERROR_BREAK(hr);
 
 		pEngine->AttachObject(pEModel);
@@ -113,7 +113,7 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, TexVertex* pModelVerteices, UINT 
 	return hResult;
 }
 
-HRESULT ILModel::Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel)
+HRESULT ILModel::Create(IL3DEngine* pL3DEngine, LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName, ILModel** ppModel)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -122,12 +122,12 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPC
 
 	do 
 	{
-		BOOL_ERROR_BREAK(pL3DEngie);
+		BOOL_ERROR_BREAK(pL3DEngine);
 
 		pEModel = new L3DModel;
 		BOOL_ERROR_BREAK(pEModel);
 
-		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
+		pEngine = dynamic_cast<L3DEngine*>(pL3DEngine);
 		BOOL_ERROR_BREAK(pEngine);
 
 		hr = pEModel->Init(eModelType, pcszFileName);
@@ -142,7 +142,7 @@ HRESULT ILModel::Create(IL3DEngine* pL3DEngie, LOBJECT_MESH_TYPE eModelType, LPC
 	return hResult;
 }
 
-HRESULT ILFont::Create(IL3DEngine* pL3DEngie, ILFont** ppFont, int nSize/* = 9 */)
+HRESULT ILFont::Create(IL3DEngine* pL3DEngine, ILFont** ppFont, int nSize/* = 9 */)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -152,12 +152,12 @@ HRESULT ILFont::Create(IL3DEngine* pL3DEngie, ILFont** ppFont, int nSize/* = 9 *
 
 	do 
 	{
-		BOOL_ERROR_BREAK(pL3DEngie);
+		BOOL_ERROR_BREAK(pL3DEngine);
 
 		pLFont = new L3DFont;
 		BOOL_ERROR_BREAK(pLFont);
 
-		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
+		pEngine = dynamic_cast<L3DEngine*>(pL3DEngine);
 		BOOL_ERROR_BREAK(pEngine);
 
 		p3DDevice = pEngine->GetDevice();
@@ -175,7 +175,7 @@ HRESULT ILFont::Create(IL3DEngine* pL3DEngie, ILFont** ppFont, int nSize/* = 9 *
 	return hResult;
 }
 
-HRESULT ILScene::Create(IL3DEngine* pL3DEngie, LPCWSTR pcszFileName,  ILScene** ppScene)
+HRESULT ILScene::Create(IL3DEngine* pL3DEngine, LPCWSTR pcszFileName,  ILScene** ppScene)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -185,12 +185,12 @@ HRESULT ILScene::Create(IL3DEngine* pL3DEngie, LPCWSTR pcszFileName,  ILScene** 
 
 	do 
 	{
-		BOOL_ERROR_BREAK(pL3DEngie);
+		BOOL_ERROR_BREAK(pL3DEngine);
 
 		pLScene = new L3DScene;
 		BOOL_ERROR_BREAK(pLScene);
 
-		pEngine = dynamic_cast<L3DEngine*>(pL3DEngie);
+		pEngine = dynamic_cast<L3DEngine*>(pL3DEngine);
 		BOOL_ERROR_BREAK(pEngine);
 
 		p3DDevice = pEngine->GetDevice();

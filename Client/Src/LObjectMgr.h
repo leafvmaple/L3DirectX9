@@ -17,7 +17,7 @@ public:
 	~LObjectMgr();
 
 	HRESULT Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam);
-	HRESULT Uninit();
+	void Uninit();
 
 	template<typename T>
 	T* CreateModel(TCHAR* pwcsMeshPath)

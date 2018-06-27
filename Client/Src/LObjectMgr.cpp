@@ -56,10 +56,9 @@ HRESULT LObjectMgr::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 	return S_OK;
 }
 
-HRESULT LObjectMgr::Uninit()
+void LObjectMgr::Uninit()
 {
 	IL3DEngine::Instance()->Uninit();
-	return S_OK;
 }
 
 LScene* LObjectMgr::CreateScene(TCHAR* pwcsMeshPath)

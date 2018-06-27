@@ -50,7 +50,7 @@ L3DModel::~L3DModel()
 	}
 }
 
-HRESULT L3DModel::Init(TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* pwModelIndices, UINT nIndicesCount)
+HRESULT L3DModel::Init(TexVertex* pModelVertices, UINT nVerticesCount, WORD* pwModelIndices, UINT nIndicesCount)
 {
 	HRESULT hr      = E_FAIL;
 	HRESULT hResult = E_FAIL;
@@ -62,7 +62,7 @@ HRESULT L3DModel::Init(TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* p
 	do
 	{
 		hr = g_p3DDevice->CreateVertexBuffer(
-			nVerteicesCount, D3DUSAGE_WRITEONLY,
+			nVerticesCount, D3DUSAGE_WRITEONLY,
 			TEX_VERTEX_FVF , D3DPOOL_MANAGED, &pVertexBuffer, 0);
 		HRESULT_ERROR_BREAK(hr);
 
@@ -72,7 +72,7 @@ HRESULT L3DModel::Init(TexVertex* pModelVerteices, UINT nVerteicesCount, WORD* p
 		HRESULT_ERROR_BREAK(hr);
 
 		pVertexBuffer->Lock(0, 0, (void**)&pVertices, 0);
-		memcpy_s(pVertices, nVerteicesCount, pModelVerteices, nVerteicesCount);
+		memcpy_s(pVertices, nVerticesCount, pModelVertices, nVerticesCount);
 		pVertexBuffer->Unlock();
 
 		pIndexBuffer->Lock(0, 0, (void**)&pwIndices, 0);
