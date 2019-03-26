@@ -59,43 +59,40 @@ HRESULT L3DModel::Init(TexVertex* pModelVertices, UINT nVerticesCount, WORD* pwM
 	TexVertex* pVertices = NULL;
 	WORD*      pwIndices = NULL;
 
-	do
-	{
-		hr = g_p3DDevice->CreateVertexBuffer(
-			nVerticesCount, D3DUSAGE_WRITEONLY,
-			TEX_VERTEX_FVF , D3DPOOL_MANAGED, &pVertexBuffer, 0);
-		HRESULT_ERROR_BREAK(hr);
+    hr = g_p3DDevice->CreateVertexBuffer(
+        nVerticesCount, D3DUSAGE_WRITEONLY,
+        TEX_VERTEX_FVF, D3DPOOL_MANAGED, &pVertexBuffer, 0);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = g_p3DDevice->CreateIndexBuffer(
-			nIndicesCount, D3DUSAGE_WRITEONLY,
-			D3DFMT_INDEX16, D3DPOOL_MANAGED, &pIndexBuffer, 0);
-		HRESULT_ERROR_BREAK(hr);
+    hr = g_p3DDevice->CreateIndexBuffer(
+        nIndicesCount, D3DUSAGE_WRITEONLY,
+        D3DFMT_INDEX16, D3DPOOL_MANAGED, &pIndexBuffer, 0);
+    HRESULT_ERROR_EXIT(hr);
 
-		pVertexBuffer->Lock(0, 0, (void**)&pVertices, 0);
-		memcpy_s(pVertices, nVerticesCount, pModelVertices, nVerticesCount);
-		pVertexBuffer->Unlock();
+    pVertexBuffer->Lock(0, 0, (void**)&pVertices, 0);
+    memcpy_s(pVertices, nVerticesCount, pModelVertices, nVerticesCount);
+    pVertexBuffer->Unlock();
 
-		pIndexBuffer->Lock(0, 0, (void**)&pwIndices, 0);
-		memcpy_s(pwIndices, nIndicesCount, pwModelIndices, nIndicesCount);
-		pIndexBuffer->Unlock();
+    pIndexBuffer->Lock(0, 0, (void**)&pwIndices, 0);
+    memcpy_s(pwIndices, nIndicesCount, pwModelIndices, nIndicesCount);
+    pIndexBuffer->Unlock();
 
-		m_ObjectType = LOBJECT_TYPE_VERTEX;
-		m_dwSubsetCount = 1;
-		m_DisplaySource.LVertex.pVertexBuffer = pVertexBuffer;
-		m_DisplaySource.LVertex.pIndexBuffer = pIndexBuffer;
+    m_ObjectType = LOBJECT_TYPE_VERTEX;
+    m_dwSubsetCount = 1;
+    m_DisplaySource.LVertex.pVertexBuffer = pVertexBuffer;
+    m_DisplaySource.LVertex.pIndexBuffer = pIndexBuffer;
 
-		m_pMaterial = new D3DMATERIAL9[m_dwSubsetCount];
-		BOOL_ERROR_BREAK(m_pMaterial);
+    m_pMaterial = new D3DMATERIAL9[m_dwSubsetCount];
+    BOOL_ERROR_EXIT(m_pMaterial);
 
-		m_ppTexture = new LPDIRECT3DTEXTURE9[m_dwSubsetCount];
-		BOOL_ERROR_BREAK(m_ppTexture);
+    m_ppTexture = new LPDIRECT3DTEXTURE9[m_dwSubsetCount];
+    BOOL_ERROR_EXIT(m_ppTexture);
 
-		ZeroMemory(m_pMaterial, sizeof(D3DMATERIAL9) * m_dwSubsetCount);
-		ZeroMemory(m_ppTexture, sizeof(LPDIRECT3DTEXTURE9) * m_dwSubsetCount);
+    ZeroMemory(m_pMaterial, sizeof(D3DMATERIAL9) * m_dwSubsetCount);
+    ZeroMemory(m_ppTexture, sizeof(LPDIRECT3DTEXTURE9) * m_dwSubsetCount);
 
-		hResult = S_OK;
-	} while (0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -111,116 +108,113 @@ HRESULT L3DModel::Init(LOBJECT_MESH_TYPE eModelType, LPCWSTR pcszFileName)
 	size_t uDirLength = 0;
 	WCHAR  wcszDir[LENGIEN_FILENAME_MAX];
 
-	do 
+	switch (eModelType)
 	{
-		switch (eModelType)
+	case LOBJECT_MESH_TEAPOT:
+		hr = D3DXCreateTeapot(g_p3DDevice, &pMesh, &m_pAdjBuffer);
+		HRESULT_ERROR_BREAK(hr);
+
+		m_dwSubsetCount = 1;
+		m_pMaterial = new D3DMATERIAL9[m_dwSubsetCount];
+		BOOL_ERROR_BREAK(m_pMaterial);
+
+		m_ppTexture = new LPDIRECT3DTEXTURE9[m_dwSubsetCount];
+		BOOL_ERROR_BREAK(m_ppTexture);
+
+		ZeroMemory(m_pMaterial, sizeof(D3DMATERIAL9) * m_dwSubsetCount);
+		ZeroMemory(m_ppTexture, sizeof(LPDIRECT3DTEXTURE9) * m_dwSubsetCount);
+
+		break;
+	case LOBJECT_MESH_DX:
+		hr = D3DXLoadMeshFromX(pcszFileName, D3DXMESH_MANAGED, g_p3DDevice, &m_pAdjBuffer, &pMtlBuffer, NULL, &m_dwSubsetCount, &pMesh);
+		HRESULT_ERROR_BREAK(hr);
+
+		pMtls = (LPD3DXMATERIAL)pMtlBuffer->GetBufferPointer();
+		BOOL_ERROR_BREAK(pMtls);
+
+		m_pMaterial = new D3DMATERIAL9[m_dwSubsetCount];
+		BOOL_ERROR_BREAK(m_pMaterial);
+
+		m_ppTexture = new LPDIRECT3DTEXTURE9[m_dwSubsetCount];
+		BOOL_ERROR_BREAK(m_ppTexture);
+
+		ZeroMemory(m_pMaterial, sizeof(D3DMATERIAL9) * m_dwSubsetCount);
+		ZeroMemory(m_ppTexture, sizeof(LPDIRECT3DTEXTURE9) * m_dwSubsetCount);
+
+		for (DWORD u = 0; u < m_dwSubsetCount; u++)
 		{
-		case LOBJECT_MESH_TEAPOT:
-			hr = D3DXCreateTeapot(g_p3DDevice, &pMesh, &m_pAdjBuffer);
-			HRESULT_ERROR_BREAK(hr);
+			m_pMaterial[u] = pMtls[u].MatD3D;
+			m_pMaterial[u].Ambient = m_pMaterial[u].Diffuse;
 
-			m_dwSubsetCount = 1;
-			m_pMaterial = new D3DMATERIAL9[m_dwSubsetCount];
-			BOOL_ERROR_BREAK(m_pMaterial);
-
-			m_ppTexture = new LPDIRECT3DTEXTURE9[m_dwSubsetCount];
-			BOOL_ERROR_BREAK(m_ppTexture);
-
-			ZeroMemory(m_pMaterial, sizeof(D3DMATERIAL9) * m_dwSubsetCount);
-			ZeroMemory(m_ppTexture, sizeof(LPDIRECT3DTEXTURE9) * m_dwSubsetCount);
-
-			break;
-		case LOBJECT_MESH_DX:
-			hr = D3DXLoadMeshFromX(pcszFileName, D3DXMESH_MANAGED, g_p3DDevice, &m_pAdjBuffer, &pMtlBuffer, NULL, &m_dwSubsetCount, &pMesh);
-			HRESULT_ERROR_BREAK(hr);
-
-			pMtls = (LPD3DXMATERIAL)pMtlBuffer->GetBufferPointer();
-			BOOL_ERROR_BREAK(pMtls);
-
-			m_pMaterial = new D3DMATERIAL9[m_dwSubsetCount];
-			BOOL_ERROR_BREAK(m_pMaterial);
-
-			m_ppTexture = new LPDIRECT3DTEXTURE9[m_dwSubsetCount];
-			BOOL_ERROR_BREAK(m_ppTexture);
-
-			ZeroMemory(m_pMaterial, sizeof(D3DMATERIAL9) * m_dwSubsetCount);
-			ZeroMemory(m_ppTexture, sizeof(LPDIRECT3DTEXTURE9) * m_dwSubsetCount);
-
-			for (DWORD u = 0; u < m_dwSubsetCount; u++)
+			if (pMtls[u].pTextureFilename)
 			{
-				m_pMaterial[u] = pMtls[u].MatD3D;
-				m_pMaterial[u].Ambient = m_pMaterial[u].Diffuse;
+				USES_CONVERSION;
 
-				if (pMtls[u].pTextureFilename)
-				{
-					USES_CONVERSION;
+				uDirLength = L3D::GetPathDir(pcszFileName, wcszDir);
+				BOOL_ERROR_BREAK(uDirLength);
 
-					uDirLength = L3D::GetPathDir(pcszFileName, wcszDir);
-					BOOL_ERROR_BREAK(uDirLength);
+				L3D::GetFullPath(A2CW(pMtls[u].pTextureFilename), wcszDir);
 
-					L3D::GetFullPath(A2CW(pMtls[u].pTextureFilename), wcszDir);
-
-					hr = D3DXCreateTextureFromFile(g_p3DDevice, wcszDir, &m_ppTexture[u]);
-					HRESULT_ERROR_BREAK(hr);
-
-					m_dwRenderParam |= LOBJECT_RENDER_TEXTURE;
-				}
-				m_dwRenderParam |= LOBJECT_RENDER_MATERIAL;
-			}
-
-			SAFE_RELEASE(pMtlBuffer);
-
-		case LOBJECT_MESH_LX:
-			{
-				hr = LoadModel(pcszFileName);
+				hr = D3DXCreateTextureFromFile(g_p3DDevice, wcszDir, &m_ppTexture[u]);
 				HRESULT_ERROR_BREAK(hr);
 
-				m_dwSubsetCount = m_pLMesh->GetSubsetCount();
+				m_dwRenderParam |= LOBJECT_RENDER_TEXTURE;
 			}
-			
-			break;
-		default:
-			break;
+			m_dwRenderParam |= LOBJECT_RENDER_MATERIAL;
 		}
 
-		/*if (!(pMesh->GetFVF() & D3DFVF_NORMAL))
+		SAFE_RELEASE(pMtlBuffer);
+
+	case LOBJECT_MESH_LX:
 		{
-			hr = pMesh->CloneMeshFVF(D3DXMESH_MANAGED, pMesh->GetFVF() | D3DFVF_NORMAL, p3DDevice, &pCloneMesh);
+			hr = LoadModel(pcszFileName);
 			HRESULT_ERROR_BREAK(hr);
 
-			hr = D3DXComputeNormals(pCloneMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer());
-			if (hr == S_OK)
-			{
-				SAFE_RELEASE(pMesh);
-				pMesh = pCloneMesh;
-				m_dwOptimizeParam |= LOBJECT_OPTIMIZE_FVF;
-			}
-			else
-			{
-				SAFE_RELEASE(pCloneMesh);
-			}
+			m_dwSubsetCount = m_pLMesh->GetSubsetCount();
 		}
+			
+		break;
+	default:
+		break;
+	}
 
-		if (m_pAdjBuffer)
+	/*if (!(pMesh->GetFVF() & D3DFVF_NORMAL))
+	{
+		hr = pMesh->CloneMeshFVF(D3DXMESH_MANAGED, pMesh->GetFVF() | D3DFVF_NORMAL, p3DDevice, &pCloneMesh);
+		HRESULT_ERROR_BREAK(hr);
+
+		hr = D3DXComputeNormals(pCloneMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer());
+		if (hr == S_OK)
 		{
-			hr = D3DXGeneratePMesh(pMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer(), 0, 0, 1, D3DXMESHSIMP_FACE, &pProgressMesh);
-			if (hr == S_OK)
-			{
-				SAFE_RELEASE(pMesh);
-				m_dwOptimizeParam |= LOBJECT_OPTIMIZE_PROGRESSIVE;
-			}
-			else
-			{
-				SAFE_RELEASE(pProgressMesh);
-			}
-		}*/
+			SAFE_RELEASE(pMesh);
+			pMesh = pCloneMesh;
+			m_dwOptimizeParam |= LOBJECT_OPTIMIZE_FVF;
+		}
+		else
+		{
+			SAFE_RELEASE(pCloneMesh);
+		}
+	}
 
-		m_ObjectType = LOBJECT_TYPE_MESH;
-		m_DisplaySource.LMesh.pMesh = pMesh;
+	if (m_pAdjBuffer)
+	{
+		hr = D3DXGeneratePMesh(pMesh, (DWORD*)m_pAdjBuffer->GetBufferPointer(), 0, 0, 1, D3DXMESHSIMP_FACE, &pProgressMesh);
+		if (hr == S_OK)
+		{
+			SAFE_RELEASE(pMesh);
+			m_dwOptimizeParam |= LOBJECT_OPTIMIZE_PROGRESSIVE;
+		}
+		else
+		{
+			SAFE_RELEASE(pProgressMesh);
+		}
+	}*/
 
-		hResult = S_OK;
-	} while (0);
+	m_ObjectType = LOBJECT_TYPE_MESH;
+	m_DisplaySource.LMesh.pMesh = pMesh;
 
+	hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -271,16 +265,13 @@ HRESULT L3DModel::LoadModel(LPCWSTR cszFileName)
 {
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
-	do
-	{
-		const LoadModelFunc* pMeshFunc = GetLoadModelFunc(cszFileName);
-		BOOL_ERROR_BREAK(pMeshFunc);
 
-		hr = (this->*(pMeshFunc->fnLoadMesh))(cszFileName);
-		HRESULT_ERROR_BREAK(hr);
+    const LoadModelFunc* pMeshFunc = GetLoadModelFunc(cszFileName);
+    BOOL_ERROR_EXIT(pMeshFunc);
 
-	} while (0);
-
+    hr = (this->*(pMeshFunc->fnLoadMesh))(cszFileName);
+    HRESULT_ERROR_EXIT(hr);
+Exit0:
 	return S_OK;
 }
 
@@ -289,17 +280,14 @@ HRESULT L3DModel::LoadXMesh(LPCWSTR cszFileName)
 	HRESULT hr = E_FAIL;;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		m_pLMesh = new L3DMesh;
-		BOOL_ERROR_BREAK(m_pLMesh);
+    m_pLMesh = new L3DMesh;
+    BOOL_ERROR_EXIT(m_pLMesh);
 
-		hr = m_pLMesh->LoadXMesh(cszFileName);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_pLMesh->LoadXMesh(cszFileName);
+    HRESULT_ERROR_EXIT(hr);
 
-		hResult = S_OK;
-	} while (0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -308,17 +296,14 @@ HRESULT L3DModel::LoadLMesh(LPCWSTR cszFileName)
 	HRESULT hr = E_FAIL;;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		m_pLMesh = new L3DMesh;
-		BOOL_ERROR_BREAK(m_pLMesh);
+    m_pLMesh = new L3DMesh;
+    BOOL_ERROR_EXIT(m_pLMesh);
 
-		hr = m_pLMesh->LoadLMesh(cszFileName);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_pLMesh->LoadLMesh(cszFileName);
+    HRESULT_ERROR_EXIT(hr);
 
-		hResult = S_OK;
-	} while (0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -327,17 +312,14 @@ HRESULT L3DModel::LoadLMaterial(LPCWSTR cszFileName)
 	HRESULT hr = E_FAIL;;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		m_pLMaterial = new L3DMaterial;
-		BOOL_ERROR_BREAK(m_pLMaterial);
+	m_pLMaterial = new L3DMaterial;
+	BOOL_ERROR_EXIT(m_pLMaterial);
 
-		hr = m_pLMaterial->LoadLMaterial(cszFileName);
-		HRESULT_ERROR_BREAK(hr);
+	hr = m_pLMaterial->LoadLMaterial(cszFileName);
+	HRESULT_ERROR_EXIT(hr);
 
-		hResult = S_OK;
-	} while (0);
-
+	hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -346,17 +328,14 @@ HRESULT L3DModel::LoadLTexture(LPCWSTR cszFileName)
 	HRESULT hr = E_FAIL;;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		m_pLTexture = new L3DTexture;
-		BOOL_ERROR_BREAK(m_pLMaterial);
+    m_pLTexture = new L3DTexture;
+    BOOL_ERROR_EXIT(m_pLMaterial);
 
-		hr = m_pLTexture->LoadLTexture(cszFileName);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_pLTexture->LoadLTexture(cszFileName);
+    HRESULT_ERROR_EXIT(hr);
 
-		hResult = S_OK;
-	} while (0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -365,16 +344,12 @@ HRESULT L3DModel::LoadLParticle(LPCWSTR cszFileName)
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		m_pLParticle = new L3DParticle;
-		BOOL_ERROR_BREAK(m_pLParticle);
+    m_pLParticle = new L3DParticle;
+    BOOL_ERROR_EXIT(m_pLParticle);
 
-		hr = m_pLParticle->LoadParticle(cszFileName);
-		HRESULT_ERROR_BREAK(hr);
-
-	} while (0);
-
+    hr = m_pLParticle->LoadParticle(cszFileName);
+    HRESULT_ERROR_EXIT(hr);
+Exit0:
 	return S_OK;
 }
 
@@ -383,29 +358,26 @@ HRESULT L3DModel::UpdateDisplay()
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		hr = UpdateRenderState();
-		HRESULT_ERROR_BREAK(hr);
+    hr = UpdateRenderState();
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = UpdateTransform();
-		HRESULT_ERROR_BREAK(hr);
+    hr = UpdateTransform();
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = UpdateLOD();
-		HRESULT_ERROR_BREAK(hr);
+    hr = UpdateLOD();
+    HRESULT_ERROR_EXIT(hr);
 
-		for (DWORD u = 0; u < m_dwSubsetCount; u++)
-		{
-			hr = UpdateMesh(u);
-			HRESULT_ERROR_BREAK(hr);
-		}
+    for (DWORD u = 0; u < m_dwSubsetCount; u++)
+    {
+        hr = UpdateMesh(u);
+        HRESULT_ERROR_CONTINUE(hr);
+    }
 
-		hr = ResetRendState();
-		HRESULT_ERROR_BREAK(hr);
+    hr = ResetRendState();
+    HRESULT_ERROR_EXIT(hr);
 
-		hResult = S_OK;
-	} while (0);
-
+    hResult = S_OK;
+Exit0:
 	return S_OK;
 }
 

@@ -24,10 +24,21 @@
 		break;                        \
 	}
 
+#define BOOL_ERROR_EXIT(Condition)   \
+	if (!(Condition)) {               \
+		goto Exit0;                        \
+	}
+
 #define BOOL_SUCCESS_BREAK(Condition) \
 	if ((Condition)) {                \
 		hResult = S_OK;               \
 		break;                        \
+	}
+
+#define BOOL_SUCCESS_EXIT(Condition) \
+	if ((Condition)) {                \
+		hResult = S_OK;               \
+		goto Exit0;                        \
 	}
 
 #define HRESULT_ERROR_RETURN(hr) \
@@ -51,10 +62,21 @@
 		break;                    \
 	}
 
+#define HRESULT_ERROR_EXIT(hr)    \
+    if (!SUCCEEDED(hr)) {         \
+		goto Exit0;                    \
+	}
+
 #define HRESULT_SUCCESS_BREAK(hr) \
 	if (SUCCEEDED(hr)) {          \
 		hResult = S_OK;           \
 		break;                    \
+	}
+
+#define HRESULT_SUCCESS_Exit(hr) \
+	if (SUCCEEDED(hr)) {          \
+		hResult = S_OK;           \
+		goto Exit0;                    \
 	}
 
 #define SAFE_FREE(p)    \

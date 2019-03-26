@@ -20,44 +20,41 @@ HRESULT L3DInput::Init(HWND hWnd, HINSTANCE hInstance, DWORD dwKeyboardCoopFlags
 	HRESULT hr;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_pDirectInput, NULL);
-		HRESULT_ERROR_BREAK(hr);
+    hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_pDirectInput, NULL);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_pDirectInput->CreateDevice(GUID_SysKeyboard, &m_KeyboardDevice, NULL);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_pDirectInput->CreateDevice(GUID_SysKeyboard, &m_KeyboardDevice, NULL);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_KeyboardDevice->SetCooperativeLevel(hWnd, dwKeyboardCoopFlags);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_KeyboardDevice->SetCooperativeLevel(hWnd, dwKeyboardCoopFlags);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_KeyboardDevice->SetDataFormat(&c_dfDIKeyboard);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_KeyboardDevice->SetDataFormat(&c_dfDIKeyboard);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_KeyboardDevice->Acquire();
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_KeyboardDevice->Acquire();
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_KeyboardDevice->Poll();
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_KeyboardDevice->Poll();
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_pDirectInput->CreateDevice(GUID_SysMouse, &m_MouseDevice, NULL);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_pDirectInput->CreateDevice(GUID_SysMouse, &m_MouseDevice, NULL);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_MouseDevice->SetCooperativeLevel(hWnd ,dwMouseCoopFlags);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_MouseDevice->SetCooperativeLevel(hWnd, dwMouseCoopFlags);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_MouseDevice->SetDataFormat(&c_dfDIMouse);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_MouseDevice->SetDataFormat(&c_dfDIMouse);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_MouseDevice->Acquire();
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_MouseDevice->Acquire();
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = m_KeyboardDevice->Poll();
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_KeyboardDevice->Poll();
+    HRESULT_ERROR_EXIT(hr);
 
-		hResult = S_OK;
-	} while (0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 

@@ -55,42 +55,39 @@ HRESULT L3DEngine::Init(HINSTANCE hInstance, L3DWINDOWPARAM& WindowParam)
 	UINT uAdapter = D3DADAPTER_DEFAULT;
 	D3DDEVTYPE eDeviceType = D3DDEVTYPE_HAL;
 
-	do 
-	{
-		m_WindowParam = WindowParam;
+    m_WindowParam = WindowParam;
 
-		m_p3D9 = Direct3DCreate9(D3D_SDK_VERSION);
-		BOOL_ERROR_BREAK(m_p3D9);
+    m_p3D9 = Direct3DCreate9(D3D_SDK_VERSION);
+    BOOL_ERROR_EXIT(m_p3D9);
 
-		hr = GetL3DAdapter(&uAdapter, &eDeviceType);
-		HRESULT_ERROR_BREAK(hr);
+    hr = GetL3DAdapter(&uAdapter, &eDeviceType);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = GetL3DAdapterMode(uAdapter);
-		HRESULT_ERROR_BREAK(hr);
+    hr = GetL3DAdapterMode(uAdapter);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = CreateL3DWindow(&hWnd, hInstance);
-		HRESULT_ERROR_BREAK(hr);
+    hr = CreateL3DWindow(&hWnd, hInstance);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = InitPresentParam(hWnd);
-		HRESULT_ERROR_BREAK(hr);
+    hr = InitPresentParam(hWnd);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = InitSamplerFilter(uAdapter, eDeviceType);
-		HRESULT_ERROR_BREAK(hr);
+    hr = InitSamplerFilter(uAdapter, eDeviceType);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = CreateL3DDevice(uAdapter, eDeviceType, hWnd);
-		HRESULT_ERROR_BREAK(hr);
+    hr = CreateL3DDevice(uAdapter, eDeviceType, hWnd);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = InitInput(hWnd, hInstance);
-		HRESULT_ERROR_BREAK(hr);
+    hr = InitInput(hWnd, hInstance);
+    HRESULT_ERROR_EXIT(hr);
 
-		hr = InitCamera(m_WindowParam.Width, m_WindowParam.Height);
-		HRESULT_ERROR_BREAK(hr);
+    hr = InitCamera(m_WindowParam.Width, m_WindowParam.Height);
+    HRESULT_ERROR_EXIT(hr);
 
-		m_bActive = TRUE;
+    m_bActive = TRUE;
 
-		hResult = S_OK;
-	} while (0);
-	
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -105,55 +102,52 @@ HRESULT L3DEngine::Update(float fDeltaTime)
 	std::list<ILModel*>::iterator itModel;
 	std::list<ILFont*>::iterator itFont;
 
-	do
+	hr = UpdateMessage();
+	HRESULT_ERROR_EXIT(hr);
+
+	hr = UpdateInput();
+    HRESULT_ERROR_EXIT(hr);
+
+	hr = UpdateCamera(fDeltaTime);
+    HRESULT_ERROR_EXIT(hr);
+
+	hr = g_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
+	//hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00000000, 1.0f, 0);
+    HRESULT_ERROR_EXIT(hr);
+
+	g_p3DDevice->BeginScene();
+
+	for (itScene = m_SceneList.begin(); itScene != m_SceneList.end(); itScene++)
 	{
-		hr = UpdateMessage();
-		HRESULT_ERROR_BREAK(hr);
+		pScene = dynamic_cast<L3DScene*>(*itScene);
+        BOOL_ERROR_CONTINUE(pScene);
 
-		hr = UpdateInput();
-		HRESULT_ERROR_BREAK(hr);
+		pScene->UpdateDisplay();
+	}
 
-		hr = UpdateCamera(fDeltaTime);
-		HRESULT_ERROR_BREAK(hr);
+	for (itModel = m_ModelList.begin(); itModel != m_ModelList.end(); itModel++)
+	{
+		pObject = dynamic_cast<L3DModel*>(*itModel);
+		BOOL_ERROR_CONTINUE(pObject);
 
-		hr = g_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);
-		//hr = m_p3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00000000, 1.0f, 0);
-		HRESULT_ERROR_BREAK(hr);
+		pObject->UpdateDisplay();
+	}
 
-		g_p3DDevice->BeginScene();
+	for (itFont = m_FontList.begin(); itFont != m_FontList.end(); itFont++)
+	{
+		pFont = dynamic_cast<L3DFont*>(*itFont);
+		BOOL_ERROR_CONTINUE(pFont);
 
-		for (itScene = m_SceneList.begin(); itScene != m_SceneList.end(); itScene++)
-		{
-			pScene = dynamic_cast<L3DScene*>(*itScene);
-			BOOL_ERROR_BREAK(pScene);
+		pFont->UpdateDisplay();
+	}
 
-			pScene->UpdateDisplay();
-		}
+	g_p3DDevice->EndScene();
 
-		for (itModel = m_ModelList.begin(); itModel != m_ModelList.end(); itModel++)
-		{
-			pObject = dynamic_cast<L3DModel*>(*itModel);
-			BOOL_ERROR_CONTINUE(pObject);
+	hr = g_p3DDevice->Present(0, 0, 0, 0);
+    HRESULT_ERROR_EXIT(hr);
 
-			pObject->UpdateDisplay();
-		}
-
-		for (itFont = m_FontList.begin(); itFont != m_FontList.end(); itFont++)
-		{
-			pFont = dynamic_cast<L3DFont*>(*itFont);
-			BOOL_ERROR_CONTINUE(pFont);
-
-			pFont->UpdateDisplay();
-		}
-
-		g_p3DDevice->EndScene();
-
-		hr = g_p3DDevice->Present(0, 0, 0, 0);
-		HRESULT_ERROR_BREAK(hr);
-
-		hResult = S_OK;
-	} while(0);
-
+	hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -194,14 +188,11 @@ HRESULT L3DEngine::AttachScene(ILScene* pScene)
 {
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		BOOL_ERROR_BREAK(pScene);
-		m_SceneList.push_back(pScene);
+    BOOL_ERROR_EXIT(pScene);
+    m_SceneList.push_back(pScene);
 
-		hResult = S_OK;
-	} while (0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -209,14 +200,11 @@ HRESULT L3DEngine::AttachObject(ILModel* pAction)
 {
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		BOOL_ERROR_BREAK(pAction);
-		m_ModelList.push_back(pAction);
+	BOOL_ERROR_EXIT(pAction);
+	m_ModelList.push_back(pAction);
 
-		hResult = S_OK;
-	} while (0);
-
+	hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -224,14 +212,11 @@ HRESULT L3DEngine::AttachFont(ILFont* pFont)
 {
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		BOOL_ERROR_BREAK(pFont);
-		m_FontList.push_back(pFont);
+	BOOL_ERROR_EXIT(pFont);
+	m_FontList.push_back(pFont);
 
-		hResult = S_OK;
-	} while (0);
-
+	hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -308,47 +293,44 @@ HRESULT L3DEngine::GetL3DAdapterMode(UINT uAdapter)
 	D3DDISPLAYMODE DisplayMode;
 
 	m_AdapterModes.clear();
-	do
-	{
-		hr = m_p3D9->GetAdapterDisplayMode(uAdapter, &DisplayMode);
-		HRESULT_ERROR_BREAK(hr);
 
-		uModeCount = m_p3D9->GetAdapterModeCount(uAdapter, DisplayMode.Format);
-		BOOL_ERROR_BREAK(uModeCount);
+    hr = m_p3D9->GetAdapterDisplayMode(uAdapter, &DisplayMode);
+    HRESULT_ERROR_EXIT(hr);
 
-		for (UINT uMode = 0; uMode < uModeCount; ++uMode)
-		{
-			hr = m_p3D9->EnumAdapterModes(uAdapter, DisplayMode.Format, uMode, &DisplayMode);
-			HRESULT_ERROR_CONTINUE(hr);
+    uModeCount = m_p3D9->GetAdapterModeCount(uAdapter, DisplayMode.Format);
+    BOOL_ERROR_EXIT(uModeCount);
 
-			size_t uAdapterIndex = 0;
-			for (; uAdapterIndex < m_AdapterModes.size(); uAdapterIndex++)
-			{
-				ADAPTERMODE& AModel = m_AdapterModes[uAdapterIndex];
-				if (AModel.uHeight == DisplayMode.Height && AModel.uWidth == DisplayMode.Width)
-				{
-					for (UINT uRefreshRateIndex = 0; uRefreshRateIndex != _countof(AModel.uRefreshRates); ++uRefreshRateIndex)
-					{
-						if (!AModel.uRefreshRates[uRefreshRateIndex])
-						{
-							AModel.uRefreshRates[uRefreshRateIndex] = DisplayMode.RefreshRate;
-							break;
-						}
-					}
-					break;
-				}
-			}
-			if (uAdapterIndex == m_AdapterModes.size())
-			{
-				ADAPTERMODE AModel = {DisplayMode.Width, DisplayMode.Height, DisplayMode.RefreshRate};
-				m_AdapterModes.push_back(AModel);
-			}
-		}
+    for (UINT uMode = 0; uMode < uModeCount; ++uMode)
+    {
+        hr = m_p3D9->EnumAdapterModes(uAdapter, DisplayMode.Format, uMode, &DisplayMode);
+        HRESULT_ERROR_CONTINUE(hr);
 
-		hResult = S_OK;
-	}
-	while(0);
+        size_t uAdapterIndex = 0;
+        for (; uAdapterIndex < m_AdapterModes.size(); uAdapterIndex++)
+        {
+            ADAPTERMODE& AModel = m_AdapterModes[uAdapterIndex];
+            if (AModel.uHeight == DisplayMode.Height && AModel.uWidth == DisplayMode.Width)
+            {
+                for (UINT uRefreshRateIndex = 0; uRefreshRateIndex != _countof(AModel.uRefreshRates); ++uRefreshRateIndex)
+                {
+                    if (!AModel.uRefreshRates[uRefreshRateIndex])
+                    {
+                        AModel.uRefreshRates[uRefreshRateIndex] = DisplayMode.RefreshRate;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        if (uAdapterIndex == m_AdapterModes.size())
+        {
+            ADAPTERMODE AModel = { DisplayMode.Width, DisplayMode.Height, DisplayMode.RefreshRate };
+            m_AdapterModes.push_back(AModel);
+        }
+    }
 
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -401,17 +383,14 @@ HRESULT L3DEngine::InitInput(HWND hWnd, HINSTANCE hInstance)
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		m_pLInput = new L3DInput;
-		BOOL_ERROR_BREAK(m_pLInput);
+    m_pLInput = new L3DInput;
+    BOOL_ERROR_EXIT(m_pLInput);
 
-		hr = m_pLInput->Init(hWnd, hInstance, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE,DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_pLInput->Init(hWnd, hInstance, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+    HRESULT_ERROR_EXIT(hr);
 
-		hResult = S_OK;
-	} while (0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -420,17 +399,14 @@ HRESULT L3DEngine::InitCamera(float fWidth, float fHeight)
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		m_pLCamera = new L3DCamera;
-		BOOL_ERROR_BREAK(m_pLCamera);
+    m_pLCamera = new L3DCamera;
+    BOOL_ERROR_EXIT(m_pLCamera);
 
-		hr = m_pLCamera->Init(fWidth, fHeight);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_pLCamera->Init(fWidth, fHeight);
+    HRESULT_ERROR_EXIT(hr);
 
-		hResult = S_OK;
-	} while (0);
-	
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -440,37 +416,33 @@ HRESULT L3DEngine::CreateL3DWindow(HWND* pWnd, HINSTANCE hInstance)
 	HRESULT hResult = E_FAIL;
 	WNDCLASSEX wndClassEx;
 
-	do
-	{
-		wndClassEx.cbSize        = sizeof(WNDCLASSEX);
-		wndClassEx.style         = CS_HREDRAW | CS_VREDRAW;
-		wndClassEx.lpfnWndProc   = (WNDPROC)WndProc;
-		wndClassEx.cbClsExtra    = 0;
-		wndClassEx.cbWndExtra    = 0;
-		wndClassEx.hInstance     = hInstance;
-		wndClassEx.hIcon         = ::LoadIcon(NULL, IDI_WINLOGO);
-		wndClassEx.hCursor       = ::LoadCursor(NULL, IDC_ARROW);
-		wndClassEx.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-		wndClassEx.lpszMenuName  = NULL;
-		wndClassEx.lpszClassName = m_WindowParam.lpszClassName;
-		wndClassEx.hIconSm       = NULL;
+    wndClassEx.cbSize = sizeof(WNDCLASSEX);
+    wndClassEx.style = CS_HREDRAW | CS_VREDRAW;
+    wndClassEx.lpfnWndProc = (WNDPROC)WndProc;
+    wndClassEx.cbClsExtra = 0;
+    wndClassEx.cbWndExtra = 0;
+    wndClassEx.hInstance = hInstance;
+    wndClassEx.hIcon = ::LoadIcon(NULL, IDI_WINLOGO);
+    wndClassEx.hCursor = ::LoadCursor(NULL, IDC_ARROW);
+    wndClassEx.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wndClassEx.lpszMenuName = NULL;
+    wndClassEx.lpszClassName = m_WindowParam.lpszClassName;
+    wndClassEx.hIconSm = NULL;
 
-		bRetCode = RegisterClassEx(&wndClassEx);
-		BOOL_ERROR_BREAK(bRetCode);
+    bRetCode = RegisterClassEx(&wndClassEx);
+    BOOL_ERROR_EXIT(bRetCode);
 
-		*pWnd = CreateWindow(m_WindowParam.lpszClassName, m_WindowParam.lpszWindowName, WS_OVERLAPPEDWINDOW,
-			m_WindowParam.x, m_WindowParam.y, m_WindowParam.Width, m_WindowParam.Height,  NULL, NULL, hInstance, NULL);
-		BOOL_ERROR_BREAK(*pWnd);
+    *pWnd = CreateWindow(m_WindowParam.lpszClassName, m_WindowParam.lpszWindowName, WS_OVERLAPPEDWINDOW,
+        m_WindowParam.x, m_WindowParam.y, m_WindowParam.Width, m_WindowParam.Height, NULL, NULL, hInstance, NULL);
+    BOOL_ERROR_EXIT(*pWnd);
 
-		ShowWindow(*pWnd, SW_SHOWDEFAULT); 
+    ShowWindow(*pWnd, SW_SHOWDEFAULT);
 
-		bRetCode = UpdateWindow(*pWnd);
-		BOOL_ERROR_BREAK(bRetCode);
+    bRetCode = UpdateWindow(*pWnd);
+    BOOL_ERROR_EXIT(bRetCode);
 
-		hResult = S_OK;
-	}
-	while(0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -480,28 +452,24 @@ HRESULT L3DEngine::CreateL3DDevice(UINT uAdapter, D3DDEVTYPE eDeviceType, HWND h
 	HRESULT hResult = E_FAIL;
 	int nVertexProcessing = 0;
 
-	do
-	{
-		m_CurSampFilter = m_SampFilter[GRAPHICS_LEVEL];
+    m_CurSampFilter = m_SampFilter[GRAPHICS_LEVEL];
 
-		nVertexProcessing = (m_Caps9.DevCaps && D3DDEVCAPS_HWTRANSFORMANDLIGHT) ? D3DCREATE_MIXED_VERTEXPROCESSING : D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+    nVertexProcessing = (m_Caps9.DevCaps && D3DDEVCAPS_HWTRANSFORMANDLIGHT) ? D3DCREATE_MIXED_VERTEXPROCESSING : D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
-		hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, nVertexProcessing, &m_PresentParam, &g_p3DDevice);
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_p3D9->CreateDevice(uAdapter, eDeviceType, hWnd, nVertexProcessing, &m_PresentParam, &g_p3DDevice);
+    HRESULT_ERROR_EXIT(hr);
 
-		g_p3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, m_CurSampFilter.nMipFilter);
-		g_p3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, m_CurSampFilter.nMinFilter);
-		g_p3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, m_CurSampFilter.nMagFilter);
+    g_p3DDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, m_CurSampFilter.nMipFilter);
+    g_p3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, m_CurSampFilter.nMinFilter);
+    g_p3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, m_CurSampFilter.nMagFilter);
 
-		g_p3DDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, m_CurSampFilter.dwAnisotropy);
+    g_p3DDevice->SetSamplerState(0, D3DSAMP_MAXANISOTROPY, m_CurSampFilter.dwAnisotropy);
 
-		g_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-		g_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+    g_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+    g_p3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
-		hResult = S_OK;
-	}
-	while(0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 
@@ -528,16 +496,13 @@ HRESULT L3DEngine::UpdateInput()
 	HRESULT hr = E_FAIL;
 	HRESULT hResult = E_FAIL;
 
-	do 
-	{
-		BOOL_ERROR_BREAK(m_pLInput);
+    BOOL_ERROR_EXIT(m_pLInput);
 
-		hr = m_pLInput->Update();
-		HRESULT_ERROR_BREAK(hr);
+    hr = m_pLInput->Update();
+    HRESULT_ERROR_EXIT(hr);
 
-		hResult = S_OK;
-	} while (0);
-
+    hResult = S_OK;
+Exit0:
 	return hResult;
 }
 

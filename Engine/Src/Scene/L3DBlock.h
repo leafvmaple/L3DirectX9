@@ -46,7 +46,7 @@ public:
 private:
 	struct POINT_OPERATOR
 	{
-		bool operator()(const POINT& _Left, const POINT& _Right) {
+		bool operator()(const POINT& _Left, const POINT& _Right) const {
 			return (_Left.x != _Right.x) ? _Left.x < _Right.x : _Left.y < _Right.y;
 		}
 	};
