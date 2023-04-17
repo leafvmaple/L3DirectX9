@@ -385,6 +385,7 @@ HRESULT L3DModel::UpdateRenderState()
 {
 	if (m_dwRenderParam & LOBJECT_RENDER_ALPHA)
 		g_p3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	g_p3DDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 	return S_OK;
 }
 
